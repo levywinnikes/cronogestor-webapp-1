@@ -59,13 +59,6 @@ export default function DashboardPage() {
                   <LayoutDashboard className="h-6 w-6 mr-2 text-[#002f5c]" />
                   <h2 className="text-2xl font-bold">Projetos</h2>
                </div>
-               <Link 
-                 href="/funcionarios"
-                 className="flex items-center text-gray-600 hover:text-[#002f5c] transition-colors font-medium text-sm"
-               >
-                 <Users className="h-4 w-4 mr-1.5" />
-                 Funcionários
-               </Link>
             </div>
             
             <Link 

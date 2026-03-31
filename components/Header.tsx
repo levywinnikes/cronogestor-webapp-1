@@ -16,7 +16,7 @@ export function Header() {
         </div>
         
         <div className="flex items-center space-x-4 sm:space-x-6">
-          <Link href="/dashboard" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">Dashboard</Link>
+          <Link href="/dashboard" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">Projetos</Link>
           <Link href="/funcionarios" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">Funcionários</Link>
           <Link href="/ficha-tempo" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">Ficha Tempo</Link>
           <button
