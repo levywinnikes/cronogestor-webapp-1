@@ -5,6 +5,7 @@ import { LogOut, Plus, Building2, Calendar, LayoutDashboard, Users } from "lucid
 import { useEffect, useState } from "react";
 import { projectService, ProjectDto } from "../services/project.service";
 import Link from "next/link";
+import { Header } from "@/components/Header";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -48,27 +49,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#f3f6f9] flex flex-col font-sans">
-      <header className="bg-[#002f5c] shadow-md text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-             <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center font-bold">
-               C
-             </div>
-             <h1 className="text-xl font-bold tracking-wide">Cronogestor</h1>
-          </div>
-          
-          <div className="flex items-center space-x-6">
-            <span className="text-sm text-blue-100 hidden sm:block">Olá, Usuário</span>
-            <button
-              onClick={() => router.push("/login")}
-              className="flex items-center text-blue-100 hover:text-white transition-colors text-sm font-medium"
-            >
-              <LogOut className="h-4 w-4 mr-1.5" />
-              Sair
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Sub-header / Page Title & Actions */}
       <div className="bg-white border-b border-gray-200">

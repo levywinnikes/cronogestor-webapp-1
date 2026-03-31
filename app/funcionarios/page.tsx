@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { Header } from "@/components/Header";
 
 // Mock Data
 const INITIAL_EMPLOYEES = [
@@ -106,25 +107,7 @@ export default function FuncionariosPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
       {/* Top Header */}
-      <header className="bg-[#002f5c] shadow-md text-white">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-             <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center font-bold">C</div>
-             <h1 className="text-xl font-bold tracking-wide">Cronogestor</h1>
-          </div>
-          
-          <div className="flex items-center space-x-6">
-            <Link href="/dashboard" className="text-sm text-blue-100 hover:text-white transition-colors">Dashboard</Link>
-            <button
-               onClick={() => router.push("/login")}
-               className="flex items-center text-blue-100 hover:text-white transition-colors text-sm font-medium"
-            >
-              <LogOut className="h-4 w-4 mr-1.5" />
-              Sair
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Action Sub-header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
