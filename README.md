@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cronogestor Webapp
 
-## Getting Started
+Aplicacao Next.js com Prisma ORM para persistencia em PostgreSQL (Neon).
 
-First, run the development server:
+## Requisitos
+
+- Node.js 20+
+- Yarn 4+
+- Banco PostgreSQL com TLS
+
+## Configuracao de Ambiente
+
+1. Revise os placeholders em `.env`.
+2. Defina `DATABASE_URL` com a connection string real do seu banco.
+3. Opcional: preencha variaveis de seed (`SEED_ADMIN_*`).
+
+O arquivo `.env.example` serve como modelo seguro para onboarding.
+
+## Comandos de Banco (Prisma)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn prisma:generate     # gera Prisma Client
+yarn prisma:migrate      # cria/aplica migration em dev
+yarn prisma:deploy       # aplica migrations em producao
+yarn db:push             # sincroniza schema sem migration (uso controlado)
+yarn db:seed             # executa seed
+yarn db:studio           # abre Prisma Studio
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Desenvolvimento
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+yarn dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Abra [http://localhost:3000](http://localhost:3000) no navegador.
 
-## Learn More
+## Base de Conhecimento para IA
 
-To learn more about Next.js, take a look at the following resources:
+Antes de qualquer mudanca no projeto, consulte:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. [AGENTS.md](AGENTS.md)
+2. [docs/ai/README.md](docs/ai/README.md)
+3. [docs/ai/BUSINESS_RULES.md](docs/ai/BUSINESS_RULES.md)
+4. [docs/ai/DOMAIN_MODEL.md](docs/ai/DOMAIN_MODEL.md)
+5. [docs/ai/WORKFLOWS.md](docs/ai/WORKFLOWS.md)
+6. [docs/ai/ENGINEERING_RULES.md](docs/ai/ENGINEERING_RULES.md)
+7. [docs/ai/adr/README.md](docs/ai/adr/README.md)
+8. [docs/ai/UPDATE_CHECKLIST.md](docs/ai/UPDATE_CHECKLIST.md)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Objetivo: manter implementacao e regras sempre alinhadas e atualizadas.
 
-## Deploy on Vercel
+## Seguranca
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Nunca versionar segredos em arquivos tracked.
+- Nunca salvar PAT em URL de remote Git.
+- Rotacione credenciais se houver suspeita de vazamento.

@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PersonType {
+  PF
+  PJ
+}
+
+enum UserRole {
+  ADMIN
+  EMPLOYEE
+}
+
+enum PlanType {
+  FREE
+  PREMIUM
+  FULL
+}
+
+enum ProjectStatus {
+  NAO_INICIADO
+  EM_ANDAMENTO
+  PARALISADO
+  CONCLUIDO
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  personType PersonType
+  document  String   @unique
+  name      String
+  email     String   @unique
+  planType  PlanType @default(FREE)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users    User[]
+  projects Project[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  companyId    String
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(EMPLOYEE)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  timeEntries TimeEntry[]
+
+  @@index([companyId])
+}
+
+model Project {
+  id               String        @id @default(cuid())
+  companyId        String
+  name             String
+  responsible      String?
+  contractType     String?
+  contractor       String?
+  startDate        DateTime
+  endDate          DateTime?
+  budgetForecast   Decimal?      @db.Decimal(12, 2)
+  contractNumber   String?
+  status           ProjectStatus @default(NAO_INICIADO)
+  address          String?
+  hasTaskList      Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  timeEntries TimeEntry[]
+
+  @@index([companyId])
+}
+
+model TimeEntry {
+  id                   String   @id @default(cuid())
+  userId               String
+  projectId            String
+  date                 DateTime
+  startTime            String
+  endTime              String
+  breakDurationMinutes Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([projectId, date])
+}
