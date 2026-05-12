@@ -41,6 +41,7 @@ type EmployeeOption = {
 };
 
 export default function TimeSheetPageView() {
+  const { t } = useTranslation();
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [employees, setEmployees] = useState<EmployeeOption[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
@@ -99,7 +100,7 @@ export default function TimeSheetPageView() {
           })),
         );
       } catch (error) {
-        console.error("Erro ao carregar contexto da ficha", error);
+        console.error(t("timesheet.errors.loadContextFailed"), error);
       } finally {
         setIsLoading(false);
       }
@@ -199,7 +200,7 @@ export default function TimeSheetPageView() {
         })),
       });
     } catch (error) {
-      console.error("Erro ao fechar ficha tempo", error);
+      console.error(t("timesheet.errors.closeSheetFailed"), error);
     } finally {
       setIsSubmitting(false);
     }
@@ -215,7 +216,7 @@ export default function TimeSheetPageView() {
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center text-gray-800">
             <Clock className="h-6 w-6 mr-2 text-[#002f5c]" />
-            <h2 className="text-2xl font-bold">Lançamento de Ficha Tempo</h2>
+            <h2 className="text-2xl font-bold">{t("timesheet.page.title")}</h2>
           </div>
 
           <div className="flex items-center space-x-3">
@@ -228,7 +229,7 @@ export default function TimeSheetPageView() {
               className="px-6 py-2.5 bg-[#002f5c] hover:bg-[#001f3f] text-white rounded-lg text-sm font-bold shadow-md transition flex items-center disabled:opacity-60"
             >
               <Save className="w-4 h-4 mr-2" />
-              Fechar Ficha
+              {t("timesheet.buttons.closeSheet")}
             </button>
           </div>
         </div>
@@ -297,7 +298,7 @@ export default function TimeSheetPageView() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 bg-gray-50 border border-gray-100 rounded-xl">
                   <p className="text-[10px] font-bold text-gray-500 uppercase mb-1">
-                    Horas Totais
+                    {t("timesheet.table.date")}
                   </p>
                   <p className="text-xl font-bold text-gray-900">
                     {stats.totalHours.toFixed(1)}h
@@ -489,7 +490,7 @@ export default function TimeSheetPageView() {
                 <div className="h-64 flex flex-col items-center justify-center text-gray-300">
                   <Calculator className="w-12 h-12 mb-3 opacity-30" />
                   <p className="text-sm font-bold opacity-60 uppercase tracking-widest">
-                    Nenhum registro lançado
+                      {t("timesheet.emptyState")}
                   </p>
                 </div>
               )}
@@ -498,8 +499,8 @@ export default function TimeSheetPageView() {
             <div className="p-6 border-t border-gray-100 flex justify-between items-center bg-gray-50/50">
               <div className="flex gap-8">
                 <div>
-                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">
-                    Carga Horária
+                  <p className="text-[10px] font-bold text-gray-500 uppercase mb-1">
+                    {t("timesheet.footer.totalWorked")}
                   </p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-xl font-bold text-gray-900">

@@ -13,13 +13,13 @@ import { Header } from "@/components/Header";
 import { useTranslation } from "react-i18next";
 
 // Definição do schema Zod com base na imagem do formulário
-const projectSchema = z.object({
+const createProjectSchema = (t: (key: string) => string) => z.object({
   type: z.enum(["COMPLETO", "SIMPLES"]).optional(),
-  name: z.string().min(3, "O nome do projeto é obrigatório."),
+  name: z.string().min(3, t("projects.errors.nameRequired")),
   responsible: z.string().optional(),
   contractType: z.string().optional(),
   contractor: z.string().optional(),
-  startDate: z.string().min(1, "Data de início é obrigatória."),
+  startDate: z.string().min(1, t("projects.errors.startDateRequired")),
   endDate: z.string().min(1, "Previsão de término é obrigatória."),
   budgetForecast: z.string().optional(),
   contractNumber: z.string().optional(),
@@ -44,6 +44,7 @@ export default function AddProjectPageView() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const projectSchema = createProjectSchema(t);
 
   const {
     register,
@@ -100,7 +101,7 @@ export default function AddProjectPageView() {
       router.push("/dashboard");
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Erro ao salvar o projeto.";
+        error instanceof Error ? error.message : t("projects.errors.saveFailed");
       setErrorMsg(message);
     } finally {
       setIsLoading(false);
@@ -117,7 +118,7 @@ export default function AddProjectPageView() {
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center text-gray-800">
             <Building2 className="h-6 w-6 mr-2 text-[#002f5c]" />
-            <h2 className="text-2xl font-bold">Adicionar Projeto</h2>
+            <h2 className="text-2xl font-bold">{t("projects.page.title")}</h2>
           </div>
 
           <div className="flex items-center space-x-3">
@@ -138,7 +139,7 @@ export default function AddProjectPageView() {
               ) : (
                 <Save className="w-4 h-4 mr-2" />
               )}
-              Salvar Projeto
+              {t("projects.buttons.save")}
             </button>
           </div>
         </div>
@@ -153,7 +154,7 @@ export default function AddProjectPageView() {
           {/* Main Info Card */}
           <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
             <h3 className="text-sm font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100">
-              Informações Básicas
+              {t("projects.page.basicInfo")}
             </h3>
 
             {/* Type Toggle */}
@@ -166,7 +167,7 @@ export default function AddProjectPageView() {
                   className="w-4 h-4 text-[#002f5c] bg-gray-100 border-gray-300 focus:ring-[#002f5c]"
                 />
                 <span className="ml-2 text-sm font-semibold text-gray-700">
-                  Cadastro completo
+                  {t("projects.registration.full")}
                 </span>
               </label>
               <label className="flex items-center cursor-pointer">
@@ -177,7 +178,7 @@ export default function AddProjectPageView() {
                   className="w-4 h-4 text-[#002f5c] bg-gray-100 border-gray-300 focus:ring-[#002f5c]"
                 />
                 <span className="ml-2 text-sm font-semibold text-gray-700">
-                  Cadastro simples
+                  {t("projects.registration.simple")}
                 </span>
               </label>
             </div>
@@ -185,7 +186,7 @@ export default function AddProjectPageView() {
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                  Nome do Projeto <span className="text-red-500">*</span>
+                  {t("projects.labels.name")} <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="text"
@@ -299,7 +300,7 @@ export default function AddProjectPageView() {
               <div className="space-y-6">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                    Status <span className="text-red-500">*</span>
+                    {t("projects.labels.status")} <span className="text-red-500">*</span>
                   </label>
                   <Select
                     className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition"
@@ -367,7 +368,7 @@ export default function AddProjectPageView() {
 
       {/* Mobile Footer Area Placeholder */}
       <div className="sm:hidden bg-[#002f5c] text-white p-4 fixed bottom-0 w-full shadow-2xl flex justify-between items-center z-50">
-        <span className="text-sm font-bold">Novo Projeto</span>
+        <span className="text-sm font-bold">{t("projects.page.title")}</span>
         <button
           onClick={handleSubmit(onSubmit)}
           className="bg-[#2c9644] px-5 py-2 rounded-lg font-bold text-sm"

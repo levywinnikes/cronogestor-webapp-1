@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { authService } from "@/app/services/auth.service";
 import { useRouter } from "next/navigation";
 import { Loader2, ChevronLeft } from "lucide-react";
@@ -11,17 +12,19 @@ import Link from "next/link";
 import { TextField } from "@/components/ui/form-field";
 import { PageShell } from "@/components/ui/page-shell";
 
-const loginSchema = z.object({
-  email: z
-    .string()
-    .email("Endereço de e-mail inválido.")
-    .min(1, "E-mail é obrigatório."),
-  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres."),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
 export function LoginPageView() {
+  const { t } = useTranslation();
+
+  const loginSchema = z.object({
+    email: z
+      .string()
+      .email(t("login.errors.invalidEmail"))
+      .min(1, t("login.errors.emailRequired")),
+    password: z.string().min(6, t("login.errors.passwordMinLength")),
+  });
+
+  type LoginFormValues = z.infer<typeof loginSchema>;
+
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +53,7 @@ export function LoginPageView() {
       }
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Credenciais inválidas";
+        error instanceof Error ? error.message : t("login.errors.invalidCredentials");
       setErrorMsg(message);
     } finally {
       setIsLoading(false);
@@ -87,8 +90,8 @@ export function LoginPageView() {
           <TextField
             id="email"
             type="email"
-            label="E-mail"
-            placeholder="seu@email.com"
+            label={t("login.email")}
+            placeholder={t("login.placeholders.email")}
             labelClassName="block text-xs font-semibold text-gray-700 mb-1"
             inputClassName={`w-full px-3 py-2.5 text-sm border rounded hover:border-gray-400 focus:ring-2 focus:ring-[#002f5c] focus:border-[#002f5c] outline-none transition-all ${
               errors.email ? "border-red-400" : "border-gray-300"
@@ -100,8 +103,8 @@ export function LoginPageView() {
           <TextField
             id="password"
             type="password"
-            label="Senha"
-            placeholder="••••••••"
+            label={t("login.password")}
+            placeholder={t("login.placeholders.password")}
             labelClassName="block text-xs font-semibold text-gray-700 mb-1"
             inputClassName={`w-full px-3 py-2.5 text-sm border rounded hover:border-gray-400 focus:ring-2 focus:ring-[#002f5c] focus:border-[#002f5c] outline-none transition-all tracking-widest ${
               errors.password ? "border-red-400" : "border-gray-300"
@@ -125,7 +128,7 @@ export function LoginPageView() {
               {isLoading ? (
                 <Loader2 className="animate-spin h-5 w-5" />
               ) : (
-                "Entrar"
+                t("login.submit")
               )}
             </button>
           </div>
@@ -133,39 +136,39 @@ export function LoginPageView() {
 
         <div className="flex items-center justify-between mt-5 text-xs font-semibold text-[#002f5c]">
           <Link href="#" className="hover:underline hover:text-[#001f3f]">
-            Esqueci a senha
+            {t("login.forgot")}
           </Link>
           <Link
             href="/register"
             className="hover:underline hover:text-[#001f3f]"
           >
-            Criar conta
+            {t("login.signup")}
           </Link>
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-100 text-center">
           <p className="text-[10px] text-gray-500">
-            Cronogestor é um produto do Grupo Cronosfera
+            {t("login.footer")}
           </p>
         </div>
       </div>
 
       <div className="fixed bottom-4 right-4 bg-white/90 backdrop-blur border border-gray-200 p-4 rounded-lg shadow-lg text-xs w-[250px] z-50">
         <h4 className="font-bold text-gray-800 border-b pb-2 mb-2">
-          Credenciais de Teste
+          {t("login.testCredentials.title")}
         </h4>
         <ul className="space-y-1.5 text-gray-600">
           <li>
-            <strong>Admin:</strong> admin@obras.com
+            <strong>{t("login.testCredentials.admin")}</strong> admin@obras.com
           </li>
           <li>
-            <strong>Free:</strong> funcionario@obras.com
+            <strong>{t("login.testCredentials.free")}</strong> funcionario@obras.com
           </li>
           <li>
-            <strong>Inativo:</strong> demitido@obras.com
+            <strong>{t("login.testCredentials.inactive")}</strong> demitido@obras.com
           </li>
           <li className="pt-1.5">
-            <strong>Senha:</strong> 123456
+            <strong>{t("login.testCredentials.password")}</strong> 123456
           </li>
         </ul>
       </div>
@@ -174,7 +177,7 @@ export function LoginPageView() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl animate-in fade-in zoom-in duration-300">
             <h2 className="text-xl font-bold text-[#002f5c] mb-2">
-              Conheça o Plano Premium!
+              {t("login.premiumPromo.title")}
             </h2>
             <div className="my-6 bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
               <span className="text-gray-400 text-sm italic">

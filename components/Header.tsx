@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { LogOut } from "lucide-react";
 import { authService } from "@/app/services/auth.service";
 
 export function Header() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     try {
@@ -27,9 +29,9 @@ export function Header() {
         </div>
         
         <div className="flex items-center space-x-4 sm:space-x-6">
-          <Link href="/dashboard" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">Projetos</Link>
-          <Link href="/funcionarios" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">Funcionários</Link>
-          <Link href="/ficha-tempo" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">Ficha Tempo</Link>
+          <Link href="/dashboard" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">{t("nav.projects")}</Link>
+          <Link href="/funcionarios" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">{t("nav.employees")}</Link>
+          <Link href="/ficha-tempo" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">{t("timesheet.page.title")}</Link>
           <button
              onClick={handleLogout}
              className="flex items-center text-blue-100 hover:text-white transition-colors text-sm font-medium"

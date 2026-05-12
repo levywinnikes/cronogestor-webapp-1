@@ -1,4 +1,112 @@
 {
+  "nav": {
+    "projects": "Projects",
+    "employees": "Employees"
+  },
+  "login": {
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign In",
+    "forgot": "Forgot Password",
+    "signup": "Create Account",
+    "placeholders": {
+      "email": "you@company.com",
+      "password": "••••••••"
+    },
+    "errors": {
+      "invalidEmail": "Invalid email address.",
+      "passwordMinLength": "Password must have at least 6 characters.",
+      "emailRequired": "Email is required.",
+      "invalidCredentials": "Invalid credentials"
+    },
+    "testCredentials": {
+      "title": "Test Credentials",
+      "admin": "Admin:",
+      "free": "Free:",
+      "inactive": "Inactive:",
+      "password": "Password:"
+    },
+    "premiumPromo": {
+      "title": "Discover the Premium Plan!"
+    },
+    "footer": "Cronogestor is a product from Cronosfera Group"
+  },
+  "dashboard": {
+    "title": "Projects",
+    "buttons": {
+      "addProject": "Add Project"
+    }
+  },
+  "projects": {
+    "page": {
+      "title": "Add Project",
+      "basicInfo": "Basic Information"
+    },
+    "buttons": {
+      "save": "Save Project"
+    },
+    "labels": {
+      "name": "Project Name",
+      "status": "Status"
+    },
+    "registration": {
+      "full": "Full Registration",
+      "simple": "Simple Registration"
+    },
+    "errors": {
+      "nameRequired": "Project name is required.",
+      "startDateRequired": "Start date is required.",
+      "saveFailed": "Error saving project."
+    }
+  },
+  "timesheet": {
+    "page": {
+      "title": "Time Sheet Entry"
+    },
+    "buttons": {
+      "closeSheet": "Close Sheet",
+      "addDay": "Add Day",
+      "delete": "Delete",
+      "save": "Save"
+    },
+    "labels": {
+      "project": "Project",
+      "employee": "Employee"
+    },
+    "table": {
+      "date": "Date",
+      "start": "Start Time",
+      "end": "End Time",
+      "break": "Break",
+      "overtime": "Overtime"
+    },
+    "footer": {
+      "totalWorked": "Total Worked",
+      "totalOvertime": "Total Overtime"
+    },
+    "emptyState": "No Entries",
+    "alert": {
+      "overtimeNotice": "Note: Entries with overtime will be reviewed by your manager"
+    },
+    "errors": {
+      "loadContextFailed": "Error loading timesheet context",
+      "closeSheetFailed": "Error closing timesheet"
+    }
+  },
+  "employees": {
+    "page": {
+      "title": "Manage Employees"
+    },
+    "buttons": {
+      "save": "Save",
+      "new": "New",
+      "delete": "Delete"
+    },
+    "errors": {
+      "saveFailed": "Error saving employee",
+      "deleteFailed": "Error deleting employee"
+    }
+  },
   "register": {
     "brand": "Cronogestor",
     "offer": "SPECIAL OFFER: Free Premium plan for 14 days. Start now!",

@@ -1,4 +1,112 @@
 {
+  "nav": {
+    "projects": "Projetos",
+    "employees": "Funcionários"
+  },
+  "login": {
+    "email": "E-mail",
+    "password": "Senha",
+    "submit": "Entrar",
+    "forgot": "Esqueci a senha",
+    "signup": "Criar conta",
+    "placeholders": {
+      "email": "seu@email.com",
+      "password": "••••••••"
+    },
+    "errors": {
+      "invalidEmail": "Endereço de e-mail inválido.",
+      "passwordMinLength": "A senha deve ter no mínimo 6 caracteres.",
+      "emailRequired": "E-mail é obrigatório.",
+      "invalidCredentials": "Credenciais inválidas"
+    },
+    "testCredentials": {
+      "title": "Credenciais de Teste",
+      "admin": "Admin:",
+      "free": "Free:",
+      "inactive": "Inativo:",
+      "password": "Senha:"
+    },
+    "premiumPromo": {
+      "title": "Conheça o Plano Premium!"
+    },
+    "footer": "Cronogestor é um produto do Grupo Cronosfera"
+  },
+  "dashboard": {
+    "title": "Projetos",
+    "buttons": {
+      "addProject": "Adicionar projeto"
+    }
+  },
+  "projects": {
+    "page": {
+      "title": "Adicionar Projeto",
+      "basicInfo": "Informações Básicas"
+    },
+    "buttons": {
+      "save": "Salvar Projeto"
+    },
+    "labels": {
+      "name": "Nome do Projeto",
+      "status": "Status"
+    },
+    "registration": {
+      "full": "Cadastro completo",
+      "simple": "Cadastro simples"
+    },
+    "errors": {
+      "nameRequired": "O nome do projeto é obrigatório.",
+      "startDateRequired": "Data de início é obrigatória.",
+      "saveFailed": "Erro ao salvar o projeto."
+    }
+  },
+  "timesheet": {
+    "page": {
+      "title": "Lançamento de Ficha Tempo"
+    },
+    "buttons": {
+      "closeSheet": "Fechar Ficha",
+      "addDay": "Adicionar Dia",
+      "delete": "Excluir",
+      "save": "Salvar"
+    },
+    "labels": {
+      "project": "Projeto",
+      "employee": "Funcionário"
+    },
+    "table": {
+      "date": "Data",
+      "start": "Entrada",
+      "end": "Saída",
+      "break": "Intervalo",
+      "overtime": "Horas Extras"
+    },
+    "footer": {
+      "totalWorked": "Total Trabalhado",
+      "totalOvertime": "Total Extra"
+    },
+    "emptyState": "Nenhuma Entrada",
+    "alert": {
+      "overtimeNotice": "Observação: Lançamentos com horas extras serão analisados pelo gestor"
+    },
+    "errors": {
+      "loadContextFailed": "Erro ao carregar contexto da ficha",
+      "closeSheetFailed": "Erro ao fechar ficha tempo"
+    }
+  },
+  "employees": {
+    "page": {
+      "title": "Gerenciar Funcionários"
+    },
+    "buttons": {
+      "save": "Salvar Cadastro",
+      "new": "Novo",
+      "delete": "Deletar"
+    },
+    "errors": {
+      "saveFailed": "Erro ao salvar funcionario",
+      "deleteFailed": "Erro ao excluir funcionario"
+    }
+  },
   "register": {
     "brand": "Cronogestor",
     "offer": "OFERTA ESPECIAL: Plano Premium Grátis por 14 dias. Comece agora!",

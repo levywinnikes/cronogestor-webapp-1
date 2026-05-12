@@ -2,11 +2,13 @@
 
 import { Plus, Building2, Calendar, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { projectService, ProjectDto } from "@/app/services/project.service";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 
 export default function DashboardPageView() {
+  const { t } = useTranslation();
   const [projects, setProjects] = useState<ProjectDto[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -65,7 +67,7 @@ export default function DashboardPageView() {
           <div className="flex items-center space-x-8">
             <div className="flex items-center text-gray-800">
               <LayoutDashboard className="h-6 w-6 mr-2 text-[#002f5c]" />
-              <h2 className="text-2xl font-bold">Projetos</h2>
+              <h2 className="text-2xl font-bold">{t("dashboard.title")}</h2>
             </div>
           </div>
 
@@ -74,7 +76,7 @@ export default function DashboardPageView() {
             className="px-4 py-2 bg-[#2c9644] hover:bg-[#237836] text-white rounded-lg text-sm font-bold shadow-sm transition flex items-center"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Adicionar projeto
+            {t("dashboard.buttons.addProject")}
           </Link>
         </div>
       </div>
