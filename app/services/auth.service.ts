@@ -46,7 +46,16 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
   const json = (await response.json().catch(() => ({}))) as ApiError & T;
 
   if (!response.ok) {
-    throw new Error(json.message ?? "Falha na autenticacao.");
+    const errorMessage = json.message ?? "Falha na autenticacao.";
+    
+    // Log details for debugging
+    console.error("[AUTH_ERROR]", {
+      status: response.status,
+      statusText: response.statusText,
+      message: errorMessage,
+    });
+
+    throw new Error(errorMessage);
   }
 
   return json as T;

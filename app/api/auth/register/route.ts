@@ -124,10 +124,43 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
+    console.error("[REGISTER_ERROR]", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: "Dados de registro invalidos." }, { status: 400 });
+      const fieldErrors = error.errors.map((e) => `${e.path.join(".")}: ${e.message}`);
+      return NextResponse.json(
+        { message: `Dados invalidos: ${fieldErrors.join(", ")}` },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ message: "Falha ao registrar conta." }, { status: 500 });
+    if (error instanceof Error) {
+      if (error.message.includes("session")) {
+        return NextResponse.json(
+          { message: "Erro ao criar sessao. Tente novamente." },
+          { status: 500 },
+        );
+      }
+      if (error.message.includes("transaction")) {
+        return NextResponse.json(
+          { message: "Erro ao registrar. Tente novamente." },
+          { status: 500 },
+        );
+      }
+      if (error.message.includes("database") || error.message.includes("prisma")) {
+        return NextResponse.json(
+          { message: "Erro ao conectar. Tente novamente em alguns minutos." },
+          { status: 503 },
+        );
+      }
+    }
+
+    return NextResponse.json(
+      { message: "Falha ao registrar conta. Verifique seus dados e tente novamente." },
+      { status: 500 },
+    );
   }
 }
