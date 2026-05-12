@@ -11,6 +11,12 @@ export function Header() {
   const router = useRouter();
   const { t } = useTranslation();
 
+  const navProjects = t("nav.projects");
+  const navEmployees = t("nav.employees");
+  const navTimesheet = t("timesheet.page.title");
+  const navHolidays = t("nav.holidays");
+  const navLogout = t("nav.logout");
+
   const handleLogout = async () => {
     try {
       await authService.logout();
@@ -36,25 +42,25 @@ export function Header() {
             href="/dashboard"
             className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block"
           >
-            {t("nav.projects")}
+            <span suppressHydrationWarning>{navProjects}</span>
           </Link>
           <Link
             href="/funcionarios"
             className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block"
           >
-            {t("nav.employees")}
+            <span suppressHydrationWarning>{navEmployees}</span>
           </Link>
           <Link
             href="/ficha-tempo"
             className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block"
           >
-            {t("timesheet.page.title")}
+            <span suppressHydrationWarning>{navTimesheet}</span>
           </Link>
           <Link
             href="/feriados"
             className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block"
           >
-            {t("nav.holidays")}
+            <span suppressHydrationWarning>{navHolidays}</span>
           </Link>
           <div className="hidden sm:block border-l border-blue-300/30"></div>
           <LocaleSwitcher />
@@ -63,7 +69,7 @@ export function Header() {
             className="flex items-center text-blue-100 hover:text-white transition-colors text-sm font-medium"
           >
             <LogOut className="h-4 w-4 mr-1.5" />
-            {t("nav.logout")}
+            <span suppressHydrationWarning>{navLogout}</span>
           </button>
         </div>
       </div>

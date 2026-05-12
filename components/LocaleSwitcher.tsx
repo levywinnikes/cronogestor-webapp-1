@@ -26,8 +26,8 @@ export function LocaleSwitcher() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all backdrop-blur-sm border border-white/20 hover:border-white/30"
       >
-        <span className="text-lg">{currentLocale.flag}</span>
-        <span className="hidden sm:inline">{currentLocale.label}</span>
+        <span className="text-lg" suppressHydrationWarning>{currentLocale.flag}</span>
+        <span className="hidden sm:inline" suppressHydrationWarning>{currentLocale.label}</span>
       </button>
 
       {isOpen && (
