@@ -2,6 +2,7 @@
   "nav": {
     "projects": "Projects",
     "employees": "Employees",
+    "holidays": "Holidays",
     "logout": "Sign Out"
   },
   "login": {
@@ -41,10 +42,13 @@
   "projects": {
     "page": {
       "title": "Add Project",
+      "editTitle": "Edit Project",
       "basicInfo": "Basic Information"
     },
     "buttons": {
-      "save": "Save Project"
+      "save": "Save Project",
+      "update": "Update Project",
+      "back": "Back"
     },
     "labels": {
       "name": "Project Name",
@@ -57,7 +61,39 @@
     "errors": {
       "nameRequired": "Project name is required.",
       "startDateRequired": "Start date is required.",
+      "endDateRequired": "Expected end date is required.",
+      "loadFailed": "Error loading project.",
       "saveFailed": "Error saving project."
+    }
+  },
+  "holidays": {
+    "page": {
+      "title": "Holidays",
+      "addTitle": "Add holiday",
+      "listTitle": "Holiday list"
+    },
+    "buttons": {
+      "add": "Add holiday",
+      "delete": "Delete"
+    },
+    "placeholders": {
+      "name": "Holiday name"
+    },
+    "states": {
+      "loading": "Loading holidays...",
+      "empty": "No holidays registered."
+    },
+    "types": {
+      "nacional": "National",
+      "estadual": "State",
+      "municipal": "Municipal",
+      "organizacao": "Organization"
+    },
+    "errors": {
+      "requiredFields": "Holiday date and name are required.",
+      "loadFailed": "Error loading holidays.",
+      "saveFailed": "Error saving holiday.",
+      "deleteFailed": "Error deleting holiday."
     }
   },
   "timesheet": {

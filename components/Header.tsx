@@ -50,6 +50,12 @@ export function Header() {
           >
             {t("timesheet.page.title")}
           </Link>
+          <Link
+            href="/feriados"
+            className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block"
+          >
+            {t("nav.holidays")}
+          </Link>
           <div className="hidden sm:block border-l border-blue-300/30"></div>
           <LocaleSwitcher />
           <button

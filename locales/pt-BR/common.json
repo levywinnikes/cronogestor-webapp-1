@@ -2,6 +2,7 @@
   "nav": {
     "projects": "Projetos",
     "employees": "Funcionários",
+    "holidays": "Feriados",
     "logout": "Sair"
   },
   "login": {
@@ -41,10 +42,13 @@
   "projects": {
     "page": {
       "title": "Adicionar Projeto",
+      "editTitle": "Editar Projeto",
       "basicInfo": "Informações Básicas"
     },
     "buttons": {
-      "save": "Salvar Projeto"
+      "save": "Salvar Projeto",
+      "update": "Atualizar Projeto",
+      "back": "Voltar"
     },
     "labels": {
       "name": "Nome do Projeto",
@@ -57,7 +61,39 @@
     "errors": {
       "nameRequired": "O nome do projeto é obrigatório.",
       "startDateRequired": "Data de início é obrigatória.",
+      "endDateRequired": "Previsão de término é obrigatória.",
+      "loadFailed": "Erro ao carregar o projeto.",
       "saveFailed": "Erro ao salvar o projeto."
+    }
+  },
+  "holidays": {
+    "page": {
+      "title": "Feriados",
+      "addTitle": "Cadastrar feriado",
+      "listTitle": "Lista de feriados"
+    },
+    "buttons": {
+      "add": "Adicionar feriado",
+      "delete": "Excluir"
+    },
+    "placeholders": {
+      "name": "Nome do feriado"
+    },
+    "states": {
+      "loading": "Carregando feriados...",
+      "empty": "Nenhum feriado cadastrado."
+    },
+    "types": {
+      "nacional": "Nacional",
+      "estadual": "Estadual",
+      "municipal": "Municipal",
+      "organizacao": "Organização"
+    },
+    "errors": {
+      "requiredFields": "Data e nome do feriado são obrigatórios.",
+      "loadFailed": "Erro ao carregar feriados.",
+      "saveFailed": "Erro ao salvar feriado.",
+      "deleteFailed": "Erro ao excluir feriado."
     }
   },
   "timesheet": {

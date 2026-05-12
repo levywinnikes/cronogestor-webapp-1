@@ -52,6 +52,30 @@ class ProjectService {
     const payload = await parseApiResponse<ApiResponse<ProjectDto>>(response);
     return payload.data;
   }
+
+  async getProjectById(id: string): Promise<ProjectDto> {
+    const response = await fetch(`/api/projects/${id}`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const payload = await parseApiResponse<ApiResponse<ProjectDto>>(response);
+    return payload.data;
+  }
+
+  async updateProject(id: string, project: ProjectDto): Promise<ProjectDto> {
+    const response = await fetch(`/api/projects/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(project),
+    });
+
+    const payload = await parseApiResponse<ApiResponse<ProjectDto>>(response);
+    return payload.data;
+  }
 }
 
 export const projectService = new ProjectService();

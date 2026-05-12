@@ -106,7 +106,8 @@ export default function DashboardPageView() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <div
+              <Link
+                href={`/projetos/${project.id}`}
                 key={project.id}
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200 flex flex-col cursor-pointer group"
               >
@@ -160,7 +161,7 @@ export default function DashboardPageView() {
                     </span>
                   )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

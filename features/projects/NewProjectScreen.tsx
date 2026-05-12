@@ -4,7 +4,7 @@ import { Input, Select } from "@/components/ui/field-primitives";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, ArrowLeft, Building2, Save, Paperclip } from "lucide-react";
 import { projectService, ProjectDto } from "@/app/services/project.service";
@@ -21,7 +21,7 @@ const createProjectSchema = (t: (key: string) => string) =>
     contractType: z.string().optional(),
     contractor: z.string().optional(),
     startDate: z.string().min(1, t("projects.errors.startDateRequired")),
-    endDate: z.string().min(1, "Previsão de término é obrigatória."),
+    endDate: z.string().min(1, t("projects.errors.endDateRequired")),
     budgetForecast: z.string().optional(),
     contractNumber: z.string().optional(),
     status: z
@@ -31,7 +31,7 @@ const createProjectSchema = (t: (key: string) => string) =>
     hasTaskList: z.boolean().optional(),
   });
 
-type ProjectFormValues = z.infer<typeof projectSchema>;
+type ProjectFormValues = z.infer<ReturnType<typeof createProjectSchema>>;
 
 const STATUS_OPTIONS = [
   { value: "EM_ANDAMENTO", label: "Em andamento" },
@@ -40,16 +40,23 @@ const STATUS_OPTIONS = [
   { value: "CONCLUIDO", label: "Concluído" },
 ];
 
-export default function AddProjectPageView() {
+type ProjectFormScreenProps = {
+  projectId?: string;
+};
+
+export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingProject, setIsFetchingProject] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const isEditMode = Boolean(projectId);
   const projectSchema = createProjectSchema(t);
 
   const {
     register,
     handleSubmit,
+    reset,
     setValue,
     formState: { errors, isValid },
   } = useForm<ProjectFormValues>({
@@ -61,6 +68,50 @@ export default function AddProjectPageView() {
       hasTaskList: false,
     },
   });
+
+  useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+
+    const loadProject = async () => {
+      setIsFetchingProject(true);
+      setErrorMsg("");
+
+      try {
+        const project = await projectService.getProjectById(projectId);
+
+        reset({
+          type: "COMPLETO",
+          name: project.name,
+          responsible: project.responsible ?? "",
+          contractType: project.contractType ?? "",
+          contractor: project.contractor ?? "",
+          startDate: project.startDate
+            ? new Date(project.startDate).toISOString().slice(0, 10)
+            : "",
+          endDate: project.endDate
+            ? new Date(project.endDate).toISOString().slice(0, 10)
+            : "",
+          budgetForecast: project.budgetForecast ?? "",
+          contractNumber: project.contractNumber ?? "",
+          status: project.status,
+          address: project.address ?? "",
+          hasTaskList: project.hasTaskList ?? false,
+        });
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : t("projects.errors.loadFailed");
+        setErrorMsg(message);
+      } finally {
+        setIsFetchingProject(false);
+      }
+    };
+
+    loadProject();
+  }, [projectId, reset, t]);
 
   const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, "");
@@ -98,7 +149,11 @@ export default function AddProjectPageView() {
         budgetForecast: cleanBudget,
       };
 
-      await projectService.addProject(payload);
+      if (isEditMode && projectId) {
+        await projectService.updateProject(projectId, payload);
+      } else {
+        await projectService.addProject(payload);
+      }
       router.push("/dashboard");
     } catch (error: unknown) {
       const message =
@@ -121,7 +176,11 @@ export default function AddProjectPageView() {
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center text-gray-800">
             <Building2 className="h-6 w-6 mr-2 text-[#002f5c]" />
-            <h2 className="text-2xl font-bold">{t("projects.page.title")}</h2>
+            <h2 className="text-2xl font-bold">
+              {isEditMode
+                ? t("projects.page.editTitle")
+                : t("projects.page.title")}
+            </h2>
           </div>
 
           <div className="flex items-center space-x-3">
@@ -130,11 +189,11 @@ export default function AddProjectPageView() {
               className="px-5 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg text-sm font-bold transition flex items-center shadow-sm"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar
+              {t("projects.buttons.back")}
             </Link>
             <button
               onClick={handleSubmit(onSubmit)}
-              disabled={isLoading || !isValid}
+              disabled={isLoading || isFetchingProject || !isValid}
               className="px-6 py-2.5 bg-[#2c9644] hover:bg-[#237836] text-white rounded-lg text-sm font-bold shadow-md transition flex items-center disabled:opacity-50"
             >
               {isLoading ? (
@@ -142,7 +201,9 @@ export default function AddProjectPageView() {
               ) : (
                 <Save className="w-4 h-4 mr-2" />
               )}
-              {t("projects.buttons.save")}
+              {isEditMode
+                ? t("projects.buttons.update")
+                : t("projects.buttons.save")}
             </button>
           </div>
         </div>
@@ -154,6 +215,12 @@ export default function AddProjectPageView() {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-6"
         >
+          {isFetchingProject ? (
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin text-[#002f5c]" />
+            </div>
+          ) : null}
+
           {/* Main Info Card */}
           <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
             <h3 className="text-sm font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100">
@@ -375,14 +442,22 @@ export default function AddProjectPageView() {
 
       {/* Mobile Footer Area Placeholder */}
       <div className="sm:hidden bg-[#002f5c] text-white p-4 fixed bottom-0 w-full shadow-2xl flex justify-between items-center z-50">
-        <span className="text-sm font-bold">{t("projects.page.title")}</span>
+        <span className="text-sm font-bold">
+          {isEditMode ? t("projects.page.editTitle") : t("projects.page.title")}
+        </span>
         <button
           onClick={handleSubmit(onSubmit)}
           className="bg-[#2c9644] px-5 py-2 rounded-lg font-bold text-sm"
         >
-          Salvar
+          {isEditMode
+            ? t("projects.buttons.update")
+            : t("projects.buttons.save")}
         </button>
       </div>
     </div>
   );
+}
+
+export default function AddProjectPageView() {
+  return <ProjectFormScreen />;
 }

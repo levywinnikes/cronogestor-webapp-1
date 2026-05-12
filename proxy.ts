@@ -6,6 +6,7 @@ const PROTECTED_PATHS = [
   "/dashboard",
   "/funcionarios",
   "/ficha-tempo",
+  "/feriados",
   "/projetos",
   "/configuracoes",
 ];

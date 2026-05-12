@@ -35,6 +35,10 @@ Catalogar componentes reutilizaveis para evitar duplicacao e orientar IA/humanos
 - `features/auth/register/register.formatters.ts`
 - `features/auth/register/register.types.ts`
 
+### Holidays
+
+- `features/holidays/HolidaysScreen.tsx`
+
 ## Politica de Reuso
 
 1. Antes de criar componente novo, buscar no catalogo e no codigo por equivalente.

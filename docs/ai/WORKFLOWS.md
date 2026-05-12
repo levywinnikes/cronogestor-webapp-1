@@ -50,6 +50,14 @@
 4. Salvar entradas com rastreabilidade.
 5. Fechamento da ficha deve persistir TimeSheet/TimeSheetEntry via endpoint protegido por tenant.
 
+## Gestao de feriados
+
+1. Usuario autenticado acessa a tela de feriados no tenant ativo.
+2. Sistema lista feriados da organizacao ativa (OrganizationHoliday).
+3. Usuario com permissao adiciona feriado com data, nome e tipo.
+4. Usuario com permissao exclui feriado da propria organizacao.
+5. Todas operacoes devem respeitar isolamento por tenant via guard server-side.
+
 ## Calculo de proposta
 
 1. Sistema le itens de entrada por secao (MOD, MOI, Materiais, Equipamentos, Terceiros, Consumiveis, Despesas).
