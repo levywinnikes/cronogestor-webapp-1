@@ -7,7 +7,10 @@ export async function POST(request: NextRequest) {
   const refreshToken = request.cookies.get(REFRESH_COOKIE_NAME)?.value;
 
   if (!refreshToken) {
-    const unauthorized = NextResponse.json({ message: "Refresh token ausente." }, { status: 401 });
+    const unauthorized = NextResponse.json(
+      { message: "Refresh token ausente." },
+      { status: 401 },
+    );
     clearAuthCookies(unauthorized);
     return unauthorized;
   }
@@ -24,7 +27,10 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch {
-    const unauthorized = NextResponse.json({ message: "Sessao expirada." }, { status: 401 });
+    const unauthorized = NextResponse.json(
+      { message: "Sessao expirada." },
+      { status: 401 },
+    );
     clearAuthCookies(unauthorized);
     return unauthorized;
   }

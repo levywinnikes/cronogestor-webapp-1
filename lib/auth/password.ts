@@ -9,7 +9,11 @@ export async function verifyPassword(
   plainPassword: string,
   passwordHash: string,
 ): Promise<boolean> {
-  if (passwordHash.startsWith("$2a$") || passwordHash.startsWith("$2b$") || passwordHash.startsWith("$2y$")) {
+  if (
+    passwordHash.startsWith("$2a$") ||
+    passwordHash.startsWith("$2b$") ||
+    passwordHash.startsWith("$2y$")
+  ) {
     return bcrypt.compare(plainPassword, passwordHash);
   }
 

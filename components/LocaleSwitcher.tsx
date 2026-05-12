@@ -12,7 +12,8 @@ export function LocaleSwitcher() {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
-  const currentLocale = locales.find((l) => l.code === i18n.language) || locales[0];
+  const currentLocale =
+    locales.find((l) => l.code === i18n.language) || locales[0];
 
   const handleChangeLocale = (locale: string) => {
     i18n.changeLanguage(locale);

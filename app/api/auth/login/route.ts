@@ -37,13 +37,22 @@ export async function POST(request: NextRequest) {
     });
 
     if (!account || !account.isActive) {
-      return NextResponse.json({ message: "Credenciais invalidas." }, { status: 401 });
+      return NextResponse.json(
+        { message: "Credenciais invalidas." },
+        { status: 401 },
+      );
     }
 
-    const passwordMatches = await verifyPassword(payload.password, account.passwordHash);
+    const passwordMatches = await verifyPassword(
+      payload.password,
+      account.passwordHash,
+    );
 
     if (!passwordMatches) {
-      return NextResponse.json({ message: "Credenciais invalidas." }, { status: 401 });
+      return NextResponse.json(
+        { message: "Credenciais invalidas." },
+        { status: 401 },
+      );
     }
 
     const activeMemberships = account.memberships.filter(
@@ -51,7 +60,10 @@ export async function POST(request: NextRequest) {
     );
 
     if (activeMemberships.length === 0) {
-      return NextResponse.json({ message: "Usuario sem tenant ativo." }, { status: 403 });
+      return NextResponse.json(
+        { message: "Usuario sem tenant ativo." },
+        { status: 403 },
+      );
     }
 
     const selectedMembership = payload.organizationId
@@ -93,7 +105,9 @@ export async function POST(request: NextRequest) {
       },
       organizations: activeMemberships.map((membership) => ({
         id: membership.organization.id,
-        name: membership.organization.displayName ?? membership.organization.legalName,
+        name:
+          membership.organization.displayName ??
+          membership.organization.legalName,
         role: membership.role,
       })),
     });
@@ -108,7 +122,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (error instanceof z.ZodError) {
-      const fieldErrors = error.errors.map((e) => `${e.path.join(".")}: ${e.message}`);
+      const fieldErrors = error.errors.map(
+        (e) => `${e.path.join(".")}: ${e.message}`,
+      );
       return NextResponse.json(
         { message: `Dados invalidos: ${fieldErrors.join(", ")}` },
         { status: 400 },
@@ -122,7 +138,10 @@ export async function POST(request: NextRequest) {
           { status: 500 },
         );
       }
-      if (error.message.includes("database") || error.message.includes("prisma")) {
+      if (
+        error.message.includes("database") ||
+        error.message.includes("prisma")
+      ) {
         return NextResponse.json(
           { message: "Erro ao conectar. Tente novamente em alguns minutos." },
           { status: 503 },
@@ -131,7 +150,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: "Falha ao processar login. Verifique seus dados e tente novamente." },
+      {
+        message:
+          "Falha ao processar login. Verifique seus dados e tente novamente.",
+      },
       { status: 500 },
     );
   }

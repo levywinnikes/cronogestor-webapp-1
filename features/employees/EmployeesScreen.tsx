@@ -196,7 +196,9 @@ export default function FuncionariosPageView() {
         const mapped = mapEmployee(updated);
 
         setEmployees((prev) =>
-          prev.map((employee) => (employee.id === selectedId ? mapped : employee)),
+          prev.map((employee) =>
+            employee.id === selectedId ? mapped : employee,
+          ),
         );
         setFormData(mapped);
       }

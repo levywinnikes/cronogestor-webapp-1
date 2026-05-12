@@ -54,7 +54,9 @@ export function LoginPageView() {
       }
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : t("login.errors.invalidCredentials");
+        error instanceof Error
+          ? error.message
+          : t("login.errors.invalidCredentials");
       setErrorMsg(message);
     } finally {
       setIsLoading(false);
@@ -149,9 +151,7 @@ export function LoginPageView() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-          <p className="text-[10px] text-gray-500">
-            {t("login.footer")}
-          </p>
+          <p className="text-[10px] text-gray-500">{t("login.footer")}</p>
         </div>
       </div>
 
@@ -164,10 +164,12 @@ export function LoginPageView() {
             <strong>{t("login.testCredentials.admin")}</strong> admin@obras.com
           </li>
           <li>
-            <strong>{t("login.testCredentials.free")}</strong> funcionario@obras.com
+            <strong>{t("login.testCredentials.free")}</strong>{" "}
+            funcionario@obras.com
           </li>
           <li>
-            <strong>{t("login.testCredentials.inactive")}</strong> demitido@obras.com
+            <strong>{t("login.testCredentials.inactive")}</strong>{" "}
+            demitido@obras.com
           </li>
           <li className="pt-1.5">
             <strong>{t("login.testCredentials.password")}</strong> 123456

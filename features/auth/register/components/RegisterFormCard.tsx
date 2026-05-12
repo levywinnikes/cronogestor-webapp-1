@@ -75,7 +75,11 @@ export function RegisterFormCard({
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <Input type="hidden" {...register("type")} value={accountType} />
-        <Input type="hidden" {...register("document")} value={documentValue || ""} />
+        <Input
+          type="hidden"
+          {...register("document")}
+          value={documentValue || ""}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="md:col-span-2">

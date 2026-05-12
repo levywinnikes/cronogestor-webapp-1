@@ -18,7 +18,7 @@ Definir a estrutura de dados alvo para suportar o sistema com multi-tenant por o
 10. AuditLog: trilha de seguranca e administracao.
 11. Proposal: cabecalho da proposta comercial.
 12. ProposalContact: contatos do cliente por proposta (ate 3).
-13. Proposal*Item: secoes de custo (MOD, MOI, Materiais, Equipamentos, Terceiros, Consumiveis, Despesas).
+13. Proposal\*Item: secoes de custo (MOD, MOI, Materiais, Equipamentos, Terceiros, Consumiveis, Despesas).
 14. SalaryBaseTable e SalaryBaseRole: tabela de salarios base editavel.
 15. TaxProfile e SimplesNacionalRate: configuracao tributaria por organizacao.
 16. ProposalCalculationInput/Result: entrada e saida de consolidacao financeira.

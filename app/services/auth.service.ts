@@ -47,7 +47,7 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
 
   if (!response.ok) {
     const errorMessage = json.message ?? "Falha na autenticacao.";
-    
+
     // Log details for debugging
     console.error("[AUTH_ERROR]", {
       status: response.status,
@@ -125,7 +125,9 @@ class AuthService {
       body: JSON.stringify({ organizationId }),
     });
 
-    await parseApiResponse<{ activeOrganization: { id: string; name: string } }>(response);
+    await parseApiResponse<{
+      activeOrganization: { id: string; name: string };
+    }>(response);
   }
 
   async forgotPassword(email: string): Promise<void> {

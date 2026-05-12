@@ -13,16 +13,22 @@ const PROTECTED_PATHS = [
 const PUBLIC_AUTH_PATHS = ["/login", "/register"];
 
 function isProtectedPath(pathname: string): boolean {
-  return PROTECTED_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  return PROTECTED_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
 }
 
 function isPublicAuthPath(pathname: string): boolean {
-  return PUBLIC_AUTH_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  return PUBLIC_AUTH_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
 }
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const hasAccessCookie = Boolean(request.cookies.get(ACCESS_COOKIE_NAME)?.value);
+  const hasAccessCookie = Boolean(
+    request.cookies.get(ACCESS_COOKIE_NAME)?.value,
+  );
 
   if (isProtectedPath(pathname) && !hasAccessCookie) {
     const url = request.nextUrl.clone();

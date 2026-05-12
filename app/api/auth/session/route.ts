@@ -33,7 +33,10 @@ export async function GET() {
   );
 
   if (!activeMembership) {
-    return NextResponse.json({ message: "Tenant da sessao nao encontrado." }, { status: 403 });
+    return NextResponse.json(
+      { message: "Tenant da sessao nao encontrado." },
+      { status: 403 },
+    );
   }
 
   return NextResponse.json({
@@ -52,7 +55,9 @@ export async function GET() {
     },
     organizations: account.memberships.map((membership) => ({
       id: membership.organization.id,
-      name: membership.organization.displayName ?? membership.organization.legalName,
+      name:
+        membership.organization.displayName ??
+        membership.organization.legalName,
       role: membership.role,
     })),
   });

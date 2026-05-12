@@ -109,9 +109,7 @@ export default function TimeSheetPageView() {
     loadContext();
   }, []);
 
-  const selectedEmployee = employees.find(
-    (e) => e.id === selectedEmployeeId,
-  );
+  const selectedEmployee = employees.find((e) => e.id === selectedEmployeeId);
 
   const calculatedEntries = useMemo(() => {
     if (!selectedEmployee) return [];
@@ -248,9 +246,7 @@ export default function TimeSheetPageView() {
                   <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Select
                     value={selectedProjectId}
-                    onChange={(e) =>
-                      setSelectedProjectId(e.target.value)
-                    }
+                    onChange={(e) => setSelectedProjectId(e.target.value)}
                     className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-[#002f5c]/20 transition"
                   >
                     {projects.map((p) => (
@@ -270,9 +266,7 @@ export default function TimeSheetPageView() {
                   <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Select
                     value={selectedEmployeeId}
-                    onChange={(e) =>
-                      setSelectedEmployeeId(e.target.value)
-                    }
+                    onChange={(e) => setSelectedEmployeeId(e.target.value)}
                     className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-[#002f5c]/20 transition"
                   >
                     {employees.map((e) => (
@@ -490,7 +484,7 @@ export default function TimeSheetPageView() {
                 <div className="h-64 flex flex-col items-center justify-center text-gray-300">
                   <Calculator className="w-12 h-12 mb-3 opacity-30" />
                   <p className="text-sm font-bold opacity-60 uppercase tracking-widest">
-                      {t("timesheet.emptyState")}
+                    {t("timesheet.emptyState")}
                   </p>
                 </div>
               )}

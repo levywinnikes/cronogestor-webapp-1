@@ -25,7 +25,9 @@ interface SessionTokenPair {
   refreshToken: string;
 }
 
-export async function createAuthSession(input: CreateSessionInput): Promise<SessionTokenPair> {
+export async function createAuthSession(
+  input: CreateSessionInput,
+): Promise<SessionTokenPair> {
   const provisionalRefreshToken = signToken(
     {
       sub: input.userAccountId,
@@ -81,13 +83,19 @@ export async function createAuthSession(input: CreateSessionInput): Promise<Sess
   return { accessToken, refreshToken };
 }
 
-export async function rotateAuthSession(input: RotateSessionInput): Promise<SessionTokenPair> {
+export async function rotateAuthSession(
+  input: RotateSessionInput,
+): Promise<SessionTokenPair> {
   const claims = verifyToken(input.refreshToken, "refresh");
   const session = await prisma.authSession.findUnique({
     where: { id: claims.sid },
   });
 
-  if (!session || session.revokedAt || session.expiresAt.getTime() <= Date.now()) {
+  if (
+    !session ||
+    session.revokedAt ||
+    session.expiresAt.getTime() <= Date.now()
+  ) {
     throw new Error("Session not found or expired.");
   }
 

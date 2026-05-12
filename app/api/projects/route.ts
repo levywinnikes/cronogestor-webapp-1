@@ -80,7 +80,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const guard = await requireTenantContext({ roles: ["OWNER", "ADMIN", "EDITOR"] });
+  const guard = await requireTenantContext({
+    roles: ["OWNER", "ADMIN", "EDITOR"],
+  });
 
   if (!guard.ok) {
     return guard.response;
@@ -99,7 +101,10 @@ export async function POST(request: Request) {
     });
 
     if (!organization) {
-      return NextResponse.json({ message: "Tenant nao encontrado." }, { status: 404 });
+      return NextResponse.json(
+        { message: "Tenant nao encontrado." },
+        { status: 404 },
+      );
     }
 
     const company = await prisma.company.upsert({
@@ -156,9 +161,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ data: project }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: "Dados de projeto invalidos." }, { status: 400 });
+      return NextResponse.json(
+        { message: "Dados de projeto invalidos." },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ message: "Falha ao criar projeto." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Falha ao criar projeto." },
+      { status: 500 },
+    );
   }
 }

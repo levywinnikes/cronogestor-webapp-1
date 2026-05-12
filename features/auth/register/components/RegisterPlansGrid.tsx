@@ -41,7 +41,9 @@ export function RegisterPlansGrid({
             <span className="text-3xl font-extrabold text-gray-900">
               {t("register.plans.currencySymbol")} {plan.price}
             </span>
-            <span className="text-sm text-gray-500 font-medium">{t("register.plans.perMonth")}</span>
+            <span className="text-sm text-gray-500 font-medium">
+              {t("register.plans.perMonth")}
+            </span>
           </div>
 
           <ul className="flex-1 space-y-4 mb-8">

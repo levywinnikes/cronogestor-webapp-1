@@ -41,7 +41,11 @@ export async function GET() {
     where: {
       organizationId: guard.context.organizationId,
     },
-    orderBy: [{ periodYear: "desc" }, { periodMonth: "desc" }, { createdAt: "desc" }],
+    orderBy: [
+      { periodYear: "desc" },
+      { periodMonth: "desc" },
+      { createdAt: "desc" },
+    ],
     include: {
       employee: {
         select: {
@@ -71,7 +75,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const guard = await requireTenantContext({ roles: ["OWNER", "ADMIN", "EDITOR"] });
+  const guard = await requireTenantContext({
+    roles: ["OWNER", "ADMIN", "EDITOR"],
+  });
 
   if (!guard.ok) {
     return guard.response;
@@ -95,7 +101,10 @@ export async function POST(request: Request) {
     });
 
     if (!employee) {
-      return NextResponse.json({ message: "Funcionario nao encontrado." }, { status: 404 });
+      return NextResponse.json(
+        { message: "Funcionario nao encontrado." },
+        { status: 404 },
+      );
     }
 
     const organization = await prisma.organization.findUnique({
@@ -104,7 +113,10 @@ export async function POST(request: Request) {
     });
 
     if (!organization) {
-      return NextResponse.json({ message: "Tenant nao encontrado." }, { status: 404 });
+      return NextResponse.json(
+        { message: "Tenant nao encontrado." },
+        { status: 404 },
+      );
     }
 
     const legacyCompany = await prisma.company.findUnique({
@@ -113,7 +125,10 @@ export async function POST(request: Request) {
     });
 
     if (!legacyCompany) {
-      return NextResponse.json({ message: "Empresa legada nao encontrada." }, { status: 404 });
+      return NextResponse.json(
+        { message: "Empresa legada nao encontrada." },
+        { status: 404 },
+      );
     }
 
     const project = await prisma.project.findFirst({
@@ -125,7 +140,10 @@ export async function POST(request: Request) {
     });
 
     if (!project) {
-      return NextResponse.json({ message: "Projeto nao encontrado." }, { status: 404 });
+      return NextResponse.json(
+        { message: "Projeto nao encontrado." },
+        { status: 404 },
+      );
     }
 
     const defaultPolicy = await prisma.organizationLaborPolicy.findFirst({
@@ -157,10 +175,15 @@ export async function POST(request: Request) {
     );
 
     const hourlyBase =
-      (Number(employee.salary) / 220) * (1 + Number(employee.chargesPercent) / 100);
+      (Number(employee.salary) / 220) *
+      (1 + Number(employee.chargesPercent) / 100);
 
-    const weekdayFirstTwoPercent = Number(defaultPolicy?.weekdayFirstTwoHoursPercent ?? 50);
-    const weekdayAfterTwoPercent = Number(defaultPolicy?.weekdayAfterTwoHoursPercent ?? 100);
+    const weekdayFirstTwoPercent = Number(
+      defaultPolicy?.weekdayFirstTwoHoursPercent ?? 50,
+    );
+    const weekdayAfterTwoPercent = Number(
+      defaultPolicy?.weekdayAfterTwoHoursPercent ?? 100,
+    );
     const saturdayPercent = Number(defaultPolicy?.saturdayPercent ?? 50);
     const sundayPercent = Number(defaultPolicy?.sundayPercent ?? 100);
     const holidayPercent = Number(defaultPolicy?.holidayPercent ?? 100);
@@ -235,8 +258,12 @@ export async function POST(request: Request) {
 
       const calculatedAmount =
         (normalMinutes / 60) * hourlyBase +
-        (overtimeFirstTwoMinutes / 60) * hourlyBase * (1 + weekdayFirstTwoPercent / 100) +
-        (overtimeAfterTwoMinutes / 60) * hourlyBase * (1 + weekdayAfterTwoPercent / 100) +
+        (overtimeFirstTwoMinutes / 60) *
+          hourlyBase *
+          (1 + weekdayFirstTwoPercent / 100) +
+        (overtimeAfterTwoMinutes / 60) *
+          hourlyBase *
+          (1 + weekdayAfterTwoPercent / 100) +
         (saturdayMinutes / 60) * hourlyBase * (1 + saturdayPercent / 100) +
         (sundayOrHolidayMinutes / 60) *
           hourlyBase *
@@ -275,9 +302,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ data: { id: timeSheet.id } }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: "Dados de ficha tempo invalidos." }, { status: 400 });
+      return NextResponse.json(
+        { message: "Dados de ficha tempo invalidos." },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ message: "Falha ao salvar ficha tempo." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Falha ao salvar ficha tempo." },
+      { status: 500 },
+    );
   }
 }

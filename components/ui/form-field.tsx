@@ -36,7 +36,10 @@ export function TextField({
       ) : null}
       <input id={id} className={inputClassName} {...props} />
       {error ? (
-        <p className="text-red-500 text-xs mt-1 font-medium" suppressHydrationWarning>
+        <p
+          className="text-red-500 text-xs mt-1 font-medium"
+          suppressHydrationWarning
+        >
           {error}
         </p>
       ) : null}

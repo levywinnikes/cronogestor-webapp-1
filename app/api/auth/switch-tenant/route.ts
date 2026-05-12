@@ -33,7 +33,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!membership) {
-      return NextResponse.json({ message: "Tenant nao autorizado." }, { status: 403 });
+      return NextResponse.json(
+        { message: "Tenant nao autorizado." },
+        { status: 403 },
+      );
     }
 
     const { accessToken, refreshToken } = await createAuthSession({
@@ -47,7 +50,9 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       activeOrganization: {
         id: membership.organization.id,
-        name: membership.organization.displayName ?? membership.organization.legalName,
+        name:
+          membership.organization.displayName ??
+          membership.organization.legalName,
       },
     });
 
@@ -56,9 +61,15 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: "Tenant invalido." }, { status: 400 });
+      return NextResponse.json(
+        { message: "Tenant invalido." },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ message: "Falha ao trocar tenant." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Falha ao trocar tenant." },
+      { status: 500 },
+    );
   }
 }

@@ -55,7 +55,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const guard = await requireTenantContext({ roles: ["OWNER", "ADMIN", "EDITOR"] });
+  const guard = await requireTenantContext({
+    roles: ["OWNER", "ADMIN", "EDITOR"],
+  });
 
   if (!guard.ok) {
     return guard.response;
@@ -101,9 +103,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ data: employee }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: "Dados de funcionario invalidos." }, { status: 400 });
+      return NextResponse.json(
+        { message: "Dados de funcionario invalidos." },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ message: "Falha ao criar funcionario." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Falha ao criar funcionario." },
+      { status: 500 },
+    );
   }
 }

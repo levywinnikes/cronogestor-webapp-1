@@ -21,7 +21,9 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
   const json = (await response.json()) as { message?: string } & T;
 
   if (!response.ok) {
-    throw new Error(json.message ?? "Falha ao processar operacao de ficha tempo.");
+    throw new Error(
+      json.message ?? "Falha ao processar operacao de ficha tempo.",
+    );
   }
 
   return json;

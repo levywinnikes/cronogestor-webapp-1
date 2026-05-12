@@ -38,7 +38,9 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
   const json = (await response.json()) as { message?: string } & T;
 
   if (!response.ok) {
-    throw new Error(json.message ?? "Falha ao processar operacao de funcionarios.");
+    throw new Error(
+      json.message ?? "Falha ao processar operacao de funcionarios.",
+    );
   }
 
   return json;
@@ -51,7 +53,8 @@ class EmployeeService {
       credentials: "include",
     });
 
-    const payload = await parseApiResponse<ApiResponse<EmployeeDto[]>>(response);
+    const payload =
+      await parseApiResponse<ApiResponse<EmployeeDto[]>>(response);
     return payload.data;
   }
 
@@ -69,7 +72,10 @@ class EmployeeService {
     return payload.data;
   }
 
-  async updateEmployee(id: string, data: EmployeeUpsertDto): Promise<EmployeeDto> {
+  async updateEmployee(
+    id: string,
+    data: EmployeeUpsertDto,
+  ): Promise<EmployeeDto> {
     const response = await fetch(`/api/employees/${id}`, {
       method: "PUT",
       headers: {

@@ -24,7 +24,9 @@ function getSessionSecret(): string {
   const secret = process.env.SESSION_SECRET;
 
   if (!secret || secret.length < 32) {
-    throw new Error("SESSION_SECRET must be configured with at least 32 characters.");
+    throw new Error(
+      "SESSION_SECRET must be configured with at least 32 characters.",
+    );
   }
 
   return secret;
@@ -55,7 +57,10 @@ export function signToken(
   return `${segment}.${signature}`;
 }
 
-export function verifyToken(token: string, expectedType: "access" | "refresh"): TokenClaims {
+export function verifyToken(
+  token: string,
+  expectedType: "access" | "refresh",
+): TokenClaims {
   const parts = token.split(".");
 
   if (parts.length !== 3) {

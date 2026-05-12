@@ -13,22 +13,23 @@ import { Header } from "@/components/Header";
 import { useTranslation } from "react-i18next";
 
 // Definição do schema Zod com base na imagem do formulário
-const createProjectSchema = (t: (key: string) => string) => z.object({
-  type: z.enum(["COMPLETO", "SIMPLES"]).optional(),
-  name: z.string().min(3, t("projects.errors.nameRequired")),
-  responsible: z.string().optional(),
-  contractType: z.string().optional(),
-  contractor: z.string().optional(),
-  startDate: z.string().min(1, t("projects.errors.startDateRequired")),
-  endDate: z.string().min(1, "Previsão de término é obrigatória."),
-  budgetForecast: z.string().optional(),
-  contractNumber: z.string().optional(),
-  status: z
-    .enum(["NAO_INICIADO", "EM_ANDAMENTO", "PARALISADO", "CONCLUIDO"])
-    .optional(),
-  address: z.string().optional(),
-  hasTaskList: z.boolean().optional(),
-});
+const createProjectSchema = (t: (key: string) => string) =>
+  z.object({
+    type: z.enum(["COMPLETO", "SIMPLES"]).optional(),
+    name: z.string().min(3, t("projects.errors.nameRequired")),
+    responsible: z.string().optional(),
+    contractType: z.string().optional(),
+    contractor: z.string().optional(),
+    startDate: z.string().min(1, t("projects.errors.startDateRequired")),
+    endDate: z.string().min(1, "Previsão de término é obrigatória."),
+    budgetForecast: z.string().optional(),
+    contractNumber: z.string().optional(),
+    status: z
+      .enum(["NAO_INICIADO", "EM_ANDAMENTO", "PARALISADO", "CONCLUIDO"])
+      .optional(),
+    address: z.string().optional(),
+    hasTaskList: z.boolean().optional(),
+  });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
 
@@ -101,7 +102,9 @@ export default function AddProjectPageView() {
       router.push("/dashboard");
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : t("projects.errors.saveFailed");
+        error instanceof Error
+          ? error.message
+          : t("projects.errors.saveFailed");
       setErrorMsg(message);
     } finally {
       setIsLoading(false);
@@ -186,7 +189,8 @@ export default function AddProjectPageView() {
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                  {t("projects.labels.name")} <span className="text-red-500">*</span>
+                  {t("projects.labels.name")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="text"
@@ -300,7 +304,8 @@ export default function AddProjectPageView() {
               <div className="space-y-6">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                    {t("projects.labels.status")} <span className="text-red-500">*</span>
+                    {t("projects.labels.status")}{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <Select
                     className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition"
@@ -354,7 +359,9 @@ export default function AddProjectPageView() {
                 disabled
                 className="w-full p-2.5 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500"
               />
-              <p className="text-xs text-gray-500">{t("project.attachments.placeholder")}</p>
+              <p className="text-xs text-gray-500">
+                {t("project.attachments.placeholder")}
+              </p>
             </div>
           </div>
 

@@ -26,7 +26,10 @@ export default function RegisterScreen() {
       <PublicHeader />
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
         <RegisterHero />
-        <RegisterPlansGrid selectedPlan={selectedPlan} onSelectPlan={setSelectedPlan} />
+        <RegisterPlansGrid
+          selectedPlan={selectedPlan}
+          onSelectPlan={setSelectedPlan}
+        />
         <RegisterBenefits />
         <RegisterFormCard
           form={form}

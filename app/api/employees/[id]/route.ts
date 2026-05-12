@@ -20,7 +20,9 @@ type RouteParams = {
 };
 
 export async function PUT(request: Request, context: RouteParams) {
-  const guard = await requireTenantContext({ roles: ["OWNER", "ADMIN", "EDITOR"] });
+  const guard = await requireTenantContext({
+    roles: ["OWNER", "ADMIN", "EDITOR"],
+  });
 
   if (!guard.ok) {
     return guard.response;
@@ -40,7 +42,10 @@ export async function PUT(request: Request, context: RouteParams) {
     });
 
     if (!existing) {
-      return NextResponse.json({ message: "Funcionario nao encontrado." }, { status: 404 });
+      return NextResponse.json(
+        { message: "Funcionario nao encontrado." },
+        { status: 404 },
+      );
     }
 
     const employee = await prisma.employee.update({
@@ -78,10 +83,16 @@ export async function PUT(request: Request, context: RouteParams) {
     return NextResponse.json({ data: employee });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: "Dados de funcionario invalidos." }, { status: 400 });
+      return NextResponse.json(
+        { message: "Dados de funcionario invalidos." },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ message: "Falha ao atualizar funcionario." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Falha ao atualizar funcionario." },
+      { status: 500 },
+    );
   }
 }
 
@@ -103,7 +114,10 @@ export async function DELETE(_request: Request, context: RouteParams) {
   });
 
   if (deleted.count === 0) {
-    return NextResponse.json({ message: "Funcionario nao encontrado." }, { status: 404 });
+    return NextResponse.json(
+      { message: "Funcionario nao encontrado." },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json({ ok: true });
