@@ -1,117 +1,127 @@
 export interface LoginDto {
   email: string;
   password: string;
+  organizationId?: string;
 }
 
 export interface RegisterDto {
-  type: 'PF' | 'PJ';
-  planId: 'BASIC' | 'PREMIUM' | 'FULL';
-  document: string; // CPF or CNPJ
-  name: string; // Nome Completo ou Razão Social
+  type: "PF" | "PJ";
+  planId: "BASIC" | "PREMIUM" | "FULL";
+  document: string;
+  name: string;
   email: string;
   challenge: string;
   password: string;
 }
 
+export interface TenantSummary {
+  id: string;
+  name: string;
+  role: string;
+}
+
 export interface User {
   id: string;
   name: string;
-  role: 'ADMIN' | 'EMPLOYEE';
-  planType: 'FREE' | 'PREMIUM';
+  email: string;
+  role: string;
+  planType?: "FREE" | "PREMIUM" | "FULL";
   isActive: boolean;
 }
 
 export interface AuthResponseDto {
-  accessToken: string;
   user: User;
+  activeOrganization: {
+    id: string;
+    name: string;
+  };
+  organizations: TenantSummary[];
 }
 
-// Simulando um banco de dados
-const DUMMY_USERS: Record<string, User> = {
-  'admin@obras.com': {
-    id: 'usr-1',
-    name: 'Admin da Obra',
-    role: 'ADMIN',
-    planType: 'PREMIUM',
-    isActive: true,
-  },
-  'funcionario@obras.com': {
-    id: 'usr-2',
-    name: 'João Trabalhador',
-    role: 'EMPLOYEE',
-    planType: 'FREE',
-    isActive: true,
-  },
-  'demitido@obras.com': {
-    id: 'usr-3',
-    name: 'José Demitido',
-    role: 'EMPLOYEE',
-    planType: 'FREE',
-    isActive: false, // Inativo
+interface ApiError {
+  message?: string;
+}
+
+async function parseApiResponse<T>(response: Response): Promise<T> {
+  const json = (await response.json().catch(() => ({}))) as ApiError & T;
+
+  if (!response.ok) {
+    throw new Error(json.message ?? "Falha na autenticacao.");
   }
-};
+
+  return json as T;
+}
 
 class AuthService {
   async login(data: LoginDto): Promise<AuthResponseDto> {
-    // Simulando delay de rede (500ms a 1500ms)
-    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
 
-    const user = DUMMY_USERS[data.email];
-
-    // Senha padrão hardcoded para facilitar testes
-    if (!user || data.password !== '123456') {
-      throw new Error('Credenciais inválidas'); // Mensagem genérica por segurança
-    }
-
-    if (!user.isActive) {
-      throw new Error('Usuário inativo. Procure o administrador do sistema.');
-    }
-
-    // Mock de JWT simples
-    const mockToken = btoa(JSON.stringify({ id: user.id, exp: Date.now() + 3600000 }));
-
-    return {
-      accessToken: mockToken,
-      user
-    };
-  }
-
-  // Métodos placeholder para futura implementação
-  async refresh(): Promise<void> {
-    throw new Error('Not implemented');
-  }
-
-  async forgotPassword(email: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log(`Email de recuperação simulado para: ${email}`);
+    return parseApiResponse<AuthResponseDto>(response);
   }
 
   async register(data: RegisterDto): Promise<AuthResponseDto> {
-    // Simulando delay de rede
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1000));
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
 
-    // Validando email em uso
-    if (DUMMY_USERS[data.email]) {
-      throw new Error('Este e-mail já está cadastrado em nosso sistema.');
-    }
+    return parseApiResponse<AuthResponseDto>(response);
+  }
 
-    // Criando usuário falso no momento do registro
-    const newUser: User = {
-      id: `usr-${Math.floor(Math.random() * 10000)}`,
-      name: data.name,
-      role: 'ADMIN', // Quem cria a conta vira ADMIN da própria obra
-      planType: data.planId === 'BASIC' ? 'FREE' : 'PREMIUM',
-      isActive: true,
-    };
+  async logout(): Promise<void> {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
 
-    DUMMY_USERS[data.email] = newUser;
+    await parseApiResponse<{ ok: true }>(response);
+  }
 
-    const mockToken = btoa(JSON.stringify({ id: newUser.id, exp: Date.now() + 3600000 }));
+  async refresh(): Promise<void> {
+    const response = await fetch("/api/auth/refresh", {
+      method: "POST",
+      credentials: "include",
+    });
 
-    return {
-      accessToken: mockToken,
-      user: newUser
-    };
+    await parseApiResponse<{ ok: true }>(response);
+  }
+
+  async session(): Promise<AuthResponseDto> {
+    const response = await fetch("/api/auth/session", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    return parseApiResponse<AuthResponseDto>(response);
+  }
+
+  async switchTenant(organizationId: string): Promise<void> {
+    const response = await fetch("/api/auth/switch-tenant", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ organizationId }),
+    });
+
+    await parseApiResponse<{ activeOrganization: { id: string; name: string } }>(response);
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    console.info(`Recuperacao de senha solicitada para ${email}.`);
   }
 }
 

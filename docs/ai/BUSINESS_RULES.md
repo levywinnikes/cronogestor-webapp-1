@@ -12,6 +12,8 @@
 2. Cada organizacao possui propria lista de usuarios.
 3. Usuarios administrativos da organizacao gerenciam seus projetos e colaboradores.
 4. Papel global da plataforma deve ter acesso cross-tenant controlado e auditavel.
+5. Email de login e unico no sistema (escopo global), nao por organizacao.
+6. Tenant pode ser PF ou PJ e ambos seguem o mesmo fluxo de projetos.
 
 ## Projetos
 
@@ -30,6 +32,12 @@
    - flag de lista de tarefas
 
 3. Status padrao sugerido: EM_ANDAMENTO (de acordo com UX atual).
+4. Numero/codigo de projeto deve ser unico no tenant para sempre (sem reset anual).
+
+## Propostas e calculo
+
+1. Consolidados de custo devem ser recalculados sob demanda a partir dos itens de entrada.
+2. Enquanto o calculo for sob demanda, nao ha obrigacao de snapshot persistido de resumo.
 
 ## Funcionarios
 

@@ -1,0 +1,87 @@
+{
+  "register": {
+    "brand": "Cronogestor",
+    "offer": "SPECIAL OFFER: Free Premium plan for 14 days. Start now!",
+    "title": "Choose the ideal plan for your project",
+    "benefits": {
+      "time": {
+        "title": "Optimize Time",
+        "description": "Reduce hours spent on manual spreadsheets."
+      },
+      "reports": {
+        "title": "Accurate Reports",
+        "description": "Real data to support decision making."
+      },
+      "access": {
+        "title": "Full Access",
+        "description": "Manage your project from anywhere."
+      }
+    },
+    "form": {
+      "title": "Let's get started?",
+      "description": "Fill in the fields below to create your Cronogestor account.",
+      "personPf": "Individual (CPF)",
+      "personPj": "Company (CNPJ)",
+      "documentCpf": "CPF",
+      "documentCnpj": "CNPJ",
+      "namePf": "Full Name",
+      "namePj": "Company Name",
+      "email": "Work Email",
+      "challenge": "What challenge do you need to solve in your company?",
+      "password": "Access Password",
+      "submit": "Create Free Account",
+      "terms": "By creating an account, you accept our Terms of Use.",
+      "placeholders": {
+        "namePf": "Your full name",
+        "namePj": "Legal company name",
+        "email": "you@company.com",
+        "challenge": "Example: I need better control of overtime across construction sites..."
+      }
+    },
+    "plans": {
+      "currencySymbol": "$",
+      "perMonth": "/month",
+      "actions": {
+        "selected": "Selected",
+        "select": "Select",
+        "selectPremium": "Select Premium"
+      },
+      "basic": {
+        "name": "Basic",
+        "features": {
+          "timeControl": "Time Tracking",
+          "teamManagement": "Team Management",
+          "webMobile": "Web and Mobile Access",
+          "emailSupport": "Email Support"
+        }
+      },
+      "premium": {
+        "name": "Premium",
+        "badge": "Best Cost-\nBenefit",
+        "features": {
+          "trial": "14-Day Free Trial",
+          "timeControl": "Time Tracking",
+          "reports": "Full Report Generation",
+          "parallelProjects": "Up to 30 Parallel Projects",
+          "activeUsers": "Up to 30 Active Users"
+        }
+      },
+      "full": {
+        "name": "Full",
+        "features": {
+          "unlimited": "Unlimited Everything",
+          "advancedReports": "Advanced Management Reports",
+          "erpIntegration": "ERP Integration",
+          "accountManager": "Dedicated Account Manager",
+          "support247": "24/7 Support"
+        }
+      }
+    }
+  },
+  "project": {
+    "attachments": {
+      "title": "Project Attachments",
+      "placeholder": "Field prepared for file upload. Upload will be enabled in a later step."
+    }
+  }
+}

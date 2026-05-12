@@ -3,9 +3,20 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { authService } from "@/app/services/auth.service";
 
 export function Header() {
   const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // Always redirect to login even when API logout fails on client.
+    }
+
+    router.push("/login");
+  };
 
   return (
     <header className="bg-[#002f5c] shadow-md text-white">
@@ -20,7 +31,7 @@ export function Header() {
           <Link href="/funcionarios" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">Funcionários</Link>
           <Link href="/ficha-tempo" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">Ficha Tempo</Link>
           <button
-             onClick={() => router.push("/login")}
+             onClick={handleLogout}
              className="flex items-center text-blue-100 hover:text-white transition-colors text-sm font-medium"
           >
             <LogOut className="h-4 w-4 mr-1.5" />

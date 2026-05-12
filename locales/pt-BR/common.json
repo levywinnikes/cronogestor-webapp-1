@@ -1,0 +1,87 @@
+{
+  "register": {
+    "brand": "Cronogestor",
+    "offer": "OFERTA ESPECIAL: Plano Premium Grátis por 14 dias. Comece agora!",
+    "title": "Escolha o plano ideal para sua obra",
+    "benefits": {
+      "time": {
+        "title": "Otimize o Tempo",
+        "description": "Reduza horas gastas com planilhas manuais."
+      },
+      "reports": {
+        "title": "Relatórios Precisos",
+        "description": "Dados reais para tomada de decisão."
+      },
+      "access": {
+        "title": "Acesso Total",
+        "description": "Controle sua obra de onde estiver."
+      }
+    },
+    "form": {
+      "title": "Vamos começar?",
+      "description": "Preencha os dados abaixo para criar sua conta no Cronogestor.",
+      "personPf": "Pessoa Física (CPF)",
+      "personPj": "Empresa (CNPJ)",
+      "documentCpf": "CPF",
+      "documentCnpj": "CNPJ",
+      "namePf": "Nome Completo",
+      "namePj": "Nome da Empresa (Razão Social)",
+      "email": "E-mail Profissional",
+      "challenge": "Qual desafio você precisa resolver na sua empresa?",
+      "password": "Senha de Acesso",
+      "submit": "Criar Conta Grátis",
+      "terms": "Ao criar conta, você aceita nossos Termos de Uso.",
+      "placeholders": {
+        "namePf": "Seu nome",
+        "namePj": "Razao Social",
+        "email": "seu@email.com",
+        "challenge": "Ex: Preciso controlar melhor as horas extras dos funcionarios nas obras..."
+      }
+    },
+    "plans": {
+      "currencySymbol": "R$",
+      "perMonth": "/mes",
+      "actions": {
+        "selected": "Selecionado",
+        "select": "Selecionar",
+        "selectPremium": "Selecionar Premium"
+      },
+      "basic": {
+        "name": "Basico",
+        "features": {
+          "timeControl": "Controle de Horas",
+          "teamManagement": "Gestao de Colaboradores",
+          "webMobile": "Acesso Web e Mobile",
+          "emailSupport": "Suporte por Email"
+        }
+      },
+      "premium": {
+        "name": "Premium",
+        "badge": "Melhor Custo-\nBeneficio",
+        "features": {
+          "trial": "14 Dias Gratis",
+          "timeControl": "Controle de Horas",
+          "reports": "Emissao de Relatorios Completos",
+          "parallelProjects": "Ate 30 Obras Paralelas",
+          "activeUsers": "Ate 30 Usuarios Ativos"
+        }
+      },
+      "full": {
+        "name": "Full",
+        "features": {
+          "unlimited": "Tudo Ilimitado",
+          "advancedReports": "Relatorios Gerenciais Avancados",
+          "erpIntegration": "Integracao com ERP",
+          "accountManager": "Gerente de Conta Dedicado",
+          "support247": "Suporte 24/7"
+        }
+      }
+    }
+  },
+  "project": {
+    "attachments": {
+      "title": "Anexos do Projeto",
+      "placeholder": "Campo preparado para envio de arquivos. Upload sera habilitado em uma proxima etapa."
+    }
+  }
+}

@@ -8,6 +8,9 @@
 4. Confirme se algum fluxo de usuario mudou.
 5. Confirme se alguma diretriz tecnica mudou.
 6. Atualize docs/ai/adr/README.md e crie/edite ADRs para pendencias e decisoes.
+7. Confirme se componente novo poderia reutilizar algo existente.
+8. Atualize docs/ai/COMPONENT_CATALOG.md quando criar/mover componente.
+9. Confirme uso de tokens de tema e estrategia de i18n para textos novos.
 
 ## Gate de qualidade
 

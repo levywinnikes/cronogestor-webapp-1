@@ -19,6 +19,10 @@ Centralizar contexto de negocio, dominio e engenharia para que qualquer IA traba
 4. ENGINEERING_RULES.md
 5. adr/README.md
 6. UPDATE_CHECKLIST.md
+7. COMPONENT_WORKFLOW.md
+8. COMPONENT_CATALOG.md
+9. I18N_AND_THEME.md
+10. SCHEMA_PLANNING_PROPOSTAS.md
 
 ## Fonte de verdade
 

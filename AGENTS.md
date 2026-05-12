@@ -13,6 +13,9 @@ A IA deve consultar estes documentos antes de propor mudancas ou editar codigo.
 4. docs/ai/WORKFLOWS.md
 5. docs/ai/ENGINEERING_RULES.md
 6. docs/ai/adr/README.md
+7. docs/ai/COMPONENT_WORKFLOW.md
+8. docs/ai/COMPONENT_CATALOG.md
+9. docs/ai/I18N_AND_THEME.md
 
 ## Regras operacionais
 
@@ -22,6 +25,7 @@ A IA deve consultar estes documentos antes de propor mudancas ou editar codigo.
 3. Toda mudanca relevante em dominio, fluxo ou seguranca deve atualizar docs/ai.
 4. Se algo estiver indefinido, registrar novo ADR em docs/ai/adr com status "PENDENTE".
 5. Aplicar o checklist de governanca definido em .github/pull_request_template.md.
+6. Antes de criar novo componente, verificar reuso em docs/ai/COMPONENT_CATALOG.md.
 
 ## Definicao de pronto para mudancas
 

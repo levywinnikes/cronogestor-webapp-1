@@ -29,6 +29,229 @@ enum ProjectStatus {
   CONCLUIDO
 }
 
+enum AttachmentStatus {
+  PENDING
+  UPLOADED
+  FAILED
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INVITED
+  DISABLED
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum ProposalStatus {
+  EM_ELABORACAO
+  ENVIADA
+  APROVADA
+  REPROVADA
+}
+
+enum BillingType {
+  SERVICOS
+  PRODUTOS
+  INDUSTRIALIZACAO
+}
+
+enum ProposalAccessRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum CostItemUnit {
+  HORA
+  DIA
+  UNIDADE
+  KG
+  METRO
+  METRO_QUADRADO
+  METRO_CUBICO
+  LITRO
+  MES
+  OUTRO
+}
+
+enum TaxRegime {
+  LUCRO_PRESUMIDO_SERVICOS
+  LUCRO_PRESUMIDO_PRODUTOS
+  LUCRO_PRESUMIDO_INDUSTRIALIZACAO
+  SIMPLES_NACIONAL_WRB
+  SIMPLES_NACIONAL_BIOTORQUE
+}
+
+enum ProposalDocumentLanguage {
+  PT
+  ES
+}
+
+enum ProposalDocumentFormat {
+  HTML
+  PDF
+  XLSX
+}
+
+enum ProposalDocumentStatus {
+  PENDING
+  GENERATED
+  FAILED
+}
+
+enum EmployeeRegime {
+  DIA
+  QUINZENA
+  MES
+}
+
+enum HolidayType {
+  NACIONAL
+  ESTADUAL
+  MUNICIPAL
+  ORGANIZACAO
+}
+
+enum TimeSheetStatus {
+  DRAFT
+  CLOSED
+}
+
+model Organization {
+  id           String   @id @default(cuid())
+  personType   PersonType
+  document     String   @unique
+  legalName    String
+  displayName  String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships      OrganizationMembership[]
+  proposals        Proposal[]
+  proposalModItems ProposalModItem[]
+  proposalMoiItems ProposalMoiItem[]
+  proposalMaterialItems ProposalMaterialItem[]
+  proposalEquipmentItems ProposalEquipmentItem[]
+  proposalThirdPartyItems ProposalThirdPartyItem[]
+  proposalConsumableItems ProposalConsumableItem[]
+  proposalExpenseItems ProposalExpenseItem[]
+  proposalAttachments ProposalAttachment[]
+  invitations      Invitation[]
+  subscriptions    Subscription[]
+  salaryBaseTables SalaryBaseTable[]
+  taxProfiles      TaxProfile[]
+  simplesRates     SimplesNacionalRate[]
+  employees        Employee[]
+  employeeProjectAssignments EmployeeProjectAssignment[]
+  laborPolicies    OrganizationLaborPolicy[]
+  employeePolicyOverrides EmployeeLaborPolicyOverride[]
+  holidays         OrganizationHoliday[]
+  timeSheets       TimeSheet[]
+  timeSheetEntries TimeSheetEntry[]
+  authSessions     AuthSession[]
+}
+
+model UserAccount {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships OrganizationMembership[]
+  invitesSent Invitation[]            @relation("InvitationSender")
+  authSessions AuthSession[]
+}
+
+model AuthSession {
+  id               String   @id @default(cuid())
+  userAccountId    String
+  organizationId   String
+  refreshTokenHash String
+  userAgent        String?
+  ipAddress        String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  userAccount  UserAccount  @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userAccountId, organizationId, revokedAt])
+  @@index([expiresAt])
+}
+
+model OrganizationMembership {
+  id             String           @id @default(cuid())
+  organizationId String
+  userAccountId  String
+  role           MembershipRole   @default(EDITOR)
+  status         MembershipStatus @default(ACTIVE)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userAccount  UserAccount  @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
+  proposalAccesses ProposalAccess[]
+
+  @@unique([organizationId, userAccountId])
+  @@index([organizationId, role])
+  @@index([userAccountId])
+}
+
+model Invitation {
+  id              String           @id @default(cuid())
+  organizationId  String
+  email           String
+  role            MembershipRole
+  status          MembershipStatus @default(INVITED)
+  tokenHash       String
+  invitedByUserId String?
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy    UserAccount? @relation("InvitationSender", fields: [invitedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, email])
+  @@index([tokenHash])
+}
+
+model Subscription {
+  id             String             @id @default(cuid())
+  organizationId String
+  planType       PlanType
+  status         SubscriptionStatus @default(TRIAL)
+  startedAt      DateTime           @default(now())
+  endsAt         DateTime?
+  canceledAt     DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, status])
+}
+
 model Company {
   id        String   @id @default(cuid())
   personType PersonType
@@ -42,6 +265,7 @@ model Company {
 
   users    User[]
   projects Project[]
+  projectAttachments ProjectAttachment[]
 }
 
 model User {
@@ -64,6 +288,7 @@ model User {
 model Project {
   id               String        @id @default(cuid())
   companyId        String
+  projectCode      String?
   name             String
   responsible      String?
   contractType     String?
@@ -75,13 +300,38 @@ model Project {
   status           ProjectStatus @default(NAO_INICIADO)
   address          String?
   hasTaskList      Boolean       @default(false)
+  extraMonthlyPerEmployee Decimal? @db.Decimal(12, 2)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
   company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
   timeEntries TimeEntry[]
+  attachments ProjectAttachment[]
+  employeeAssignments EmployeeProjectAssignment[]
+  timeSheets TimeSheet[]
+  timeSheetEntries TimeSheetEntry[]
 
   @@index([companyId])
+  @@unique([companyId, projectCode])
+}
+
+model ProjectAttachment {
+  id           String           @id @default(cuid())
+  companyId    String
+  projectId    String
+  displayName  String
+  storageKey   String?
+  mimeType     String?
+  byteSize     Int?
+  status       AttachmentStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, projectId])
+  @@index([status])
 }
 
 model TimeEntry {
@@ -100,4 +350,534 @@ model TimeEntry {
 
   @@index([userId, date])
   @@index([projectId, date])
+}
+
+model Proposal {
+  id                  String         @id @default(cuid())
+  organizationId      String
+  proposalCode        String
+  projectCode         String?
+  customerName        String
+  serviceDescription  String
+  internalResponsible String?
+  workType            String?
+  billingType         BillingType
+  requestDate         DateTime?
+  completionDate      DateTime?
+  sentDate            DateTime?
+  decisionDate        DateTime?
+  status              ProposalStatus @default(EM_ELABORACAO)
+  rejectionReason     String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  organization      Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contacts          ProposalContact[]
+  accesses          ProposalAccess[]
+  modItems          ProposalModItem[]
+  moiItems          ProposalMoiItem[]
+  materialItems     ProposalMaterialItem[]
+  equipmentItems    ProposalEquipmentItem[]
+  thirdPartyItems   ProposalThirdPartyItem[]
+  consumableItems   ProposalConsumableItem[]
+  expenseItems      ProposalExpenseItem[]
+  calculationInput  ProposalCalculationInput?
+  calculationResult ProposalCalculationResult?
+  documents         ProposalDocument[]
+  attachments       ProposalAttachment[]
+
+  @@unique([organizationId, proposalCode])
+  @@index([organizationId, status])
+  @@index([customerName])
+}
+
+model ProposalContact {
+  id         String   @id @default(cuid())
+  proposalId String
+  name       String
+  email      String?
+  phone      String?
+  position   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, position])
+}
+
+model ProposalAccess {
+  id             String             @id @default(cuid())
+  proposalId     String
+  membershipId   String
+  role           ProposalAccessRole @default(VIEWER)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  proposal   Proposal               @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  membership OrganizationMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, membershipId])
+  @@index([membershipId])
+}
+
+model ProposalModItem {
+  id             String       @id @default(cuid())
+  organizationId String
+  proposalId     String
+  itemOrder      Int
+  category       String
+  functionName   String
+  quantityTime   Decimal      @db.Decimal(12, 2)
+  timeUnit       CostItemUnit
+  peopleCount    Int
+  unitCost       Decimal      @db.Decimal(12, 2)
+  subtotal       Decimal      @db.Decimal(14, 2)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  proposal Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, proposalId])
+  @@index([proposalId, itemOrder])
+}
+
+model ProposalMoiItem {
+  id             String       @id @default(cuid())
+  organizationId String
+  proposalId     String
+  itemOrder      Int
+  category       String
+  functionName   String
+  quantityTime   Decimal      @db.Decimal(12, 2)
+  timeUnit       CostItemUnit
+  peopleCount    Int
+  unitCost       Decimal      @db.Decimal(12, 2)
+  subtotal       Decimal      @db.Decimal(14, 2)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  proposal Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, proposalId])
+  @@index([proposalId, itemOrder])
+}
+
+model ProposalMaterialItem {
+  id             String       @id @default(cuid())
+  organizationId String
+  proposalId     String
+  itemOrder      Int
+  itemCode       String?
+  usage          String?
+  description    String
+  material       String?
+  length         Decimal?     @db.Decimal(12, 3)
+  width          Decimal?     @db.Decimal(12, 3)
+  thickness      Decimal?     @db.Decimal(12, 3)
+  quantity       Decimal      @db.Decimal(12, 3)
+  unit           CostItemUnit
+  unitCost       Decimal      @db.Decimal(12, 2)
+  subtotal       Decimal      @db.Decimal(14, 2)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  proposal Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, proposalId])
+  @@index([proposalId, itemOrder])
+}
+
+model ProposalEquipmentItem {
+  id             String       @id @default(cuid())
+  organizationId String
+  proposalId     String
+  itemOrder      Int
+  category       String
+  description    String
+  quantity       Decimal      @db.Decimal(12, 3)
+  unit           CostItemUnit
+  icmsPercent    Decimal?     @db.Decimal(5, 2)
+  pisPercent     Decimal?     @db.Decimal(5, 2)
+  cofinsPercent  Decimal?     @db.Decimal(5, 2)
+  unitCost       Decimal      @db.Decimal(12, 2)
+  subtotal       Decimal      @db.Decimal(14, 2)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  proposal Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, proposalId])
+  @@index([proposalId, itemOrder])
+}
+
+model ProposalThirdPartyItem {
+  id             String       @id @default(cuid())
+  organizationId String
+  proposalId     String
+  itemOrder      Int
+  category       String
+  description    String
+  quantity       Decimal      @db.Decimal(12, 3)
+  unit           CostItemUnit
+  unitCost       Decimal      @db.Decimal(12, 2)
+  subtotal       Decimal      @db.Decimal(14, 2)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  proposal Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, proposalId])
+  @@index([proposalId, itemOrder])
+}
+
+model ProposalConsumableItem {
+  id             String       @id @default(cuid())
+  organizationId String
+  proposalId     String
+  itemOrder      Int
+  category       String
+  description    String
+  quantity       Decimal      @db.Decimal(12, 3)
+  unit           CostItemUnit
+  unitCost       Decimal      @db.Decimal(12, 2)
+  subtotal       Decimal      @db.Decimal(14, 2)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  proposal Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, proposalId])
+  @@index([proposalId, itemOrder])
+}
+
+model ProposalExpenseItem {
+  id             String       @id @default(cuid())
+  organizationId String
+  proposalId     String
+  itemOrder      Int
+  category       String
+  description    String
+  quantity       Decimal      @db.Decimal(12, 3)
+  unit           CostItemUnit
+  unitCost       Decimal      @db.Decimal(12, 2)
+  subtotal       Decimal      @db.Decimal(14, 2)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  proposal Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, proposalId])
+  @@index([proposalId, itemOrder])
+}
+
+model SalaryBaseTable {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  roles        SalaryBaseRole[]
+
+  @@index([organizationId, isDefault])
+}
+
+model SalaryBaseRole {
+  id              String   @id @default(cuid())
+  salaryBaseTableId String
+  roleName        String
+  monthlySalary   Decimal  @db.Decimal(12, 2)
+  monthlyHours    Decimal  @db.Decimal(8, 2)
+  chargesPercent  Decimal  @db.Decimal(5, 2)
+  hourCostWithCharges Decimal @db.Decimal(12, 4)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  salaryBaseTable SalaryBaseTable @relation(fields: [salaryBaseTableId], references: [id], onDelete: Cascade)
+
+  @@unique([salaryBaseTableId, roleName])
+}
+
+model TaxProfile {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  regime         TaxRegime
+  rulesJson      Json?
+  isDefault      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  proposalCalculationInputs ProposalCalculationInput[]
+
+  @@index([organizationId, isDefault])
+}
+
+model SimplesNacionalRate {
+  id             String   @id @default(cuid())
+  organizationId String
+  annex          String
+  rangeStart     Decimal  @db.Decimal(14, 2)
+  rangeEnd       Decimal  @db.Decimal(14, 2)
+  nominalAliquot Decimal  @db.Decimal(6, 4)
+  deduction      Decimal  @db.Decimal(14, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, annex])
+  @@index([rangeStart, rangeEnd])
+}
+
+model ProposalCalculationInput {
+  id                String   @id @default(cuid())
+  proposalId        String   @unique
+  taxProfileId      String?
+  bdiPercent        Decimal  @db.Decimal(6, 2)
+  assistancePercent Decimal  @db.Decimal(6, 2)
+  commissionPercent Decimal  @db.Decimal(6, 2)
+  profitPercent     Decimal  @db.Decimal(6, 2)
+  safetyFactor      Decimal  @db.Decimal(8, 4)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  proposal   Proposal   @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  taxProfile TaxProfile? @relation(fields: [taxProfileId], references: [id], onDelete: SetNull)
+}
+
+model ProposalCalculationResult {
+  id                     String   @id @default(cuid())
+  proposalId             String   @unique
+  totalMod               Decimal  @db.Decimal(14, 2)
+  totalMoi               Decimal  @db.Decimal(14, 2)
+  totalMaterials         Decimal  @db.Decimal(14, 2)
+  totalEquipment         Decimal  @db.Decimal(14, 2)
+  totalThirdParty        Decimal  @db.Decimal(14, 2)
+  totalConsumables       Decimal  @db.Decimal(14, 2)
+  totalExpenses          Decimal  @db.Decimal(14, 2)
+  totalCost              Decimal  @db.Decimal(14, 2)
+  saleValueBeforeTaxes   Decimal  @db.Decimal(14, 2)
+  taxesValue             Decimal  @db.Decimal(14, 2)
+  finalValueWithMarkup   Decimal  @db.Decimal(14, 2)
+  calculatedAt           DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+}
+
+model ProposalDocument {
+  id             String                 @id @default(cuid())
+  proposalId     String
+  language       ProposalDocumentLanguage
+  format         ProposalDocumentFormat
+  status         ProposalDocumentStatus @default(PENDING)
+  storageKey     String?
+  generatedAt    DateTime?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId, language, format])
+  @@index([status])
+}
+
+model ProposalAttachment {
+  id             String           @id @default(cuid())
+  organizationId String
+  proposalId     String
+  displayName    String
+  storageKey     String?
+  mimeType       String?
+  byteSize       Int?
+  status         AttachmentStatus @default(PENDING)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  proposal     Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, proposalId])
+  @@index([status])
+}
+
+model Employee {
+  id               String        @id @default(cuid())
+  organizationId   String
+  employeeCode     String
+  firstName        String
+  lastName         String
+  document         String
+  roleName         String?
+  salary           Decimal       @db.Decimal(12, 2)
+  regime           EmployeeRegime @default(MES)
+  hoursPerDay      Decimal       @db.Decimal(5, 2)
+  chargesPercent   Decimal       @db.Decimal(5, 2)
+  benefitsAmount   Decimal       @db.Decimal(12, 2)
+  isActive         Boolean       @default(true)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projectAssignments EmployeeProjectAssignment[]
+  policyOverrides EmployeeLaborPolicyOverride[]
+  timeSheets TimeSheet[]
+  timeSheetEntries TimeSheetEntry[]
+
+  @@unique([organizationId, employeeCode])
+  @@unique([organizationId, document])
+  @@index([organizationId, lastName])
+}
+
+model EmployeeProjectAssignment {
+  id             String   @id @default(cuid())
+  organizationId String
+  employeeId     String
+  projectId      String
+  assignedAt     DateTime @default(now())
+  unassignedAt   DateTime?
+  isActive       Boolean  @default(true)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, employeeId, projectId])
+  @@index([projectId, isActive])
+}
+
+model OrganizationLaborPolicy {
+  id                            String   @id @default(cuid())
+  organizationId                String
+  policyName                    String
+  weeklyWorkloadHours           Decimal  @db.Decimal(5, 2)
+  weekdayFirstTwoHoursPercent   Decimal  @db.Decimal(5, 2)
+  weekdayAfterTwoHoursPercent   Decimal  @db.Decimal(5, 2)
+  saturdayPercent               Decimal  @db.Decimal(5, 2)
+  sundayPercent                 Decimal  @db.Decimal(5, 2)
+  holidayPercent                Decimal  @db.Decimal(5, 2)
+  nightAdditionalPercent        Decimal  @db.Decimal(5, 2)
+  nightStart                    String
+  nightEnd                      String
+  isDefault                     Boolean  @default(true)
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employeeOverrides EmployeeLaborPolicyOverride[]
+
+  @@index([organizationId, isDefault])
+}
+
+model EmployeeLaborPolicyOverride {
+  id                          String   @id @default(cuid())
+  organizationId              String
+  employeeId                  String
+  basePolicyId                String?
+  weekdayFirstTwoHoursPercent Decimal? @db.Decimal(5, 2)
+  weekdayAfterTwoHoursPercent Decimal? @db.Decimal(5, 2)
+  saturdayPercent             Decimal? @db.Decimal(5, 2)
+  sundayPercent               Decimal? @db.Decimal(5, 2)
+  holidayPercent              Decimal? @db.Decimal(5, 2)
+  nightAdditionalPercent      Decimal? @db.Decimal(5, 2)
+  nightStart                  String?
+  nightEnd                    String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee              @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  basePolicy   OrganizationLaborPolicy? @relation(fields: [basePolicyId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, employeeId])
+}
+
+model OrganizationHoliday {
+  id             String      @id @default(cuid())
+  organizationId String
+  date           DateTime
+  name           String
+  type           HolidayType @default(ORGANIZACAO)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, date, name])
+  @@index([organizationId, date])
+}
+
+model TimeSheet {
+  id               String          @id @default(cuid())
+  organizationId   String
+  projectId        String
+  employeeId       String
+  periodYear       Int
+  periodMonth      Int
+  status           TimeSheetStatus @default(DRAFT)
+  closedAt         DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  entries      TimeSheetEntry[]
+
+  @@unique([organizationId, projectId, employeeId, periodYear, periodMonth])
+  @@index([organizationId, status])
+}
+
+model TimeSheetEntry {
+  id                              String   @id @default(cuid())
+  organizationId                  String
+  timeSheetId                     String
+  employeeId                      String
+  projectId                       String
+  workDate                        DateTime
+  startDateTime                   DateTime
+  endDateTime                     DateTime
+  breakMinutes                    Int      @default(0)
+
+  snapshotBaseSalary              Decimal  @db.Decimal(12, 2)
+  snapshotChargesPercent          Decimal  @db.Decimal(5, 2)
+  snapshotHourlyBase              Decimal  @db.Decimal(12, 4)
+  snapshotWeekdayFirstTwoPercent  Decimal  @db.Decimal(5, 2)
+  snapshotWeekdayAfterTwoPercent  Decimal  @db.Decimal(5, 2)
+  snapshotSaturdayPercent         Decimal  @db.Decimal(5, 2)
+  snapshotSundayPercent           Decimal  @db.Decimal(5, 2)
+  snapshotHolidayPercent          Decimal  @db.Decimal(5, 2)
+  snapshotNightAdditionalPercent  Decimal  @db.Decimal(5, 2)
+
+  normalMinutes                   Int      @default(0)
+  overtimeFirstTwoMinutes         Int      @default(0)
+  overtimeAfterTwoMinutes         Int      @default(0)
+  saturdayMinutes                 Int      @default(0)
+  sundayOrHolidayMinutes          Int      @default(0)
+  nightMinutes                    Int      @default(0)
+  calculatedAmount                Decimal  @db.Decimal(14, 2)
+
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  timeSheet    TimeSheet    @relation(fields: [timeSheetId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, workDate])
+  @@index([employeeId, workDate])
+  @@index([projectId, workDate])
 }

@@ -9,27 +9,34 @@ export interface DayCostBreakdown {
 
 export interface TimeEntryRecord {
   id: string;
-  employeeId: number;
-  projectId: number;
+  employeeId: string;
+  projectId: string;
   date: string; // YYYY-MM-DD
   startTime: string; // HH:mm
   endTime: string; // HH:mm
   breakDurationMinutes: number;
 }
 
+type CostCalculationEmployee = {
+  salario: number;
+  horasPorDia: number;
+  encargos: number;
+  overtime50: number;
+  overtime100: number;
+};
+
 export const timeSheetService = {
   calculateDayCost: (
     entry: TimeEntryRecord,
-    employee: any,
-    project: any
+    employee: CostCalculationEmployee,
   ): DayCostBreakdown => {
     // Parser Function
     const parseTime = (timeStr: string) => {
-      const [h, m] = timeStr.split(':').map(Number);
+      const [h, m] = timeStr.split(":").map(Number);
       return h + m / 60;
     };
 
-    let start = parseTime(entry.startTime);
+    const start = parseTime(entry.startTime);
     let end = parseTime(entry.endTime);
 
     // Se passou da meia-noite
@@ -37,14 +44,14 @@ export const timeSheetService = {
       end += 24;
     }
 
-    let totalWorked = end - start - (entry.breakDurationMinutes / 60);
+    let totalWorked = end - start - entry.breakDurationMinutes / 60;
     if (totalWorked < 0) totalWorked = 0;
 
     let normalHours = 0;
     let overtime50 = 0;
     let overtime100 = 0;
-    let nightShiftHours = 0; // Simplificado para este MVP
-    
+    const nightShiftHours = 0; // Simplificado para este MVP
+
     // Verificando final de semana (Domingo = 0, Sábado = 6)
     const entryDate = new Date(entry.date + "T00:00:00");
     const dayOfWeek = entryDate.getDay();
@@ -63,10 +70,10 @@ export const timeSheetService = {
         } else {
           // Dias de semana
           if (extra > 2) {
-             overtime50 = 2;
-             overtime100 = extra - 2; 
+            overtime50 = 2;
+            overtime100 = extra - 2;
           } else {
-             overtime50 = extra;
+            overtime50 = extra;
           }
         }
       } else {
@@ -75,21 +82,21 @@ export const timeSheetService = {
     }
 
     // Calculando custo financeiro
-    // Salario "Base" no mês, dividido por ex 220 horas para achar a hora. 
+    // Salario "Base" no mês, dividido por ex 220 horas para achar a hora.
     // Para simplificar, vamos assumir 220h mensais.
-    const hourlyRate = (employee.salario / 220);
+    const hourlyRate = employee.salario / 220;
     // Adicionando os encargos proporcionais
-    const hourlyCostBase = hourlyRate * (1 + (employee.encargos / 100));
+    const hourlyCostBase = hourlyRate * (1 + employee.encargos / 100);
 
     // Valor da hora com adicional de 50%
-    const rate50 = hourlyCostBase * (1 + (employee.overtime50 / 100));
+    const rate50 = hourlyCostBase * (1 + employee.overtime50 / 100);
     // Valor da hora com adicional de 100%
-    const rate100 = hourlyCostBase * (1 + (employee.overtime100 / 100));
+    const rate100 = hourlyCostBase * (1 + employee.overtime100 / 100);
 
-    let calculatedCost = 
-        (normalHours * hourlyCostBase) + 
-        (overtime50 * rate50) + 
-        (overtime100 * rate100);
+    const calculatedCost =
+      normalHours * hourlyCostBase +
+      overtime50 * rate50 +
+      overtime100 * rate100;
 
     return {
       normalHours,
@@ -97,7 +104,7 @@ export const timeSheetService = {
       overtime100,
       nightShiftHours,
       calculatedCost,
-      totalHours: totalWorked
+      totalHours: totalWorked,
     };
-  }
+  },
 };

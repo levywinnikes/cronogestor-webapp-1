@@ -1,5 +1,6 @@
 export interface ProjectDto {
   id?: string;
+  projectCode?: string;
   name: string;
   responsible?: string;
   contractType?: string;
@@ -8,45 +9,48 @@ export interface ProjectDto {
   endDate?: string;
   budgetForecast?: string; // Previsão de custo (Opcional) no lugar do Grupo
   contractNumber?: string;
-  status: 'NAO_INICIADO' | 'EM_ANDAMENTO' | 'PARALISADO' | 'CONCLUIDO';
+  status: "NAO_INICIADO" | "EM_ANDAMENTO" | "PARALISADO" | "CONCLUIDO";
   address?: string;
   hasTaskList?: boolean;
 }
 
-// Simulando banco de dados de projetos
-let DUMMY_PROJECTS: ProjectDto[] = [
-  {
-    id: 'proj-1',
-    name: 'Shopping Santa Luzia',
-    responsible: 'Eng. Carlos Silva',
-    contractType: 'Empreitada Global',
-    contractor: 'Construtora Alpha',
-    startDate: '2026-03-01',
-    endDate: '2027-12-01',
-    budgetForecast: '1500000.00',
-    contractNumber: 'CT-2026/01',
-    status: 'EM_ANDAMENTO',
-    address: 'Av. ABC, 100, Centro',
-    hasTaskList: true
+interface ApiResponse<T> {
+  data: T;
+}
+
+async function parseApiResponse<T>(response: Response): Promise<T> {
+  const json = (await response.json()) as { message?: string } & T;
+
+  if (!response.ok) {
+    throw new Error(json.message ?? "Falha ao processar operacao de projetos.");
   }
-];
+
+  return json;
+}
 
 class ProjectService {
   async getProjects(): Promise<ProjectDto[]> {
-    await new Promise(resolve => setTimeout(resolve, 800)); // Simulate delay
-    return [...DUMMY_PROJECTS];
+    const response = await fetch("/api/projects", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const payload = await parseApiResponse<ApiResponse<ProjectDto[]>>(response);
+    return payload.data;
   }
 
   async addProject(project: ProjectDto): Promise<ProjectDto> {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-    
-    const newProject = {
-      ...project,
-      id: `proj-${Math.floor(Math.random() * 10000)}`
-    };
-    
-    DUMMY_PROJECTS.push(newProject);
-    return newProject;
+    const response = await fetch("/api/projects", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(project),
+    });
+
+    const payload = await parseApiResponse<ApiResponse<ProjectDto>>(response);
+    return payload.data;
   }
 }
 
