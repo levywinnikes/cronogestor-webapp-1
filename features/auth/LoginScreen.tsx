@@ -11,6 +11,7 @@ import { Loader2, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { TextField } from "@/components/ui/form-field";
 import { PageShell } from "@/components/ui/page-shell";
+import { PublicHeader } from "@/components/PublicHeader";
 
 export function LoginPageView() {
   const { t } = useTranslation();
@@ -67,6 +68,7 @@ export function LoginPageView() {
 
   return (
     <PageShell className="relative min-h-screen flex flex-col items-center justify-center bg-[#466a87] font-sans">
+      <PublicHeader />
       <div className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2">
         <button
           onClick={() => router.push("/")}

@@ -5,6 +5,7 @@ import { RegisterFormCard } from "@/features/auth/register/components/RegisterFo
 import { RegisterHero } from "@/features/auth/register/components/RegisterHero";
 import { RegisterPlansGrid } from "@/features/auth/register/components/RegisterPlansGrid";
 import { useRegisterForm } from "@/features/auth/register/useRegisterForm";
+import { PublicHeader } from "@/components/PublicHeader";
 
 export default function RegisterScreen() {
   const {
@@ -22,6 +23,7 @@ export default function RegisterScreen() {
 
   return (
     <div className="min-h-screen bg-[var(--color-surface)] pb-20 font-sans">
+      <PublicHeader />
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
         <RegisterHero />
         <RegisterPlansGrid selectedPlan={selectedPlan} onSelectPlan={setSelectedPlan} />

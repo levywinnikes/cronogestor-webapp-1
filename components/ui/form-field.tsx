@@ -30,16 +30,20 @@ export function TextField({
   return (
     <div className={wrapperClassName}>
       {label ? (
-        <label htmlFor={id} className={labelClassName}>
+        <label htmlFor={id} className={labelClassName} suppressHydrationWarning>
           {label}
         </label>
       ) : null}
       <input id={id} className={inputClassName} {...props} />
       {error ? (
-        <p className="text-red-500 text-xs mt-1 font-medium">{error}</p>
+        <p className="text-red-500 text-xs mt-1 font-medium" suppressHydrationWarning>
+          {error}
+        </p>
       ) : null}
       {!error && helperText ? (
-        <p className="text-xs mt-1 text-gray-500">{helperText}</p>
+        <p className="text-xs mt-1 text-gray-500" suppressHydrationWarning>
+          {helperText}
+        </p>
       ) : null}
     </div>
   );
