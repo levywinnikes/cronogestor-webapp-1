@@ -1,7 +1,8 @@
 {
   "nav": {
     "projects": "Projetos",
-    "employees": "Funcionários"
+    "employees": "Funcionários",
+    "logout": "Sair"
   },
   "login": {
     "email": "E-mail",

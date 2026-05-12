@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { LogOut } from "lucide-react";
 import { authService } from "@/app/services/auth.service";
+import { LocaleSwitcher } from "./LocaleSwitcher";
 
 export function Header() {
   const router = useRouter();
@@ -32,12 +33,14 @@ export function Header() {
           <Link href="/dashboard" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">{t("nav.projects")}</Link>
           <Link href="/funcionarios" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">{t("nav.employees")}</Link>
           <Link href="/ficha-tempo" className="text-sm text-blue-100 hover:text-white transition-colors hidden sm:block">{t("timesheet.page.title")}</Link>
+          <div className="hidden sm:block border-l border-blue-300/30"></div>
+          <LocaleSwitcher />
           <button
              onClick={handleLogout}
              className="flex items-center text-blue-100 hover:text-white transition-colors text-sm font-medium"
           >
             <LogOut className="h-4 w-4 mr-1.5" />
-            Sair
+            {t("nav.logout")}
           </button>
         </div>
       </div>

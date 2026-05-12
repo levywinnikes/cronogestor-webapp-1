@@ -1,7 +1,8 @@
 {
   "nav": {
     "projects": "Projects",
-    "employees": "Employees"
+    "employees": "Employees",
+    "logout": "Sign Out"
   },
   "login": {
     "email": "Email",
