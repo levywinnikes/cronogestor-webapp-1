@@ -32,6 +32,7 @@
 6. Rotas em app devem ser wrappers minimos; logica e UI em features.
 7. Cores semanticas devem usar design tokens (globals.css) e nao hex repetido.
 8. Texto novo de UI deve priorizar chave de traducao (i18n).
+9. NUNCA criar lógicas, callbacks ou variáveis com tipagem implícita (ex: `any` implícito) que possam quebrar a compilação no modo estrito. A I.A. deve assegurar que o código gerado compile com sucesso no Vercel (`next build` e `tsc --noEmit`).
 
 ## Documentacao viva
 

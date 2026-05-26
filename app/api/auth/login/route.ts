@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const activeMemberships = account.memberships.filter(
-      (membership) => membership.organization.isActive,
+      (membership: any) => membership.organization.isActive,
     );
 
     if (activeMemberships.length === 0) {
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     const selectedMembership = payload.organizationId
       ? activeMemberships.find(
-          (membership) => membership.organizationId === payload.organizationId,
+          (membership: any) => membership.organizationId === payload.organizationId,
         )
       : activeMemberships[0];
 
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
           selectedMembership.organization.displayName ??
           selectedMembership.organization.legalName,
       },
-      organizations: activeMemberships.map((membership) => ({
+      organizations: activeMemberships.map((membership: any) => ({
         id: membership.organization.id,
         name:
           membership.organization.displayName ??
@@ -122,8 +122,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (error instanceof z.ZodError) {
-      const fieldErrors = error.errors.map(
-        (e) => `${e.path.join(".")}: ${e.message}`,
+      const fieldErrors = (error as any).errors.map(
+        (e: any) => `${e.path.join(".")}: ${e.message}`,
       );
       return NextResponse.json(
         { message: `Dados invalidos: ${fieldErrors.join(", ")}` },

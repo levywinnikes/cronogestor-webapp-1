@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { authService } from "@/app/services/auth.service";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,11 @@ import { PublicHeader } from "@/components/PublicHeader";
 
 export function LoginPageView() {
   const { t } = useTranslation();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const loginSchema = z.object({
     email: z
@@ -67,6 +72,26 @@ export function LoginPageView() {
     setShowAdModal(false);
     router.push("/dashboard");
   };
+
+  if (!mounted) {
+    return (
+      <PageShell className="relative min-h-screen flex flex-col items-center justify-center bg-[#466a87] font-sans">
+        <PublicHeader />
+        <div className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2">
+          <button
+            onClick={() => router.push("/")}
+            className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-all shadow-md"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="w-full max-w-[400px] bg-white rounded-xl shadow-2xl px-8 py-10 relative z-10 m-4 flex items-center justify-center min-h-[350px]">
+          <Loader2 className="animate-spin h-8 w-8 text-[#002f5c]" />
+        </div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell className="relative min-h-screen flex flex-col items-center justify-center bg-[#466a87] font-sans">

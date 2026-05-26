@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Input, Select } from "@/components/ui/field-primitives";
 import {
@@ -439,7 +439,7 @@ export default function FuncionariosPageView() {
                       <Select
                         value={formData.regime}
                         onChange={(e) =>
-                          handleInputChange("regime", e.target.value)
+                          handleInputChange("regime", e.target.value as "dia" | "quinzena" | "mes")
                         }
                         className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white outline-none transition"
                       >

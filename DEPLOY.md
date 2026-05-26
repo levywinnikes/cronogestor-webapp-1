@@ -1,8 +1,16 @@
 # Deploy Instructions (Vercel + GitHub)
 
-## Processo de Deploy
+## Processo de Deploy Manual (CLI) - REGRA PARA A I.A.
 
-O deploy da aplicação é automático na Vercel sempre que houver commit e push para a branch de produção configurada no projeto.
+Sempre que o usuário pedir para fazer deploy diretamente por aqui, contornar limitações do GitHub, ou pedir para "subir pelo terminal", a I.A. DEVE utilizar a Vercel CLI rodando o comando:
+
+`npx vercel --prod --yes`
+
+*(Nota: Caso a Vercel CLI retorne erro de token inválido, a I.A. deve orientar o usuário a abrir um terminal e rodar `npx vercel login` antes de prosseguir).*
+
+## Processo de Deploy (Automático via GitHub)
+
+O deploy da aplicação também é automático na Vercel sempre que houver commit e push para a branch de produção configurada no projeto.
 
 Fluxo recomendado:
 

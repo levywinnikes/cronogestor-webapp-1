@@ -29,7 +29,7 @@ export async function GET() {
   }
 
   const activeMembership = account.memberships.find(
-    (membership) => membership.organizationId === guard.context.organizationId,
+    (membership: any) => membership.organizationId === guard.context.organizationId,
   );
 
   if (!activeMembership) {
@@ -53,7 +53,7 @@ export async function GET() {
         activeMembership.organization.displayName ??
         activeMembership.organization.legalName,
     },
-    organizations: account.memberships.map((membership) => ({
+    organizations: account.memberships.map((membership: any) => ({
       id: membership.organization.id,
       name:
         membership.organization.displayName ??

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = await hashPassword(payload.password);
 
-    const data = await prisma.$transaction(async (tx) => {
+    const data = await prisma.$transaction(async (tx: any) => {
       const organization = await tx.organization.create({
         data: {
           personType: payload.type,
@@ -135,8 +135,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (error instanceof z.ZodError) {
-      const fieldErrors = error.errors.map(
-        (e) => `${e.path.join(".")}: ${e.message}`,
+      const fieldErrors = (error as any).errors.map(
+        (e: any) => `${e.path.join(".")}: ${e.message}`,
       );
       return NextResponse.json(
         { message: `Dados invalidos: ${fieldErrors.join(", ")}` },

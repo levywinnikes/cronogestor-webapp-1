@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const locales = [
   { code: "pt-BR", label: "Português", flag: "🇧🇷" },
@@ -11,6 +11,18 @@ const locales = [
 export function LocaleSwitcher() {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-white/10 text-white rounded-lg border border-white/20 min-w-[100px] min-h-[38px] opacity-50" />
+    );
+  }
 
   const currentLocale =
     locales.find((l) => l.code === i18n.language) || locales[0];

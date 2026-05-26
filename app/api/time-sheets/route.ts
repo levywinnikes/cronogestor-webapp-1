@@ -171,7 +171,7 @@ export async function POST(request: Request) {
     });
 
     const holidayDateSet = new Set(
-      holidayDates.map((holiday) => holiday.date.toISOString().slice(0, 10)),
+      holidayDates.map((holiday: any) => holiday.date.toISOString().slice(0, 10)),
     );
 
     const hourlyBase =
