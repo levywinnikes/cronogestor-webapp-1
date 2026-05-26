@@ -49,6 +49,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const existingOrg = await prisma.organization.findUnique({
+      where: { document: normalizedDocument },
+      select: { id: true },
+    });
+
+    if (existingOrg) {
+      return NextResponse.json(
+        { message: "Este CPF/CNPJ ja esta cadastrado." },
+        { status: 409 },
+      );
+    }
+
     const passwordHash = await hashPassword(payload.password);
 
     const data = await prisma.$transaction(async (tx: any) => {
@@ -141,6 +153,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { message: `Dados invalidos: ${fieldErrors.join(", ")}` },
         { status: 400 },
+      );
+    }
+
+    // Interceptar erro de unicidade (P2002) do Prisma
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      const target = (error as any).meta?.target;
+      if (Array.isArray(target) && target.includes("document")) {
+        return NextResponse.json(
+          { message: "Este CPF/CNPJ ja esta cadastrado." },
+          { status: 409 },
+        );
+      }
+      if (Array.isArray(target) && target.includes("email")) {
+        return NextResponse.json(
+          { message: "Este email ja esta em uso." },
+          { status: 409 },
+        );
+      }
+      return NextResponse.json(
+        { message: "Ja existe um cadastro com os dados informados (email ou CPF/CNPJ duplicados)." },
+        { status: 409 },
       );
     }
 
