@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -28,28 +29,61 @@ async function main() {
     },
   });
 
-  if (adminEmail && adminPasswordHash) {
-    await prisma.user.upsert({
-      where: { email: adminEmail },
-      update: {
-        name: adminName,
-        role: "ADMIN",
-        isActive: true,
-      },
-      create: {
-        companyId: company.id,
-        name: adminName,
-        email: adminEmail,
-        passwordHash: adminPasswordHash,
-        role: "ADMIN",
-        isActive: true,
-      },
-    });
-  } else {
-    console.warn(
-      "Seed de usuario admin ignorado: defina SEED_ADMIN_EMAIL e SEED_ADMIN_PASSWORD_HASH.",
-    );
-  }
+  // --- Test Credentials from Login Screen ---
+  const testPasswordHash = await bcrypt.hash("123456", 10);
+
+  const freeCompany = await prisma.company.upsert({
+    where: { email: "free@cronogestor.local" },
+    update: {},
+    create: {
+      personType: "PF",
+      document: "98765432100",
+      name: "Conta Grátis",
+      email: "free@cronogestor.local",
+      planType: "FREE",
+      isActive: true,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "admin@obras.com" },
+    update: { passwordHash: testPasswordHash, role: "ADMIN", isActive: true },
+    create: {
+      companyId: company.id,
+      name: "Admin Obras",
+      email: "admin@obras.com",
+      passwordHash: testPasswordHash,
+      role: "ADMIN",
+      isActive: true,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "funcionario@obras.com" },
+    update: { passwordHash: testPasswordHash, role: "EMPLOYEE", isActive: true, companyId: freeCompany.id },
+    create: {
+      companyId: freeCompany.id,
+      name: "Funcionario Obras",
+      email: "funcionario@obras.com",
+      passwordHash: testPasswordHash,
+      role: "EMPLOYEE",
+      isActive: true,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "demitido@obras.com" },
+    update: { passwordHash: testPasswordHash, role: "EMPLOYEE", isActive: false },
+    create: {
+      companyId: company.id,
+      name: "Inativo Obras",
+      email: "demitido@obras.com",
+      passwordHash: testPasswordHash,
+      role: "EMPLOYEE",
+      isActive: false,
+    },
+  });
+  // ------------------------------------------
 
   console.log("Seed concluido com sucesso.");
 }
