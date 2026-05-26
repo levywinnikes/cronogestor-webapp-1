@@ -6,12 +6,20 @@ Catalogar componentes reutilizaveis para evitar duplicacao e orientar IA/humanos
 
 ## UI Base (Global)
 
-- `components/ui/field-primitives.tsx`: `Input`, `Select`, `Textarea`
-- `components/ui/form-field.tsx`: wrappers com label/erro/helper
-- `components/ui/button.tsx`: `AppButton` com variantes e tamanhos
-- `components/ui/page-shell.tsx`: composicao de layout (`PageShell`, `PageMain`, `PageSection`)
+- `components/ui/field-primitives.tsx`: `Input`, `Select`, `Textarea` (com estilos built-in)
+- `components/ui/form-field.tsx`: `TextField`, `SelectField`, `TextareaField` (wrappers padronizados com icon e label)
+- `components/ui/button.tsx`: `AppButton` com variantes (primary, secondary, danger, outline), tamanhos, `icon` e `loading`
+- `components/ui/card.tsx`: `Card`, `CardHeader`, `CardContent`, `CardFooter` (com variantes default, elevated, gradient)
+- `components/ui/page-header.tsx`: `PageHeader` (wrapper padronizado para título de página e botões de ação)
+- `components/ui/badge.tsx`: `Badge` (pill de status com cores semânticas success, danger, warning, etc)
+- `components/ui/empty-state.tsx`: `EmptyState` (ilustração, título e botão para listas vazias)
+- `components/ui/page-shell.tsx`: composição de layout padronizado (`PageShell`, `PageMain`, `PageSection`)
+- `components/ui/skeleton.tsx`: `Skeleton` (placeholder de carregamento/ofuscamento com efeito pulse para UI/UX de alta qualidade)
 
-## Providers
+## Design Tokens
+
+- Todos os design tokens estão definidos no Tailwind v4 `theme` inline no arquivo `app/globals.css`. 
+- Variáveis semânticas: `primary`, `secondary`, `success`, `danger`, `warning`, `info`, `surface`, `border`.
 
 - `components/providers/AppI18nProvider.tsx`: provider i18n global
 

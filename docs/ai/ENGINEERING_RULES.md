@@ -30,9 +30,16 @@
 4. Incluir validacoes de entrada no backend.
 5. Evitar duplicacao de componentes; verificar catalogo antes de criar novo.
 6. Rotas em app devem ser wrappers minimos; logica e UI em features.
-7. Cores semanticas devem usar design tokens (globals.css) e nao hex repetido.
+7. Cores semanticas devem usar design tokens (globals.css) e nao hex repetido. NUNCA usar hardcoded hex colors como `bg-[#002f5c]`, usar `bg-primary`.
 8. Texto novo de UI deve priorizar chave de traducao (i18n).
 9. NUNCA criar lógicas, callbacks ou variáveis com tipagem implícita (ex: `any` implícito) que possam quebrar a compilação no modo estrito. A I.A. deve assegurar que o código gerado compile com sucesso no Vercel (`next build` e `tsc --noEmit`).
+10. UI/UX: Sempre usar `<TextField>`, `<SelectField>`, `<TextareaField>` para formulários — NUNCA `<input>` ou `<select>` nativo.
+11. UI/UX: Sempre usar `<AppButton>` para botões — NUNCA `<button>` nativo com classes inline gigantes.
+12. UI/UX: Sempre usar `<Card>` para agrupar seções na tela e `<PageHeader>` para o cabeçalho das páginas.
+13. UI/UX: Sempre usar `<Badge>` para estados (Status) e `<EmptyState>` quando não há registros na tela.
+14. React: Sempre garanta que formulários e inputs controlados não recebam `undefined` ou `null` da API. Use fallback `?? ""` ou `|| 0` em DTOs/mappers para evitar o erro "A component is changing a controlled input to be uncontrolled".
+15. Next.js/UX: Navegação entre páginas sempre deve ter feedback visual imediato. Use o arquivo `app/loading.tsx` na raiz ou em sub-rotas pesadas para exibir uma tela de loading genérica enquanto o servidor resolve os dados da próxima página.
+16. UI/UX: Para carregamento de dados em telas/blocos específicos, SEMPRE utilize o padrão **Skeleton Loading** (ofuscamento com efeito *pulse* via componente `<Skeleton />`) simulando a estrutura original da UI. Evite spinners de tela cheia ou textos simples como "Carregando..." para carregamentos de dados em blocos específicos.
 
 ## Documentacao viva
 

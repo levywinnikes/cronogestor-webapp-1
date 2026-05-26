@@ -29,7 +29,51 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
   return json;
 }
 
+export interface TimeSheetEntryResponseDto {
+  id: string;
+  workDate: string;
+  startDateTime: string;
+  endDateTime: string;
+  breakMinutes: number;
+}
+
+export interface TimeSheetContextResponseDto {
+  id: string;
+  organizationId: string;
+  projectId: string;
+  employeeId: string;
+  periodYear: number;
+  periodMonth: number;
+  status: string;
+  entries: TimeSheetEntryResponseDto[];
+}
+
 class TimeSheetApiService {
+  async getTimeSheetContext(
+    projectId: string,
+    employeeId: string,
+    periodYear: number,
+    periodMonth: number,
+  ): Promise<TimeSheetContextResponseDto | null> {
+    const params = new URLSearchParams({
+      projectId,
+      employeeId,
+      periodYear: periodYear.toString(),
+      periodMonth: periodMonth.toString(),
+    });
+
+    const response = await fetch(`/api/time-sheets/context?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    const payload = await parseApiResponse<ApiResponse<TimeSheetContextResponseDto | null>>(response);
+    return payload.data;
+  }
+
   async createTimeSheet(payload: CreateTimeSheetDto): Promise<void> {
     const response = await fetch("/api/time-sheets", {
       method: "POST",

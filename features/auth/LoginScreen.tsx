@@ -121,10 +121,6 @@ export function LoginPageView() {
             type="email"
             label={t("login.email")}
             placeholder={t("login.placeholders.email")}
-            labelClassName="block text-xs font-semibold text-gray-700 mb-1"
-            inputClassName={`w-full px-3 py-2.5 text-sm border rounded hover:border-gray-400 focus:ring-2 focus:ring-[#002f5c] focus:border-[#002f5c] outline-none transition-all ${
-              errors.email ? "border-red-400" : "border-gray-300"
-            }`}
             error={errors.email?.message}
             {...register("email")}
           />
@@ -134,10 +130,6 @@ export function LoginPageView() {
             type="password"
             label={t("login.password")}
             placeholder={t("login.placeholders.password")}
-            labelClassName="block text-xs font-semibold text-gray-700 mb-1"
-            inputClassName={`w-full px-3 py-2.5 text-sm border rounded hover:border-gray-400 focus:ring-2 focus:ring-[#002f5c] focus:border-[#002f5c] outline-none transition-all tracking-widest ${
-              errors.password ? "border-red-400" : "border-gray-300"
-            }`}
             error={errors.password?.message}
             {...register("password")}
           />

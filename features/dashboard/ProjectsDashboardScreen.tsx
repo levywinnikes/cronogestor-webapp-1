@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Plus, Building2, Calendar, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -6,6 +6,22 @@ import { useTranslation } from "react-i18next";
 import { projectService, ProjectDto } from "@/app/services/project.service";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { PageShell, PageMain } from "@/components/ui/page-shell";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { AppButton } from "@/components/ui/button";
+
+type StatusVariant = "success" | "warning" | "danger" | "info" | "neutral";
+
+const STATUS_MAP: Record<string, { label: string; variant: StatusVariant }> = {
+  EM_ANDAMENTO: { label: "Em andamento", variant: "info" },
+  CONCLUIDO: { label: "Concluído", variant: "success" },
+  PARALISADO: { label: "Paralisado", variant: "danger" },
+  NAO_INICIADO: { label: "Não iniciado", variant: "neutral" },
+};
 
 export default function DashboardPageView() {
   const { t } = useTranslation();
@@ -27,145 +43,132 @@ export default function DashboardPageView() {
     fetchProjects();
   }, []);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "EM_ANDAMENTO":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "CONCLUIDO":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "PARALISADO":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "NAO_INICIADO":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "EM_ANDAMENTO":
-        return "Em andamento";
-      case "CONCLUIDO":
-        return "Concluído";
-      case "PARALISADO":
-        return "Paralisado";
-      case "NAO_INICIADO":
-        return "Não iniciado";
-      default:
-        return status;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[#f3f6f9] flex flex-col font-sans">
+    <PageShell>
       <Header />
 
-      {/* Sub-header / Page Title & Actions */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center space-x-8">
-            <div className="flex items-center text-gray-800">
-              <LayoutDashboard className="h-6 w-6 mr-2 text-[#002f5c]" />
-              <h2 className="text-2xl font-bold">{t("dashboard.title")}</h2>
-            </div>
-          </div>
-
-          <Link
-            href="/projetos/novo"
-            className="px-4 py-2 bg-[#2c9644] hover:bg-[#237836] text-white rounded-lg text-sm font-bold shadow-sm transition flex items-center"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            {t("dashboard.buttons.addProject")}
+      <PageHeader
+        title={t("dashboard.title")}
+        icon={<LayoutDashboard className="h-6 w-6" />}
+        actions={
+          <Link href="/projetos/novo">
+            <AppButton variant="secondary" icon={<Plus className="w-4 h-4" />}>
+              {t("dashboard.buttons.addProject")}
+            </AppButton>
           </Link>
-        </div>
-      </div>
+        }
+      />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PageMain className="max-w-7xl">
         {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#002f5c]"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Card key={index} className="flex flex-col h-full">
+                <CardContent className="flex-1 space-y-4 pt-6">
+                  <Skeleton className="h-6 w-3/4 mb-3" />
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 flex-1" />
+                    </div>
+                    <div className="flex gap-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 flex-1" />
+                    </div>
+                    <div className="pt-3 mt-3 border-t border-border-light flex gap-2">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between items-center">
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                  <Skeleton className="h-5 w-20" />
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         ) : projects.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-            <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
-              Nenhum projeto encontrado
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Comece adicionando o seu primeiro projeto ao Cronogestor.
-            </p>
-            <Link
-              href="/projetos/novo"
-              className="inline-flex items-center px-4 py-2 bg-[#002f5c] hover:bg-[#001f3f] text-white rounded-lg text-sm font-medium transition"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Criar meu primeiro projeto
-            </Link>
-          </div>
+          <EmptyState
+            icon={<Building2 className="w-16 h-16" />}
+            title="Nenhum projeto encontrado"
+            description="Comece adicionando o seu primeiro projeto ao Cronogestor."
+            action={
+              <Link href="/projetos/novo">
+                <AppButton icon={<Plus className="w-4 h-4" />}>
+                  Criar meu primeiro projeto
+                </AppButton>
+              </Link>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
               <Link
                 href={`/projetos/${project.id}`}
                 key={project.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200 flex flex-col cursor-pointer group"
+                className="group"
               >
-                <div className="p-5 border-b border-gray-50 flex-1">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#002f5c] transition-colors line-clamp-2">
+                <Card className="flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="flex-1">
+                    <h3 className="text-lg font-bold text-text-primary group-hover:text-primary transition-colors line-clamp-2 mb-3">
                       {project.name}
                     </h3>
-                  </div>
-
-                  <div className="space-y-2 mt-4">
-                    {project.responsible && (
-                      <div className="flex items-start text-sm">
-                        <span className="text-gray-500 w-24">Responsável:</span>
-                        <span className="text-gray-800 font-medium">
-                          {project.responsible}
+                    <div className="space-y-2">
+                      {project.responsible ? (
+                        <div className="flex items-start text-sm">
+                          <span className="text-text-secondary w-24">
+                            Responsável:
+                          </span>
+                          <span className="text-text-primary font-medium">
+                            {project.responsible}
+                          </span>
+                        </div>
+                      ) : null}
+                      {project.contractor ? (
+                        <div className="flex items-start text-sm">
+                          <span className="text-text-secondary w-24">
+                            Contratante:
+                          </span>
+                          <span className="text-text-primary">
+                            {project.contractor}
+                          </span>
+                        </div>
+                      ) : null}
+                      <div className="flex items-start text-sm mt-3 pt-3 border-t border-border-light">
+                        <Calendar className="w-4 h-4 text-text-muted mr-2 mt-0.5" />
+                        <span className="text-text-secondary">
+                          {new Date(project.startDate).toLocaleDateString(
+                            "pt-BR",
+                            { timeZone: "UTC" },
+                          )}
+                          {project.endDate
+                            ? ` até ${new Date(project.endDate).toLocaleDateString("pt-BR", { timeZone: "UTC" })}`
+                            : ""}
                         </span>
                       </div>
-                    )}
-                    {project.contractor && (
-                      <div className="flex items-start text-sm">
-                        <span className="text-gray-500 w-24">Contratante:</span>
-                        <span className="text-gray-800">
-                          {project.contractor}
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex items-start text-sm mt-3 pt-3 border-t border-gray-50">
-                      <Calendar className="w-4 h-4 text-gray-400 mr-2 mt-0.5" />
-                      <span className="text-gray-600">
-                        {new Date(project.startDate).toLocaleDateString(
-                          "pt-BR",
-                          { timeZone: "UTC" },
-                        )}
-                        {project.endDate
-                          ? ` até ${new Date(project.endDate).toLocaleDateString("pt-BR", { timeZone: "UTC" })}`
-                          : ""}
-                      </span>
                     </div>
-                  </div>
-                </div>
-                <div className="bg-gray-50 px-5 py-3 flex justify-between items-center border-t border-gray-100 rounded-b-xl">
-                  <span
-                    className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${getStatusColor(project.status)}`}
-                  >
-                    {getStatusLabel(project.status)}
-                  </span>
-                  {project.budgetForecast && (
-                    <span className="text-sm font-bold text-gray-700">
-                      {project.budgetForecast}
-                    </span>
-                  )}
-                </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-between items-center">
+                    <Badge
+                      variant={
+                        STATUS_MAP[project.status]?.variant ?? "neutral"
+                      }
+                    >
+                      {STATUS_MAP[project.status]?.label ?? project.status}
+                    </Badge>
+                    {project.budgetForecast ? (
+                      <span className="text-sm font-bold text-text-primary">
+                        {project.budgetForecast}
+                      </span>
+                    ) : null}
+                  </CardFooter>
+                </Card>
               </Link>
             ))}
           </div>
         )}
-      </main>
-    </div>
+      </PageMain>
+    </PageShell>
   );
 }

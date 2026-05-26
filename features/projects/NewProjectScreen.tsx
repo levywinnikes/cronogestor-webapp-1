@@ -1,21 +1,25 @@
-﻿"use client";
+"use client";
 
 import { Input, Select } from "@/components/ui/field-primitives";
+import { TextField, SelectField } from "@/components/ui/form-field";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, Building2, Save, Paperclip } from "lucide-react";
+import { ArrowLeft, Building2, Save, Paperclip } from "lucide-react";
 import { projectService, ProjectDto } from "@/app/services/project.service";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { useTranslation } from "react-i18next";
+import { PageShell, PageMain } from "@/components/ui/page-shell";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AppButton } from "@/components/ui/button";
 
-// Definição do schema Zod com base na imagem do formulário
 const createProjectSchema = (t: (key: string) => string) =>
   z.object({
-    type: z.enum(["COMPLETO", "SIMPLES"]).optional(),
     name: z.string().min(3, t("projects.errors.nameRequired")),
     responsible: z.string().optional(),
     contractType: z.string().optional(),
@@ -38,6 +42,12 @@ const STATUS_OPTIONS = [
   { value: "NAO_INICIADO", label: "Não iniciado" },
   { value: "PARALISADO", label: "Paralisado" },
   { value: "CONCLUIDO", label: "Concluído" },
+];
+
+const CONTRACT_OPTIONS = [
+  { value: "Contratante", label: "Contratante" },
+  { value: "Empreitada", label: "Empreitada" },
+  { value: "Administracao", label: "Administração" },
 ];
 
 type ProjectFormScreenProps = {
@@ -63,26 +73,20 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
     resolver: zodResolver(projectSchema),
     mode: "onChange",
     defaultValues: {
-      type: "COMPLETO",
       status: "EM_ANDAMENTO",
       hasTaskList: false,
     },
   });
 
   useEffect(() => {
-    if (!projectId) {
-      return;
-    }
+    if (!projectId) return;
 
     const loadProject = async () => {
       setIsFetchingProject(true);
       setErrorMsg("");
-
       try {
         const project = await projectService.getProjectById(projectId);
-
         reset({
-          type: "COMPLETO",
           name: project.name,
           responsible: project.responsible ?? "",
           contractType: project.contractType ?? "",
@@ -129,7 +133,6 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
   const onSubmit = async (data: ProjectFormValues) => {
     setIsLoading(true);
     setErrorMsg("");
-
     try {
       const cleanBudget = data.budgetForecast
         ? data.budgetForecast.replace(/[R$\s.]/g, "").replace(",", ".")
@@ -167,294 +170,247 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans mb-20 md:mb-0">
-      {/* Top Header */}
+    <PageShell className="mb-20 md:mb-0">
       <Header />
 
-      {/* Action Sub-header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center text-gray-800">
-            <Building2 className="h-6 w-6 mr-2 text-[#002f5c]" />
-            <h2 className="text-2xl font-bold">
-              {isEditMode
-                ? t("projects.page.editTitle")
-                : t("projects.page.title")}
-            </h2>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            <Link
-              href="/dashboard"
-              className="px-5 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg text-sm font-bold transition flex items-center shadow-sm"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t("projects.buttons.back")}
+      <PageHeader
+        title={isEditMode ? t("projects.page.editTitle") : t("projects.page.title")}
+        icon={<Building2 className="h-6 w-6" />}
+        actions={
+          <>
+            <Link href="/dashboard">
+              <AppButton variant="outline" icon={<ArrowLeft className="w-4 h-4" />}>
+                {t("projects.buttons.back")}
+              </AppButton>
             </Link>
-            <button
+            <AppButton
+              variant="secondary"
+              icon={<Save className="w-4 h-4" />}
+              loading={isLoading}
+              disabled={isFetchingProject || !isValid}
               onClick={handleSubmit(onSubmit)}
-              disabled={isLoading || isFetchingProject || !isValid}
-              className="px-6 py-2.5 bg-[#2c9644] hover:bg-[#237836] text-white rounded-lg text-sm font-bold shadow-md transition flex items-center disabled:opacity-50"
             >
-              {isLoading ? (
-                <Loader2 className="animate-spin h-4 w-4 mr-2" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
-              {isEditMode
-                ? t("projects.buttons.update")
-                : t("projects.buttons.save")}
-            </button>
-          </div>
-        </div>
-      </div>
+              {isEditMode ? t("projects.buttons.update") : t("projects.buttons.save")}
+            </AppButton>
+          </>
+        }
+      />
 
-      <main className="flex-1 max-w-[1000px] w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
-        <form
-          id="project-form"
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+      <PageMain className="max-w-[1000px]">
+        <form id="project-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {isFetchingProject ? (
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-[#002f5c]" />
-            </div>
-          ) : null}
-
-          {/* Main Info Card */}
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
-            <h3 className="text-sm font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100">
-              {t("projects.page.basicInfo")}
-            </h3>
-
-            {/* Type Toggle */}
-            <div className="flex gap-8 mb-6">
-              <label className="flex items-center cursor-pointer">
-                <Input
-                  type="radio"
-                  value="COMPLETO"
-                  {...register("type")}
-                  className="w-4 h-4 text-[#002f5c] bg-gray-100 border-gray-300 focus:ring-[#002f5c]"
-                />
-                <span className="ml-2 text-sm font-semibold text-gray-700">
-                  {t("projects.registration.full")}
-                </span>
-              </label>
-              <label className="flex items-center cursor-pointer">
-                <Input
-                  type="radio"
-                  value="SIMPLES"
-                  {...register("type")}
-                  className="w-4 h-4 text-[#002f5c] bg-gray-100 border-gray-300 focus:ring-[#002f5c]"
-                />
-                <span className="ml-2 text-sm font-semibold text-gray-700">
-                  {t("projects.registration.simple")}
-                </span>
-              </label>
-            </div>
-
             <div className="space-y-6">
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                  {t("projects.labels.name")}{" "}
-                  <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  type="text"
-                  placeholder="Ex.: Shopping Santa Luzia"
-                  className={`w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-[#002f5c]/20 outline-none transition ${
-                    errors.name ? "border-red-400" : ""
-                  }`}
-                  {...register("name")}
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.name.message}
-                  </p>
-                )}
-              </div>
+              {/* Basic Info Skeleton */}
+              <Card>
+                <CardHeader title={t("projects.page.basicInfo")} />
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Planning & Costs Skeleton */}
+              <Card>
+                <CardHeader title="Planejamento e Custos" />
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-12" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    </div>
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-8 pt-6 border-t border-border-light flex gap-2 items-center">
+                    <Skeleton className="w-4 h-4" />
+                    <Skeleton className="h-4 w-64" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <>
+
+          {/* Basic Info */}
+          <Card>
+            <CardHeader title={t("projects.page.basicInfo")} />
+            <CardContent className="space-y-6">
+              <TextField
+                label={t("projects.labels.name")}
+                required
+                placeholder="Ex.: Shopping Santa Luzia"
+                error={errors.name?.message}
+                {...register("name")}
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                    Responsável
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Ex.: Eng. Carlos Silva"
-                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-[#002f5c]/20 outline-none transition"
-                    {...register("responsible")}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                    Tipo de contrato
-                  </label>
-                  <Select
-                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-[#002f5c]/20 outline-none transition"
-                    {...register("contractType")}
-                  >
-                    <option value="">Selecione...</option>
-                    <option value="Contratante">Contratante</option>
-                    <option value="Empreitada">Empreitada</option>
-                    <option value="Administracao">Administração</option>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                    Contratante
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Ex.: Prefeitura"
-                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-[#002f5c]/20 outline-none transition"
-                    {...register("contractor")}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                  Endereço
-                </label>
-                <Input
-                  type="text"
-                  placeholder="Ex.: Av. ABC, 100, Centro"
-                  className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-[#002f5c]/20 outline-none transition"
-                  {...register("address")}
+                <TextField
+                  label="Responsável"
+                  placeholder="Ex.: Eng. Carlos Silva"
+                  {...register("responsible")}
+                />
+                <SelectField
+                  label="Tipo de contrato"
+                  placeholder="Selecione..."
+                  options={CONTRACT_OPTIONS}
+                  {...register("contractType")}
+                />
+                <TextField
+                  label="Contratante"
+                  placeholder="Ex.: Prefeitura"
+                  {...register("contractor")}
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Logistics & Planning Card */}
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
-            <h3 className="text-sm font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100">
-              Planejamento e Custos
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                      Início <span className="text-red-500">*</span>
-                    </label>
-                    <Input
+              <TextField
+                label="Endereço"
+                placeholder="Ex.: Av. ABC, 100, Centro"
+                {...register("address")}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Planning & Costs */}
+          <Card>
+            <CardHeader title="Planejamento e Custos" />
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <TextField
+                      label="Início"
+                      required
                       type="date"
-                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition"
                       {...register("startDate")}
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                      Término <span className="text-red-500">*</span>
-                    </label>
-                    <Input
+                    <TextField
+                      label="Término"
+                      required
                       type="date"
-                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition"
                       {...register("endDate")}
                     />
                   </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                    Nº do contrato
-                  </label>
-                  <Input
-                    type="text"
-                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition"
+                  <TextField
+                    label="Nº do contrato"
                     {...register("contractNumber")}
                   />
                 </div>
-              </div>
 
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                    {t("projects.labels.status")}{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <Select
-                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition"
+                <div className="space-y-6">
+                  <SelectField
+                    label={t("projects.labels.status")}
+                    required
+                    options={STATUS_OPTIONS}
                     {...register("status")}
-                  >
-                    {STATUS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                    Custo Previsto da Obra (Opcional)
-                  </label>
-                  <Input
-                    type="text"
+                  />
+                  <TextField
+                    label="Custo Previsto da Obra (Opcional)"
                     placeholder="R$ 0,00"
-                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white transition font-semibold text-gray-900"
+                    className="font-semibold"
                     {...register("budgetForecast")}
                     onChange={handleBudgetChange}
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-100 flex items-center">
-              <label className="flex items-center cursor-pointer group">
-                <Input
-                  type="checkbox"
-                  className="w-4 h-4 text-[#2c9644] bg-gray-100 border-gray-300 rounded focus:ring-[#2c9644]"
-                  {...register("hasTaskList")}
-                />
-                <span className="ml-3 text-sm font-bold text-gray-700 group-hover:text-gray-900">
-                  Ativar Gestão de Tarefas para este Projeto
-                </span>
-              </label>
-            </div>
-          </div>
+              <div className="mt-8 pt-6 border-t border-border-light flex items-center">
+                <label className="flex items-center cursor-pointer group">
+                  <Input
+                    type="checkbox"
+                    className="w-4 h-4 text-secondary bg-gray-100 border-border rounded focus:ring-secondary"
+                    {...register("hasTaskList")}
+                  />
+                  <span className="ml-3 text-sm font-bold text-text-primary group-hover:text-primary transition">
+                    Ativar Gestão de Tarefas para este Projeto
+                  </span>
+                </label>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
-            <h3 className="text-sm font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center">
-              <Paperclip className="w-4 h-4 mr-2 text-[#002f5c]" />
-              {t("project.attachments.title")}
-            </h3>
-            <div className="space-y-3">
+          {/* Attachments */}
+          <Card>
+            <CardHeader
+              title={t("project.attachments.title")}
+              icon={<Paperclip className="w-4 h-4" />}
+            />
+            <CardContent className="space-y-3">
               <Input
                 type="file"
                 multiple
                 disabled
-                className="w-full p-2.5 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500"
+                className="w-full border-dashed border-border text-text-muted"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-text-muted">
                 {t("project.attachments.placeholder")}
               </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+          </>
+          )}
 
-          {errorMsg && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm font-bold">
+          {errorMsg ? (
+            <div className="p-4 bg-danger-100 border border-red-200 rounded-lg text-danger text-sm font-bold">
               {errorMsg}
             </div>
-          )}
+          ) : null}
         </form>
-      </main>
+      </PageMain>
 
-      {/* Mobile Footer Area Placeholder */}
-      <div className="sm:hidden bg-[#002f5c] text-white p-4 fixed bottom-0 w-full shadow-2xl flex justify-between items-center z-50">
+      {/* Mobile Footer */}
+      <div className="sm:hidden bg-primary text-white p-4 fixed bottom-0 w-full shadow-2xl flex justify-between items-center z-50">
         <span className="text-sm font-bold">
           {isEditMode ? t("projects.page.editTitle") : t("projects.page.title")}
         </span>
-        <button
+        <AppButton
+          variant="secondary"
+          size="sm"
           onClick={handleSubmit(onSubmit)}
-          className="bg-[#2c9644] px-5 py-2 rounded-lg font-bold text-sm"
         >
-          {isEditMode
-            ? t("projects.buttons.update")
-            : t("projects.buttons.save")}
-        </button>
+          {isEditMode ? t("projects.buttons.update") : t("projects.buttons.save")}
+        </AppButton>
       </div>
-    </div>
+    </PageShell>
   );
 }
 
