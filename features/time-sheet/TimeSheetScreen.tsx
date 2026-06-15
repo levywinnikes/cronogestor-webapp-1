@@ -948,10 +948,10 @@ export default function TimeSheetPageView() {
               className="w-full"
             />
           </div>
-            {/* Turn 1 (Primary Shift) */}
+             {/* Turn 1 (Primary Shift) */}
           <div className="bg-gray-50/50 p-4 border border-border rounded-xl space-y-3">
             <span className="text-xs font-bold text-text-primary uppercase flex items-center">
-              <Clock className="w-3.5 h-3.5 mr-1 text-primary" /> Turno 1 (Principal)
+              <Clock className="w-3.5 h-3.5 mr-1 text-primary" /> Turno 1
               <InfoTooltip content="Os intervalos são calculados de forma automática com base no tempo de descanso entre a saída de um turno e a entrada do turno seguinte." />
             </span>
             <div className="grid grid-cols-2 gap-4">
@@ -984,7 +984,7 @@ export default function TimeSheetPageView() {
           {formHasInterval2 ? (
             <div className="bg-blue-50/30 p-4 border border-blue-100 rounded-xl space-y-3 relative">
               <span className="text-xs font-bold text-blue-900 uppercase flex items-center">
-                <Clock className="w-3.5 h-3.5 mr-1 text-blue-700" /> Turno 2 (Extra)
+                <Clock className="w-3.5 h-3.5 mr-1 text-blue-700" /> Turno 2
               </span>
               <button
                 type="button"
@@ -1024,7 +1024,7 @@ export default function TimeSheetPageView() {
               onClick={() => setFormHasInterval2(true)}
               className="w-full py-2 border border-dashed border-blue-200 rounded-xl text-xs font-bold text-blue-700 hover:bg-blue-50/50 transition"
             >
-              + Adicionar Turno 2 (Extra)
+              + Adicionar Turno 2
             </button>
           )}
 
@@ -1033,7 +1033,7 @@ export default function TimeSheetPageView() {
             formHasInterval3 ? (
               <div className="bg-purple-50/30 p-4 border border-purple-100 rounded-xl space-y-3 relative">
                 <span className="text-xs font-bold text-purple-900 uppercase flex items-center">
-                  <Clock className="w-3.5 h-3.5 mr-1 text-purple-700" /> Turno 3 (Extra)
+                  <Clock className="w-3.5 h-3.5 mr-1 text-purple-700" /> Turno 3
                 </span>
                 <button
                   type="button"
@@ -1073,7 +1073,7 @@ export default function TimeSheetPageView() {
                 onClick={() => setFormHasInterval3(true)}
                 className="w-full py-2 border border-dashed border-purple-200 rounded-xl text-xs font-bold text-purple-700 hover:bg-purple-50/50 transition"
               >
-                + Adicionar Turno 3 (Extra)
+                + Adicionar Turno 3
               </button>
             )
           )}
@@ -1083,7 +1083,7 @@ export default function TimeSheetPageView() {
             formHasInterval4 ? (
               <div className="bg-teal-50/30 p-4 border border-teal-100 rounded-xl space-y-3 relative">
                 <span className="text-xs font-bold text-teal-900 uppercase flex items-center">
-                  <Clock className="w-3.5 h-3.5 mr-1 text-teal-700" /> Turno 4 (Extra)
+                  <Clock className="w-3.5 h-3.5 mr-1 text-teal-700" /> Turno 4
                 </span>
                 <button
                   type="button"
@@ -1123,7 +1123,7 @@ export default function TimeSheetPageView() {
                 onClick={() => setFormHasInterval4(true)}
                 className="w-full py-2 border border-dashed border-teal-200 rounded-xl text-xs font-bold text-teal-700 hover:bg-teal-50/50 transition"
               >
-                + Adicionar Turno 4 (Extra)
+                + Adicionar Turno 4
               </button>
             )
           )}
