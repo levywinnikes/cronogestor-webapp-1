@@ -174,6 +174,30 @@ export async function PUT(request: Request) {
       );
     }
 
+    // Safeguard: Do not allow disabling or demoting the last active administrator
+    const isAdminOrOwner = membership.role === "ADMIN" || membership.role === "OWNER";
+    const isActive = membership.status === "ACTIVE";
+    const willBeDemoted = payload.role !== "ADMIN" && payload.role !== "OWNER";
+    const willBeDisabled = payload.status === "DISABLED";
+
+    if (isAdminOrOwner && isActive && (willBeDemoted || willBeDisabled)) {
+      const otherAdminsCount = await prisma.organizationMembership.count({
+        where: {
+          organizationId: guard.context.organizationId,
+          role: { in: ["ADMIN", "OWNER"] },
+          status: "ACTIVE",
+          id: { not: membership.id },
+        },
+      });
+
+      if (otherAdminsCount === 0) {
+        return NextResponse.json(
+          { message: "A organização precisa de pelo menos 1 Administrador ativo." },
+          { status: 400 }
+        );
+      }
+    }
+
     const updated = await prisma.organizationMembership.update({
       where: { id: membership.id },
       data: {
@@ -248,6 +272,28 @@ export async function DELETE(request: Request) {
         { message: "Você não pode remover seu próprio acesso." },
         { status: 400 }
       );
+    }
+
+    // Safeguard: Do not allow deleting the last active administrator
+    const isAdminOrOwner = membership.role === "ADMIN" || membership.role === "OWNER";
+    const isActive = membership.status === "ACTIVE";
+
+    if (isAdminOrOwner && isActive) {
+      const otherAdminsCount = await prisma.organizationMembership.count({
+        where: {
+          organizationId: guard.context.organizationId,
+          role: { in: ["ADMIN", "OWNER"] },
+          status: "ACTIVE",
+          id: { not: membership.id },
+        },
+      });
+
+      if (otherAdminsCount === 0) {
+        return NextResponse.json(
+          { message: "A organização precisa de pelo menos 1 Administrador ativo." },
+          { status: 400 }
+        );
+      }
     }
 
     await prisma.organizationMembership.delete({

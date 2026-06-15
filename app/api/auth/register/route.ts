@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         data: {
           organizationId: organization.id,
           userAccountId: account.id,
-          role: "OWNER",
+          role: "ADMIN",
           status: "ACTIVE",
         },
       });

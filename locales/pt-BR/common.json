@@ -328,10 +328,10 @@
       "status": "Status"
     },
     "roles": {
-      "owner": "Dono (Owner)",
+      "owner": "Administrador",
       "admin": "Administrador",
-      "editor": "Editor",
-      "viewer": "Visualizador"
+      "editor": "Gestor (visualiza valores)",
+      "viewer": "Apenas lançamentos (não visualiza valores)"
     },
     "status": {
       "active": "Ativo",

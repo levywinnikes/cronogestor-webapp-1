@@ -186,7 +186,6 @@ export default function UsersScreen() {
 
   // Role translating options
   const roleOptions = [
-    { value: "OWNER", label: t("users.roles.owner") },
     { value: "ADMIN", label: t("users.roles.admin") },
     { value: "EDITOR", label: t("users.roles.editor") },
     { value: "VIEWER", label: t("users.roles.viewer") },
@@ -201,7 +200,6 @@ export default function UsersScreen() {
   const getRoleBadgeVariant = (role: MembershipRole) => {
     switch (role) {
       case "OWNER":
-        return "danger";
       case "ADMIN":
         return "warning";
       case "EDITOR":

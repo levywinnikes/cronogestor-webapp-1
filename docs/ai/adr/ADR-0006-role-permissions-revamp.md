@@ -1,6 +1,6 @@
 # ADR-0006 - Reformulação dos Papéis de Acesso e Permissões do Tenant
 
-- Status: PROPOSTO
+- Status: APROVADO
 - Data: 2026-06-15
 - Origem: Feedback do cliente (Fábio Mineiro) via WhatsApp
 

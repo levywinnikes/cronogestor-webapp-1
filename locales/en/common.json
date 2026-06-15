@@ -328,10 +328,10 @@
       "status": "Status"
     },
     "roles": {
-      "owner": "Owner",
+      "owner": "Administrator",
       "admin": "Administrator",
-      "editor": "Editor",
-      "viewer": "Viewer"
+      "editor": "Manager (views values)",
+      "viewer": "Logging Only (no values)"
     },
     "status": {
       "active": "Active",
