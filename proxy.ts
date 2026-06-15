@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { ACCESS_COOKIE_NAME } from "@/lib/auth/constants";
 
 const PROTECTED_PATHS = [
-  "/dashboard",
   "/funcionarios",
   "/ficha-tempo",
   "/feriados",
@@ -39,7 +38,7 @@ export function proxy(request: NextRequest) {
 
   if (isPublicAuthPath(pathname) && hasAccessCookie) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/projetos";
     return NextResponse.redirect(url);
   }
 

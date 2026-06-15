@@ -3,13 +3,17 @@ export interface TimeSheetEntryInputDto {
   startTime: string;
   endTime: string;
   breakMinutes: number;
+  startTime2?: string | null;
+  endTime2?: string | null;
+  startTime3?: string | null;
+  endTime3?: string | null;
 }
 
 export interface CreateTimeSheetDto {
   projectId: string;
   employeeId: string;
-  periodYear: number;
-  periodMonth: number;
+  periodYear?: number | null;
+  periodMonth?: number | null;
   entries: TimeSheetEntryInputDto[];
 }
 
@@ -35,6 +39,10 @@ export interface TimeSheetEntryResponseDto {
   startDateTime: string;
   endDateTime: string;
   breakMinutes: number;
+  startDateTime2?: string | null;
+  endDateTime2?: string | null;
+  startDateTime3?: string | null;
+  endDateTime3?: string | null;
 }
 
 export interface TimeSheetContextResponseDto {
@@ -52,7 +60,7 @@ class TimeSheetApiService {
   async getTimeSheetContext(
     projectId: string,
     employeeId: string,
-    periodYear: number,
+    periodYear: number | string,
     periodMonth: number,
   ): Promise<TimeSheetContextResponseDto | null> {
     const params = new URLSearchParams({

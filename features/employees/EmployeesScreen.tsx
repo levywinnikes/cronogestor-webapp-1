@@ -19,6 +19,7 @@ import {
   Heart,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Header } from "@/components/Header";
 import {
   employeeService,
@@ -42,6 +43,14 @@ type EmployeeRecord = {
   horasPorDia: number;
   encargos: number;
   beneficios: number;
+  bankName: string;
+  bankAgency: string;
+  bankAccount: string;
+  bankAccountDigit: string;
+  bankSwift: string;
+  bankIban: string;
+  pixKey: string;
+  vtEnabled: boolean;
 };
 
 const EMPTY_EMPLOYEE: EmployeeRecord = {
@@ -55,13 +64,17 @@ const EMPTY_EMPLOYEE: EmployeeRecord = {
   horasPorDia: 8,
   encargos: 0,
   beneficios: 0,
+  bankName: "",
+  bankAgency: "",
+  bankAccount: "",
+  bankAccountDigit: "",
+  bankSwift: "",
+  bankIban: "",
+  pixKey: "",
+  vtEnabled: false,
 };
 
-const REGIME_OPTIONS = [
-  { value: "dia", label: "Dia" },
-  { value: "quinzena", label: "Quinzena" },
-  { value: "mes", label: "Mês" },
-];
+
 
 function fromApiRegime(regime: EmployeeRegime): "dia" | "quinzena" | "mes" {
   if (regime === "DIA") return "dia";
@@ -73,6 +86,37 @@ function toApiRegime(regime: "dia" | "quinzena" | "mes"): EmployeeRegime {
   if (regime === "dia") return "DIA";
   if (regime === "quinzena") return "QUINZENA";
   return "MES";
+}
+
+function hoursToTimeStr(hours: number): string {
+  if (hours <= 0) return "08:00";
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+function timeStrToHoursDecimal(time: string): number {
+  if (!time) return 0;
+  const [h, m] = time.split(":").map(Number);
+  return h + (m || 0) / 60;
+}
+
+function validateCPF(cpf: string): boolean {
+  const clean = cpf.replace(/\D/g, "");
+  if (clean.length === 0) return true; // allow empty while typing or other document types
+  if (clean.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(clean)) return false;
+  let sum = 0;
+  for (let i = 0; i < 9; i++) sum += parseInt(clean[i]) * (10 - i);
+  let rev = 11 - (sum % 11);
+  if (rev === 10 || rev === 11) rev = 0;
+  if (rev !== parseInt(clean[9])) return false;
+  sum = 0;
+  for (let i = 0; i < 10; i++) sum += parseInt(clean[i]) * (11 - i);
+  rev = 11 - (sum % 11);
+  if (rev === 10 || rev === 11) rev = 0;
+  if (rev !== parseInt(clean[10])) return false;
+  return true;
 }
 
 function mapEmployee(dto: EmployeeDto): EmployeeRecord {
@@ -87,10 +131,33 @@ function mapEmployee(dto: EmployeeDto): EmployeeRecord {
     horasPorDia: Number(dto.hoursPerDay) || 0,
     encargos: Number(dto.chargesPercent) || 0,
     beneficios: Number(dto.benefitsAmount) || 0,
+    bankName: dto.bankName ?? "",
+    bankAgency: dto.bankAgency ?? "",
+    bankAccount: dto.bankAccount ?? "",
+    bankAccountDigit: dto.bankAccountDigit ?? "",
+    bankSwift: dto.bankSwift ?? "",
+    bankIban: dto.bankIban ?? "",
+    pixKey: dto.pixKey ?? "",
+    vtEnabled: dto.vtEnabled ?? false,
   };
 }
 
 export default function FuncionariosPageView() {
+  const { t } = useTranslation();
+
+  const regimeOptions = [
+    { value: "dia", label: t("employees.options.regime.dia") },
+    { value: "quinzena", label: t("employees.options.regime.quinzena") },
+    { value: "mes", label: t("employees.options.regime.mes") },
+  ];
+
+  const maritalOptions = [
+    { value: "solteiro", label: t("employees.options.marital.solteiro") },
+    { value: "casado", label: t("employees.options.marital.casado") },
+    { value: "divorciado", label: t("employees.options.marital.divorciado") },
+    { value: "viuvo", label: t("employees.options.marital.viuvo") },
+  ];
+
   const [employees, setEmployees] = useState<EmployeeRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"geral" | "registro">("geral");
@@ -136,6 +203,29 @@ export default function FuncionariosPageView() {
     return base + encargosVal + beneficiosVal;
   }, [formData]);
 
+  const isCpfInvalid = useMemo(() => {
+    const clean = formData.documento.replace(/\D/g, "");
+    // Only validate if it's 11 digits or if they are typing dots/hyphens (looks like CPF)
+    if (clean.length === 11 || (formData.documento.includes(".") && clean.length > 0)) {
+      return !validateCPF(formData.documento);
+    }
+    return false;
+  }, [formData.documento]);
+
+  const hourlyBasePreview = useMemo(() => {
+    const base = Number(formData.salario) || 0;
+    const regime = formData.regime;
+    const monthlyHours = regime === "dia" ? (Number(formData.horasPorDia) || 8) : 220;
+    const baseHourRate = monthlyHours > 0 ? (base / monthlyHours) : 0;
+    const chargesMultiplier = 1 + (Number(formData.encargos) || 0) / 100;
+    const normalHourCost = baseHourRate * chargesMultiplier;
+    return {
+      normal: normalHourCost,
+      overtime50: normalHourCost * 1.5,
+      overtime100: normalHourCost * 2.0,
+    };
+  }, [formData]);
+
   const filteredEmployees = employees.filter((e) =>
     `${e.nome} ${e.sobrenome}`.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -153,38 +243,38 @@ export default function FuncionariosPageView() {
   };
 
   const handleSave = async () => {
+    if (isCpfInvalid) return;
     setIsSaving(true);
     try {
+      const payloadData = {
+        firstName: formData.nome,
+        lastName: formData.sobrenome,
+        document: formData.documento,
+        roleName: formData.cargo,
+        salary: Number(formData.salario),
+        regime: toApiRegime(formData.regime),
+        hoursPerDay: Number(formData.horasPorDia),
+        chargesPercent: Number(formData.encargos),
+        benefitsAmount: Number(formData.beneficios),
+        isActive: true,
+        bankName: formData.bankName || null,
+        bankAgency: formData.bankAgency || null,
+        bankAccount: formData.bankAccount || null,
+        bankAccountDigit: formData.bankAccountDigit || null,
+        bankSwift: formData.bankSwift || null,
+        bankIban: formData.bankIban || null,
+        pixKey: formData.pixKey || null,
+        vtEnabled: formData.vtEnabled,
+      };
+
       if (selectedId === null) {
-        const created = await employeeService.createEmployee({
-          firstName: formData.nome,
-          lastName: formData.sobrenome,
-          document: formData.documento,
-          roleName: formData.cargo,
-          salary: Number(formData.salario),
-          regime: toApiRegime(formData.regime),
-          hoursPerDay: Number(formData.horasPorDia),
-          chargesPercent: Number(formData.encargos),
-          benefitsAmount: Number(formData.beneficios),
-          isActive: true,
-        });
+        const created = await employeeService.createEmployee(payloadData);
         const mapped = mapEmployee(created);
         setEmployees((prev) => [...prev, mapped]);
         setSelectedId(mapped.id);
         setFormData(mapped);
       } else {
-        const updated = await employeeService.updateEmployee(selectedId, {
-          firstName: formData.nome,
-          lastName: formData.sobrenome,
-          document: formData.documento,
-          roleName: formData.cargo,
-          salary: Number(formData.salario),
-          regime: toApiRegime(formData.regime),
-          hoursPerDay: Number(formData.horasPorDia),
-          chargesPercent: Number(formData.encargos),
-          benefitsAmount: Number(formData.beneficios),
-          isActive: true,
-        });
+        const updated = await employeeService.updateEmployee(selectedId, payloadData);
         const mapped = mapEmployee(updated);
         setEmployees((prev) =>
           prev.map((employee) =>
@@ -225,7 +315,7 @@ export default function FuncionariosPageView() {
       <Header />
 
       <PageHeader
-        title="Gerenciar Funcionários"
+        title={t("employees.page.title")}
         icon={<Users className="h-6 w-6" />}
         actions={
           <>
@@ -235,7 +325,7 @@ export default function FuncionariosPageView() {
               disabled={isSaving || isDeleting}
               onClick={handleNew}
             >
-              Novo
+              {t("employees.buttons.new")}
             </AppButton>
             <AppButton
               variant="danger-outline"
@@ -243,16 +333,16 @@ export default function FuncionariosPageView() {
               disabled={isSaving || isDeleting || selectedId === null}
               onClick={handleDelete}
             >
-              Deletar
+              {t("employees.buttons.delete")}
             </AppButton>
             <AppButton
               variant="secondary"
               icon={<Save className="w-4 h-4" />}
               loading={isSaving}
-              disabled={isDeleting}
+              disabled={isDeleting || isCpfInvalid}
               onClick={handleSave}
             >
-              Salvar Cadastro
+              {t("employees.buttons.save")}
             </AppButton>
           </>
         }
@@ -265,7 +355,7 @@ export default function FuncionariosPageView() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
             <Input
               type="text"
-              placeholder="Buscar funcionário..."
+              placeholder={t("employees.placeholders.search")}
               className="pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -273,7 +363,7 @@ export default function FuncionariosPageView() {
           </div>
 
           <Card className="overflow-hidden flex-1 flex flex-col">
-            <CardHeader title="Lista de Colaboradores" />
+            <CardHeader title={t("employees.listTitle")} />
             <div className="overflow-y-auto max-h-[calc(100vh-320px)] divide-y divide-border-light">
               {isLoading ? (
                 <div className="divide-y divide-border-light">
@@ -344,7 +434,7 @@ export default function FuncionariosPageView() {
               }`}
             >
               <Info className="w-4 h-4 mr-2" />
-              Informações Gerais
+              {t("employees.tabs.general")}
             </button>
             <button
               onClick={() => setActiveTab("registro")}
@@ -355,7 +445,7 @@ export default function FuncionariosPageView() {
               }`}
             >
               <Briefcase className="w-4 h-4 mr-2" />
-              Ficha de Admissão
+              {t("employees.tabs.admission")}
             </button>
           </div>
 
@@ -365,7 +455,7 @@ export default function FuncionariosPageView() {
                 {/* Basic Data Skeleton */}
                 <Card>
                   <CardHeader
-                    title="Dados Obrigatórios"
+                    title={t("employees.headers.required")}
                     icon={<User className="w-5 h-5" />}
                   />
                   <CardContent className="space-y-4">
@@ -402,7 +492,7 @@ export default function FuncionariosPageView() {
                 <div className="flex flex-col space-y-6">
                   <Card>
                     <CardHeader
-                      title="Encargos e Benefícios"
+                      title={t("employees.headers.costs")}
                       icon={<DollarSign className="w-5 h-5 text-secondary" />}
                     />
                     <CardContent className="space-y-4">
@@ -436,13 +526,13 @@ export default function FuncionariosPageView() {
                 {/* Basic Data */}
                 <Card>
                   <CardHeader
-                    title="Dados Obrigatórios"
+                    title={t("employees.headers.required")}
                     icon={<User className="w-5 h-5" />}
                   />
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
                       <TextField
-                        label="Nome"
+                        label={t("employees.fields.firstName")}
                         required
                         value={formData.nome}
                         onChange={(e) =>
@@ -450,7 +540,7 @@ export default function FuncionariosPageView() {
                         }
                       />
                       <TextField
-                        label="Sobrenome"
+                        label={t("employees.fields.lastName")}
                         required
                         value={formData.sobrenome}
                         onChange={(e) =>
@@ -458,17 +548,18 @@ export default function FuncionariosPageView() {
                         }
                       />
                       <TextField
-                        label="Documento (CPF ou Outros)"
+                        label={t("employees.fields.document")}
                         required
                         wrapperClassName="col-span-2"
                         value={formData.documento}
                         onChange={(e) =>
                           handleInputChange("documento", e.target.value)
                         }
-                        placeholder="000.000.000-00 ou Passaporte"
+                        error={isCpfInvalid ? t("employees.errors.cpfInvalid") : undefined}
+                        placeholder={t("employees.placeholders.document")}
                       />
                       <TextField
-                        label="Salário Base (R$)"
+                        label={t("employees.fields.salary")}
                         required
                         type="number"
                         value={formData.salario}
@@ -480,7 +571,7 @@ export default function FuncionariosPageView() {
                         }
                       />
                       <SelectField
-                        label="Regime"
+                        label={t("employees.fields.regime")}
                         required
                         value={formData.regime}
                         onChange={(e) =>
@@ -492,17 +583,17 @@ export default function FuncionariosPageView() {
                               | "mes",
                           )
                         }
-                        options={REGIME_OPTIONS}
+                        options={regimeOptions}
                       />
                       <TextField
-                        label="Horas por Dia"
+                        label={t("employees.fields.hoursPerDay")}
                         required
-                        type="number"
-                        value={formData.horasPorDia}
+                        type="time"
+                        value={hoursToTimeStr(formData.horasPorDia)}
                         onChange={(e) =>
                           handleInputChange(
                             "horasPorDia",
-                            Number(e.target.value),
+                            timeStrToHoursDecimal(e.target.value),
                           )
                         }
                         icon={<Clock className="w-4 h-4" />}
@@ -515,12 +606,12 @@ export default function FuncionariosPageView() {
                 <div className="flex flex-col space-y-6">
                   <Card>
                     <CardHeader
-                      title="Encargos e Benefícios"
+                      title={t("employees.headers.costs")}
                       icon={<DollarSign className="w-5 h-5 text-secondary" />}
                     />
                     <CardContent className="space-y-4">
                       <TextField
-                        label="Encargos Trabalhistas (%)"
+                        label={t("employees.fields.charges")}
                         type="number"
                         value={formData.encargos}
                         onChange={(e) =>
@@ -529,10 +620,10 @@ export default function FuncionariosPageView() {
                             Number(e.target.value),
                           )
                         }
-                        placeholder="Ex: 50%"
+                        placeholder={t("employees.placeholders.charges")}
                       />
                       <TextField
-                        label="Benefícios (Valor R$)"
+                        label={t("employees.fields.benefits")}
                         type="number"
                         value={formData.beneficios}
                         onChange={(e) =>
@@ -541,7 +632,7 @@ export default function FuncionariosPageView() {
                             Number(e.target.value),
                           )
                         }
-                        placeholder="Ex: 100,00"
+                        placeholder={t("employees.placeholders.benefits")}
                       />
                     </CardContent>
                   </Card>
@@ -549,11 +640,11 @@ export default function FuncionariosPageView() {
                   {/* Summary Card */}
                   <Card variant="gradient" className="p-8">
                     <h4 className="text-sm font-bold uppercase tracking-widest opacity-70 mb-4">
-                      Resumo de Custo Mensal
+                      {t("employees.headers.summary")}
                     </h4>
                     <div className="space-y-3">
                       <div className="flex justify-between text-sm">
-                        <span className="opacity-80">Salário Base:</span>
+                        <span className="opacity-80">{t("employees.labels.salary")}:</span>
                         <span className="font-medium">
                           R${" "}
                           {Number(formData.salario).toLocaleString("pt-BR", {
@@ -563,7 +654,7 @@ export default function FuncionariosPageView() {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="opacity-80">
-                          Encargos ({formData.encargos}%):
+                          {t("employees.labels.charges")} ({formData.encargos}%):
                         </span>
                         <span className="font-medium text-blue-200">
                           + R${" "}
@@ -576,7 +667,7 @@ export default function FuncionariosPageView() {
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="opacity-80">Benefícios:</span>
+                        <span className="opacity-80">{t("employees.labels.benefits")}:</span>
                         <span className="font-medium text-blue-200">
                           + R${" "}
                           {Number(formData.beneficios).toLocaleString("pt-BR", {
@@ -585,13 +676,34 @@ export default function FuncionariosPageView() {
                         </span>
                       </div>
                       <div className="pt-4 mt-4 border-t border-white/10 flex justify-between items-end">
-                        <span className="text-lg font-bold">Custo Total:</span>
+                        <span className="text-lg font-bold">{t("employees.labels.totalCost")}:</span>
                         <span className="text-3xl font-black text-[#4ade80]">
                           R${" "}
                           {totalCusto.toLocaleString("pt-BR", {
                             minimumFractionDigits: 2,
                           })}
                         </span>
+                      </div>
+                      <div className="pt-4 mt-4 border-t border-white/10 space-y-2 text-xs">
+                        <span className="font-bold opacity-75">{t("employees.labels.hourlyPreview")}:</span>
+                        <div className="flex justify-between">
+                          <span className="opacity-80">{t("employees.labels.normalHour")}:</span>
+                          <span className="font-semibold text-blue-200">
+                            {hourlyBasePreview.normal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/h
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="opacity-80">{t("employees.labels.extra50")}:</span>
+                          <span className="font-semibold text-blue-200">
+                            {hourlyBasePreview.overtime50.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/h
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="opacity-80">{t("employees.labels.extra100")}:</span>
+                          <span className="font-semibold text-blue-200">
+                            {hourlyBasePreview.overtime100.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/h
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </Card>
@@ -602,29 +714,24 @@ export default function FuncionariosPageView() {
                 {/* Personal Info */}
                 <Card>
                   <CardHeader
-                    title="Dados Pessoais"
+                    title={t("employees.headers.personal")}
                     icon={<User className="w-5 h-5" />}
                   />
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
                       <TextField
-                        label="Nome Completo"
+                        label={t("employees.fields.fullName")}
                         wrapperClassName="col-span-2"
-                        placeholder="Como consta no documento"
+                        placeholder={t("employees.placeholders.fullName")}
                       />
-                      <TextField label="Nacionalidade" />
-                      <TextField label="Data Nasc." type="date" />
+                      <TextField label={t("employees.fields.nationality")} />
+                      <TextField label={t("employees.fields.birthDate")} type="date" />
                       <SelectField
-                        label="Estado Civil"
-                        options={[
-                          { value: "solteiro", label: "Solteiro(a)" },
-                          { value: "casado", label: "Casado(a)" },
-                          { value: "divorciado", label: "Divorciado(a)" },
-                          { value: "viuvo", label: "Viúvo(a)" },
-                        ]}
+                        label={t("employees.fields.maritalStatus")}
+                        options={maritalOptions}
                       />
                       <TextField
-                        label="Celular"
+                        label={t("employees.fields.phone")}
                         placeholder="(00) 00000-0000"
                       />
                     </div>
@@ -634,19 +741,19 @@ export default function FuncionariosPageView() {
                 {/* Address */}
                 <Card>
                   <CardHeader
-                    title="Endereço"
+                    title={t("employees.headers.address")}
                     icon={<MapPin className="w-5 h-5" />}
                   />
                   <CardContent>
                     <div className="grid grid-cols-3 gap-4">
                       <TextField
-                        label="Rua / Logradouro"
+                        label={t("employees.fields.street")}
                         wrapperClassName="col-span-2"
                       />
-                      <TextField label="Nº" />
-                      <TextField label="Bairro" />
-                      <TextField label="Cidade" />
-                      <TextField label="CEP" />
+                      <TextField label={t("employees.fields.number")} />
+                      <TextField label={t("employees.fields.neighborhood")} />
+                      <TextField label={t("employees.fields.city")} />
+                      <TextField label={t("employees.fields.zipCode")} />
                     </div>
                   </CardContent>
                 </Card>
@@ -654,17 +761,17 @@ export default function FuncionariosPageView() {
                 {/* Documents */}
                 <Card>
                   <CardHeader
-                    title="Documentação Detalhada"
+                    title={t("employees.headers.documents")}
                     icon={<CreditCard className="w-5 h-5" />}
                   />
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
-                      <TextField label="RG" />
-                      <TextField label="Órgão Expeditor" />
-                      <TextField label="CTPS (Nº/Série)" />
-                      <TextField label="PIS / PASEP" />
+                      <TextField label={t("employees.fields.rg")} />
+                      <TextField label={t("employees.fields.rgIssuer")} />
+                      <TextField label={t("employees.fields.ctps")} />
+                      <TextField label={t("employees.fields.pis")} />
                       <TextField
-                        label="Título de Eleitor (Zona/Seção)"
+                        label={t("employees.fields.voterCard")}
                         wrapperClassName="col-span-2"
                       />
                     </div>
@@ -674,37 +781,73 @@ export default function FuncionariosPageView() {
                 {/* Banking */}
                 <Card>
                   <CardHeader
-                    title="Dados Bancários e Outros"
+                    title={t("employees.headers.banking")}
                     icon={<Heart className="w-5 h-5" />}
                   />
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
-                      <TextField label="Banco" />
-                      <TextField label="Agência / Conta" />
                       <TextField
-                        label="PIX (Chave)"
-                        wrapperClassName="col-span-2"
+                        label={t("employees.fields.bank")}
+                        value={formData.bankName}
+                        onChange={(e) => handleInputChange("bankName", e.target.value)}
                       />
-                      <div className="space-y-1.5">
+                      <div className="grid grid-cols-3 gap-2">
+                        <TextField
+                          label={t("employees.fields.agency")}
+                          value={formData.bankAgency}
+                          onChange={(e) => handleInputChange("bankAgency", e.target.value)}
+                        />
+                        <TextField
+                          label={t("employees.fields.account")}
+                          value={formData.bankAccount}
+                          onChange={(e) => handleInputChange("bankAccount", e.target.value)}
+                          wrapperClassName="col-span-2"
+                        />
+                      </div>
+                      <TextField
+                        label={t("employees.fields.accountDigit")}
+                        value={formData.bankAccountDigit}
+                        onChange={(e) => handleInputChange("bankAccountDigit", e.target.value)}
+                      />
+                      <TextField
+                        label={t("employees.fields.pixKey")}
+                        value={formData.pixKey}
+                        onChange={(e) => handleInputChange("pixKey", e.target.value)}
+                      />
+                      <TextField
+                        label={t("employees.fields.swift")}
+                        value={formData.bankSwift}
+                        onChange={(e) => handleInputChange("bankSwift", e.target.value)}
+                      />
+                      <TextField
+                        label={t("employees.fields.iban")}
+                        value={formData.bankIban}
+                        onChange={(e) => handleInputChange("bankIban", e.target.value)}
+                      />
+                      <div className="space-y-1.5 col-span-2">
                         <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wide">
-                          Vale Transporte?
+                          {t("employees.fields.vt")}
                         </label>
                         <div className="flex space-x-4 mt-2">
                           <label className="flex items-center text-sm cursor-pointer">
                             <Input
-                              type="radio"
-                              name="vt"
-                              className="mr-2 w-auto"
+                               type="radio"
+                               name="vt"
+                               className="mr-2 w-auto"
+                               checked={formData.vtEnabled === true}
+                               onChange={() => handleInputChange("vtEnabled", true)}
                             />{" "}
-                            Sim
+                            {t("employees.options.yes")}
                           </label>
                           <label className="flex items-center text-sm cursor-pointer">
                             <Input
-                              type="radio"
-                              name="vt"
-                              className="mr-2 w-auto"
+                               type="radio"
+                               name="vt"
+                               className="mr-2 w-auto"
+                               checked={formData.vtEnabled === false}
+                               onChange={() => handleInputChange("vtEnabled", false)}
                             />{" "}
-                            Não
+                            {t("employees.options.no")}
                           </label>
                         </div>
                       </div>
@@ -721,7 +864,7 @@ export default function FuncionariosPageView() {
       <div className="sm:hidden bg-primary text-white p-4 fixed bottom-0 w-full shadow-2xl flex justify-between items-center z-50">
         <div>
           <p className="text-[10px] opacity-70 uppercase font-bold">
-            Custo Total Est.
+            {t("employees.labels.totalCost")}
           </p>
           <p className="text-lg font-bold">
             R${" "}
@@ -732,9 +875,9 @@ export default function FuncionariosPageView() {
           variant="secondary"
           size="sm"
           onClick={handleSave}
-          disabled={isSaving || isDeleting}
+          disabled={isSaving || isDeleting || isCpfInvalid}
         >
-          Salvar
+          {t("employees.buttons.save")}
         </AppButton>
       </div>
     </PageShell>

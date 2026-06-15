@@ -1,10 +1,18 @@
 export interface DayCostBreakdown {
   normalHours: number;
+  normalCost: number;
   overtime50: number;
+  overtime50Cost: number;
   overtime100: number;
+  overtime100Cost: number;
   nightShiftHours: number;
+  nightShiftCost: number;
   calculatedCost: number;
   totalHours: number;
+  isSunday: boolean;
+  isSaturday: boolean;
+  isHoliday: boolean;
+  holidayName?: string;
 }
 
 export interface TimeEntryRecord {
@@ -15,6 +23,10 @@ export interface TimeEntryRecord {
   startTime: string; // HH:mm
   endTime: string; // HH:mm
   breakDurationMinutes: number;
+  startTime2?: string | null;
+  endTime2?: string | null;
+  startTime3?: string | null;
+  endTime3?: string | null;
 }
 
 type CostCalculationEmployee = {
@@ -29,6 +41,7 @@ export const timeSheetService = {
   calculateDayCost: (
     entry: TimeEntryRecord,
     employee: CostCalculationEmployee,
+    holidayDates?: Map<string, string> | Set<string>,
   ): DayCostBreakdown => {
     // Parser Function
     const parseTime = (timeStr: string) => {
@@ -36,15 +49,24 @@ export const timeSheetService = {
       return h + m / 60;
     };
 
-    const start = parseTime(entry.startTime);
-    let end = parseTime(entry.endTime);
+    const getWorkedHoursForInterval = (startStr: string, endStr: string): number => {
+      const start = parseTime(startStr);
+      let end = parseTime(endStr);
+      if (end < start) {
+        end += 24;
+      }
+      return end - start;
+    };
 
-    // Se passou da meia-noite
-    if (end < start) {
-      end += 24;
+    let totalWorked = getWorkedHoursForInterval(entry.startTime, entry.endTime) - entry.breakDurationMinutes / 60;
+    
+    if (entry.startTime2 && entry.endTime2) {
+      totalWorked += getWorkedHoursForInterval(entry.startTime2, entry.endTime2);
+    }
+    if (entry.startTime3 && entry.endTime3) {
+      totalWorked += getWorkedHoursForInterval(entry.startTime3, entry.endTime3);
     }
 
-    let totalWorked = end - start - entry.breakDurationMinutes / 60;
     if (totalWorked < 0) totalWorked = 0;
 
     let normalHours = 0;
@@ -52,23 +74,33 @@ export const timeSheetService = {
     let overtime100 = 0;
     const nightShiftHours = 0; // Simplificado para este MVP
 
-    // Verificando final de semana (Domingo = 0, Sábado = 6)
+    // Verificando final de semana (Domingo = 0, Sábado = 6) e Feriado
     const entryDate = new Date(entry.date + "T00:00:00");
     const dayOfWeek = entryDate.getDay();
     const isSunday = dayOfWeek === 0;
     const isSaturday = dayOfWeek === 6;
+    
+    let isHoliday = false;
+    let holidayName: string | undefined = undefined;
 
-    if (isSunday) {
+    if (holidayDates) {
+      if (holidayDates instanceof Map) {
+        isHoliday = holidayDates.has(entry.date);
+        holidayName = holidayDates.get(entry.date);
+      } else {
+        isHoliday = holidayDates.has(entry.date);
+      }
+    }
+
+    if (isSunday || isHoliday) {
       overtime100 = totalWorked;
     } else {
       if (totalWorked > employee.horasPorDia) {
         normalHours = employee.horasPorDia;
         const extra = totalWorked - employee.horasPorDia;
         if (isSaturday) {
-          // Simplificação: Sábado as extras podem ter regras específicas, mas vamos usar 50%
           overtime50 = extra;
         } else {
-          // Dias de semana
           if (extra > 2) {
             overtime50 = 2;
             overtime100 = extra - 2;
@@ -82,10 +114,7 @@ export const timeSheetService = {
     }
 
     // Calculando custo financeiro
-    // Salario "Base" no mês, dividido por ex 220 horas para achar a hora.
-    // Para simplificar, vamos assumir 220h mensais.
     const hourlyRate = employee.salario / 220;
-    // Adicionando os encargos proporcionais
     const hourlyCostBase = hourlyRate * (1 + employee.encargos / 100);
 
     // Valor da hora com adicional de 50%
@@ -93,18 +122,28 @@ export const timeSheetService = {
     // Valor da hora com adicional de 100%
     const rate100 = hourlyCostBase * (1 + employee.overtime100 / 100);
 
-    const calculatedCost =
-      normalHours * hourlyCostBase +
-      overtime50 * rate50 +
-      overtime100 * rate100;
+    const normalCost = normalHours * hourlyCostBase;
+    const overtime50Cost = overtime50 * rate50;
+    const overtime100Cost = overtime100 * rate100;
+    const nightShiftCost = 0;
+
+    const calculatedCost = normalCost + overtime50Cost + overtime100Cost;
 
     return {
       normalHours,
+      normalCost,
       overtime50,
+      overtime50Cost,
       overtime100,
+      overtime100Cost,
       nightShiftHours,
+      nightShiftCost,
       calculatedCost,
       totalHours: totalWorked,
+      isSunday,
+      isSaturday,
+      isHoliday,
+      holidayName,
     };
   },
 };

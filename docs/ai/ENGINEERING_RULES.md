@@ -39,7 +39,7 @@
 13. UI/UX: Sempre usar `<Badge>` para estados (Status) e `<EmptyState>` quando não há registros na tela.
 14. React: Sempre garanta que formulários e inputs controlados não recebam `undefined` ou `null` da API. Use fallback `?? ""` ou `|| 0` em DTOs/mappers para evitar o erro "A component is changing a controlled input to be uncontrolled".
 15. Next.js/UX: Navegação entre páginas sempre deve ter feedback visual imediato. Use o arquivo `app/loading.tsx` na raiz ou em sub-rotas pesadas para exibir uma tela de loading genérica enquanto o servidor resolve os dados da próxima página.
-16. UI/UX: Para carregamento de dados em telas/blocos específicos, SEMPRE utilize o padrão **Skeleton Loading** (ofuscamento com efeito *pulse* via componente `<Skeleton />`) simulando a estrutura original da UI. Evite spinners de tela cheia ou textos simples como "Carregando..." para carregamentos de dados em blocos específicos.
+16. UI/UX: Para carregamento de dados em telas/blocos específicos, SEMPRE utilize o padrão **Skeleton Loading** (ofuscamento com efeito _pulse_ via componente `<Skeleton />`) simulando a estrutura original da UI. Evite spinners de tela cheia ou textos simples como "Carregando..." para carregamentos de dados em blocos específicos.
 17. Tratamento de Erros: NUNCA retorne ou exiba mensagens de erro genéricas ou ambíguas (ex.: "Erro ao registrar. Tente novamente.") quando a causa real for identificável (como e-mail em uso, CPF/CNPJ duplicado ou validação falha). O backend deve retornar códigos HTTP semânticos (ex.: 409 Conflict, 400 Bad Request) e mensagens claras. O frontend deve repassar e renderizar estas mensagens reais do backend para o usuário.
 
 ## Documentacao viva
@@ -48,3 +48,5 @@
 2. Mudou entidade ou relacao: atualizar DOMAIN_MODEL.md.
 3. Mudou fluxo funcional: atualizar WORKFLOWS.md.
 4. Mudou diretriz tecnica: atualizar ENGINEERING_RULES.md.
+5. Toda implementacao nova deve nascer com documentacao previa (escopo, criterio de aceite, impacto multi-tenant e plano tecnico) em docs/ai antes de editar codigo.
+6. Itens de roadmap oriundos de ata/issue devem ser registrados em NEXT_STEPS.md com status e dono.

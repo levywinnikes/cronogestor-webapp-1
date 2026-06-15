@@ -98,7 +98,7 @@ login.premiumPromo.title
 
 ### 2.3 Features / Dashboard
 
-#### [features/dashboard/ProjectsDashboardScreen.tsx](features/dashboard/ProjectsDashboardScreen.tsx)
+#### [features/projects/ProjectsScreen.tsx](features/projects/ProjectsScreen.tsx)
 
 | Texto               | Tipo   | EN            | PT-BR               |
 | ------------------- | ------ | ------------- | ------------------- |

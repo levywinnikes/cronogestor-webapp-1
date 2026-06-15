@@ -5,8 +5,8 @@ import { requireTenantContext } from "@/lib/api/tenant-guard";
 const createTimeSheetSchema = z.object({
   projectId: z.string().min(1),
   employeeId: z.string().min(1),
-  periodYear: z.number().int().min(2000).max(3000),
-  periodMonth: z.number().int().min(1).max(12),
+  periodYear: z.number().int().min(2000).max(3000).optional().nullable(),
+  periodMonth: z.number().int().min(1).max(12).optional().nullable(),
   entries: z
     .array(
       z.object({
@@ -14,6 +14,10 @@ const createTimeSheetSchema = z.object({
         startTime: z.string().regex(/^\d{2}:\d{2}$/),
         endTime: z.string().regex(/^\d{2}:\d{2}$/),
         breakMinutes: z.number().int().min(0).max(600),
+        startTime2: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
+        endTime2: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
+        startTime3: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
+        endTime3: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
       }),
     )
     .min(1),
@@ -24,8 +28,36 @@ function parseMinutes(time: string): number {
   return hours * 60 + minutes;
 }
 
+function minutesToTime(m: number): string {
+  const hours = Math.floor(m / 60) % 24;
+  const mins = m % 60;
+  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
+}
+
+function checkDayOverlaps(intervals: { start: number; end: number; label: string }[]): string | null {
+  for (let i = 0; i < intervals.length; i++) {
+    for (let j = i + 1; j < intervals.length; j++) {
+      const a = intervals[i];
+      const b = intervals[j];
+      if (a.start < b.end && b.start < a.end) {
+        return `${a.label} conflita com ${b.label}`;
+      }
+    }
+  }
+  return null;
+}
+
 function buildDateTime(workDate: string, time: string): Date {
   return new Date(`${workDate}T${time}:00.000Z`);
+}
+
+function getWorkedMinutes(startStr: string, endStr: string, deductMinutes: number = 0): number {
+  const start = parseMinutes(startStr);
+  let end = parseMinutes(endStr);
+  if (end < start) {
+    end += 24 * 60;
+  }
+  return Math.max(end - start - deductMinutes, 0);
 }
 
 export async function GET() {
@@ -189,118 +221,185 @@ export async function POST(request: Request) {
     const holidayPercent = Number(defaultPolicy?.holidayPercent ?? 100);
     const nightPercent = Number(defaultPolicy?.nightAdditionalPercent ?? 20);
 
-    const timeSheet = await prisma.timeSheet.upsert({
-      where: {
-        organizationId_projectId_employeeId_periodYear_periodMonth: {
-          organizationId: guard.context.organizationId,
-          projectId: project.id,
-          employeeId: employee.id,
-          periodYear: payload.periodYear,
-          periodMonth: payload.periodMonth,
-        },
-      },
-      update: {
-        status: "DRAFT",
-      },
-      create: {
-        organizationId: guard.context.organizationId,
-        projectId: project.id,
-        employeeId: employee.id,
-        periodYear: payload.periodYear,
-        periodMonth: payload.periodMonth,
-        status: "DRAFT",
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    await prisma.timeSheetEntry.deleteMany({
-      where: {
-        timeSheetId: timeSheet.id,
-      },
-    });
-
+    // Group entries by workDate to check for overlaps
+    const dateGroups: { [date: string]: typeof payload.entries } = {};
     for (const entry of payload.entries) {
-      const workDate = new Date(`${entry.workDate}T00:00:00.000Z`);
-      const dayOfWeek = workDate.getUTCDay();
-      const isSunday = dayOfWeek === 0;
-      const isSaturday = dayOfWeek === 6;
-      const isHoliday = holidayDateSet.has(entry.workDate);
-
-      const startMinutes = parseMinutes(entry.startTime);
-      let endMinutes = parseMinutes(entry.endTime);
-
-      if (endMinutes < startMinutes) {
-        endMinutes += 24 * 60;
+      if (!dateGroups[entry.workDate]) {
+        dateGroups[entry.workDate] = [];
       }
-
-      const grossMinutes = endMinutes - startMinutes;
-      const workedMinutes = Math.max(grossMinutes - entry.breakMinutes, 0);
-      const normalLimitMinutes = Number(employee.hoursPerDay) * 60;
-
-      let normalMinutes = 0;
-      let overtimeFirstTwoMinutes = 0;
-      let overtimeAfterTwoMinutes = 0;
-      let saturdayMinutes = 0;
-      let sundayOrHolidayMinutes = 0;
-
-      if (isHoliday || isSunday) {
-        sundayOrHolidayMinutes = workedMinutes;
-      } else if (isSaturday) {
-        saturdayMinutes = workedMinutes;
-      } else {
-        normalMinutes = Math.min(workedMinutes, normalLimitMinutes);
-        const extraMinutes = Math.max(workedMinutes - normalLimitMinutes, 0);
-        overtimeFirstTwoMinutes = Math.min(extraMinutes, 120);
-        overtimeAfterTwoMinutes = Math.max(extraMinutes - 120, 0);
-      }
-
-      const calculatedAmount =
-        (normalMinutes / 60) * hourlyBase +
-        (overtimeFirstTwoMinutes / 60) *
-          hourlyBase *
-          (1 + weekdayFirstTwoPercent / 100) +
-        (overtimeAfterTwoMinutes / 60) *
-          hourlyBase *
-          (1 + weekdayAfterTwoPercent / 100) +
-        (saturdayMinutes / 60) * hourlyBase * (1 + saturdayPercent / 100) +
-        (sundayOrHolidayMinutes / 60) *
-          hourlyBase *
-          (1 + (isHoliday ? holidayPercent : sundayPercent) / 100);
-
-      await prisma.timeSheetEntry.create({
-        data: {
-          organizationId: guard.context.organizationId,
-          timeSheetId: timeSheet.id,
-          employeeId: employee.id,
-          projectId: project.id,
-          workDate,
-          startDateTime: buildDateTime(entry.workDate, entry.startTime),
-          endDateTime: buildDateTime(entry.workDate, entry.endTime),
-          breakMinutes: entry.breakMinutes,
-          snapshotBaseSalary: Number(employee.salary),
-          snapshotChargesPercent: Number(employee.chargesPercent),
-          snapshotHourlyBase: hourlyBase,
-          snapshotWeekdayFirstTwoPercent: weekdayFirstTwoPercent,
-          snapshotWeekdayAfterTwoPercent: weekdayAfterTwoPercent,
-          snapshotSaturdayPercent: saturdayPercent,
-          snapshotSundayPercent: sundayPercent,
-          snapshotHolidayPercent: holidayPercent,
-          snapshotNightAdditionalPercent: nightPercent,
-          normalMinutes,
-          overtimeFirstTwoMinutes,
-          overtimeAfterTwoMinutes,
-          saturdayMinutes,
-          sundayOrHolidayMinutes,
-          nightMinutes: 0,
-          calculatedAmount,
-        },
-      });
+      dateGroups[entry.workDate].push(entry);
     }
 
-    return NextResponse.json({ data: { id: timeSheet.id } }, { status: 201 });
+    for (const [date, dayEntries] of Object.entries(dateGroups)) {
+      const dayIntervals: { start: number; end: number; label: string }[] = [];
+      for (const entry of dayEntries) {
+        const start1 = parseMinutes(entry.startTime);
+        let end1 = parseMinutes(entry.endTime);
+        if (end1 < start1) end1 += 24 * 60;
+        dayIntervals.push({ start: start1, end: end1, label: `Turno 1 (${entry.startTime}-${entry.endTime})` });
+
+        if (entry.startTime2 && entry.endTime2) {
+          const start2 = parseMinutes(entry.startTime2);
+          let end2 = parseMinutes(entry.endTime2);
+          if (end2 < start2) end2 += 24 * 60;
+          dayIntervals.push({ start: start2, end: end2, label: `Turno 2 (${entry.startTime2}-${entry.endTime2})` });
+        }
+
+        if (entry.startTime3 && entry.endTime3) {
+          const start3 = parseMinutes(entry.startTime3);
+          let end3 = parseMinutes(entry.endTime3);
+          if (end3 < start3) end3 += 24 * 60;
+          dayIntervals.push({ start: start3, end: end3, label: `Turno 3 (${entry.startTime3}-${entry.endTime3})` });
+        }
+      }
+
+      const overlapError = checkDayOverlaps(dayIntervals);
+      if (overlapError) {
+        const formattedDate = date.split("-").reverse().join("/");
+        return NextResponse.json(
+          { message: `Conflito de horários no dia ${formattedDate}: ${overlapError}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Group entries by period (year and month) to create/update TimeSheet objects
+    const periodGroups: { [key: string]: typeof payload.entries } = {};
+    for (const entry of payload.entries) {
+      const [yearStr, monthStr] = entry.workDate.split("-");
+      const key = `${yearStr}-${monthStr}`;
+      if (!periodGroups[key]) {
+        periodGroups[key] = [];
+      }
+      periodGroups[key].push(entry);
+    }
+
+    let lastTimeSheetId = "";
+
+    for (const [key, groupEntries] of Object.entries(periodGroups)) {
+      const [year, month] = key.split("-").map(Number);
+
+      const timeSheet = await prisma.timeSheet.upsert({
+        where: {
+          organizationId_projectId_employeeId_periodYear_periodMonth: {
+            organizationId: guard.context.organizationId,
+            projectId: project.id,
+            employeeId: employee.id,
+            periodYear: year,
+            periodMonth: month,
+          },
+        },
+        update: {
+          status: "DRAFT",
+        },
+        create: {
+          organizationId: guard.context.organizationId,
+          projectId: project.id,
+          employeeId: employee.id,
+          periodYear: year,
+          periodMonth: month,
+          status: "DRAFT",
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      lastTimeSheetId = timeSheet.id;
+
+      // Delete old entries for this month's timesheet
+      await prisma.timeSheetEntry.deleteMany({
+        where: {
+          timeSheetId: timeSheet.id,
+        },
+      });
+
+      for (const entry of groupEntries) {
+        const workDate = new Date(`${entry.workDate}T00:00:00.000Z`);
+        const dayOfWeek = workDate.getUTCDay();
+        const isSunday = dayOfWeek === 0;
+        const isSaturday = dayOfWeek === 6;
+        const isHoliday = holidayDateSet.has(entry.workDate);
+
+        // Sum minutes worked across all 3 intervals
+        let workedMinutes = getWorkedMinutes(entry.startTime, entry.endTime, entry.breakMinutes);
+        if (entry.startTime2 && entry.endTime2) {
+          workedMinutes += getWorkedMinutes(entry.startTime2, entry.endTime2, 0);
+        }
+        if (entry.startTime3 && entry.endTime3) {
+          workedMinutes += getWorkedMinutes(entry.startTime3, entry.endTime3, 0);
+        }
+
+        const normalLimitMinutes = Number(employee.hoursPerDay) * 60;
+
+        let normalMinutes = 0;
+        let overtimeFirstTwoMinutes = 0;
+        let overtimeAfterTwoMinutes = 0;
+        let saturdayMinutes = 0;
+        let sundayOrHolidayMinutes = 0;
+
+        if (isHoliday || isSunday) {
+          sundayOrHolidayMinutes = workedMinutes;
+        } else if (isSaturday) {
+          saturdayMinutes = workedMinutes;
+        } else {
+          normalMinutes = Math.min(workedMinutes, normalLimitMinutes);
+          const extraMinutes = Math.max(workedMinutes - normalLimitMinutes, 0);
+          overtimeFirstTwoMinutes = Math.min(extraMinutes, 120);
+          overtimeAfterTwoMinutes = Math.max(extraMinutes - 120, 0);
+        }
+
+        const calculatedAmount =
+          (normalMinutes / 60) * hourlyBase +
+          (overtimeFirstTwoMinutes / 60) *
+            hourlyBase *
+            (1 + weekdayFirstTwoPercent / 100) +
+          (overtimeAfterTwoMinutes / 60) *
+            hourlyBase *
+            (1 + weekdayAfterTwoPercent / 100) +
+          (saturdayMinutes / 60) * hourlyBase * (1 + saturdayPercent / 100) +
+          (sundayOrHolidayMinutes / 60) *
+            hourlyBase *
+            (1 + (isHoliday ? holidayPercent : sundayPercent) / 100);
+
+        await prisma.timeSheetEntry.create({
+          data: {
+            organizationId: guard.context.organizationId,
+            timeSheetId: timeSheet.id,
+            employeeId: employee.id,
+            projectId: project.id,
+            workDate,
+            startDateTime: buildDateTime(entry.workDate, entry.startTime),
+            endDateTime: buildDateTime(entry.workDate, entry.endTime),
+            breakMinutes: entry.breakMinutes,
+            startDateTime2: entry.startTime2 && entry.endTime2 ? buildDateTime(entry.workDate, entry.startTime2) : null,
+            endDateTime2: entry.startTime2 && entry.endTime2 ? buildDateTime(entry.workDate, entry.endTime2) : null,
+            startDateTime3: entry.startTime3 && entry.endTime3 ? buildDateTime(entry.workDate, entry.startTime3) : null,
+            endDateTime3: entry.startTime3 && entry.endTime3 ? buildDateTime(entry.workDate, entry.endTime3) : null,
+            snapshotBaseSalary: Number(employee.salary),
+            snapshotChargesPercent: Number(employee.chargesPercent),
+            snapshotHourlyBase: hourlyBase,
+            snapshotWeekdayFirstTwoPercent: weekdayFirstTwoPercent,
+            snapshotWeekdayAfterTwoPercent: weekdayAfterTwoPercent,
+            snapshotSaturdayPercent: saturdayPercent,
+            snapshotSundayPercent: sundayPercent,
+            snapshotHolidayPercent: holidayPercent,
+            snapshotNightAdditionalPercent: nightPercent,
+            normalMinutes,
+            overtimeFirstTwoMinutes,
+            overtimeAfterTwoMinutes,
+            saturdayMinutes,
+            sundayOrHolidayMinutes,
+            nightMinutes: 0,
+            calculatedAmount,
+          },
+        });
+      }
+    }
+
+    return NextResponse.json({ data: { id: lastTimeSheetId } }, { status: 201 });
   } catch (error) {
+    console.error("Error saving timesheet:", error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { message: "Dados de ficha tempo invalidos." },

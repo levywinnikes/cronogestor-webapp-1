@@ -55,7 +55,7 @@ export function LoginPageView() {
       if (response.user.planType === "FREE") {
         setShowAdModal(true);
       } else {
-        router.push("/dashboard");
+        router.push("/projetos");
       }
     } catch (error: unknown) {
       const message =
@@ -70,7 +70,7 @@ export function LoginPageView() {
 
   const handleCloseAd = () => {
     setShowAdModal(false);
-    router.push("/dashboard");
+    router.push("/projetos");
   };
 
   if (!mounted) {
@@ -219,7 +219,7 @@ export function LoginPageView() {
                 className="w-full py-2 px-4 rounded-lg text-gray-500 font-medium hover:bg-gray-100 transition"
                 onClick={handleCloseAd}
               >
-                Pular pro Dashboard
+                {t("login.premiumPromo.skip")}
               </button>
             </div>
           </div>

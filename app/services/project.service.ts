@@ -8,6 +8,9 @@ export interface ProjectDto {
   startDate: string;
   endDate?: string;
   budgetForecast?: string; // Previsão de custo (Opcional) no lugar do Grupo
+  budgetMaterials?: string;
+  budgetLabor?: string;
+  budgetOthers?: string;
   contractNumber?: string;
   status: "NAO_INICIADO" | "EM_ANDAMENTO" | "PARALISADO" | "CONCLUIDO";
   address?: string;

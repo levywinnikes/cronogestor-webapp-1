@@ -13,6 +13,14 @@ export interface EmployeeDto {
   chargesPercent: string;
   benefitsAmount: string;
   isActive: boolean;
+  bankName?: string | null;
+  bankAgency?: string | null;
+  bankAccount?: string | null;
+  bankAccountDigit?: string | null;
+  bankSwift?: string | null;
+  bankIban?: string | null;
+  pixKey?: string | null;
+  vtEnabled?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -28,6 +36,14 @@ export interface EmployeeUpsertDto {
   chargesPercent: number;
   benefitsAmount: number;
   isActive?: boolean;
+  bankName?: string | null;
+  bankAgency?: string | null;
+  bankAccount?: string | null;
+  bankAccountDigit?: string | null;
+  bankSwift?: string | null;
+  bankIban?: string | null;
+  pixKey?: string | null;
+  vtEnabled?: boolean;
 }
 
 interface ApiResponse<T> {

@@ -9,10 +9,10 @@ import { authService } from "@/app/services/auth.service";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 
 const NAV_LINKS = [
-  { href: "/dashboard", labelKey: "nav.projects" },
+  { href: "/projetos", labelKey: "nav.projects" },
   { href: "/funcionarios", labelKey: "nav.employees" },
   { href: "/ficha-tempo", labelKey: "timesheet.page.title" },
-  { href: "/feriados", labelKey: "nav.holidays" },
+  { href: "/configuracoes", labelKey: "nav.settings" },
 ] as const;
 
 export function Header() {

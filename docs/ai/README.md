@@ -23,6 +23,7 @@ Centralizar contexto de negocio, dominio e engenharia para que qualquer IA traba
 8. COMPONENT_CATALOG.md
 9. I18N_AND_THEME.md
 10. SCHEMA_PLANNING_PROPOSTAS.md
+11. NEXT_STEPS.md
 
 ## Fonte de verdade
 
@@ -38,7 +39,7 @@ Sistema em evolucao com base em telas existentes:
 
 - registro
 - login
-- dashboard de projetos
+- listagem de projetos
 - cadastro de funcionarios
 - ficha tempo
 

@@ -3,6 +3,7 @@
     "projects": "Projetos",
     "employees": "Funcionários",
     "holidays": "Feriados",
+    "settings": "Configurações",
     "logout": "Sair"
   },
   "login": {
@@ -29,7 +30,8 @@
       "password": "Senha:"
     },
     "premiumPromo": {
-      "title": "Conheça o Plano Premium!"
+      "title": "Conheça o Plano Premium!",
+      "skip": "Pular para Projetos"
     },
     "footer": "Cronogestor é um produto do Grupo Cronosfera"
   },
@@ -43,9 +45,11 @@
     "page": {
       "title": "Adicionar Projeto",
       "editTitle": "Editar Projeto",
+      "listTitle": "Projetos",
       "basicInfo": "Informações Básicas"
     },
     "buttons": {
+      "add": "Adicionar projeto",
       "save": "Salvar Projeto",
       "update": "Atualizar Projeto",
       "back": "Voltar"
@@ -101,8 +105,8 @@
       "title": "Lançamento de Ficha Tempo"
     },
     "buttons": {
-      "closeSheet": "Fechar Ficha",
-      "addDay": "Adicionar Dia",
+      "closeSheet": "Salvar",
+      "addDay": "Adicionar ficha tempo",
       "delete": "Excluir",
       "save": "Salvar"
     },
@@ -139,9 +143,90 @@
       "new": "Novo",
       "delete": "Deletar"
     },
+    "placeholders": {
+      "search": "Buscar funcionário...",
+      "fullName": "Como consta no documento",
+      "charges": "Ex: 50%",
+      "benefits": "Ex: 100,00",
+      "document": "000.000.000-00 ou Passaporte"
+    },
+    "listTitle": "Lista de Colaboradores",
+    "tabs": {
+      "general": "Informações Gerais",
+      "admission": "Ficha de Admissão"
+    },
+    "headers": {
+      "required": "Dados Obrigatórios",
+      "costs": "Encargos e Benefícios",
+      "summary": "Resumo de Custo Mensal",
+      "personal": "Dados Pessoais",
+      "address": "Endereço",
+      "documents": "Documentação Detalhada",
+      "banking": "Dados Bancários e Outros"
+    },
+    "fields": {
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "document": "Documento (CPF ou Outros)",
+      "role": "Cargo / Função",
+      "salary": "Salário Base (R$)",
+      "regime": "Regime",
+      "hoursPerDay": "Horas por Dia",
+      "charges": "Encargos Trabalhistas (%)",
+      "benefits": "Benefícios (Valor R$)",
+      "fullName": "Nome Completo",
+      "nationality": "Nacionalidade",
+      "birthDate": "Data Nasc.",
+      "maritalStatus": "Estado Civil",
+      "phone": "Celular",
+      "street": "Rua / Logradouro",
+      "number": "Nº",
+      "neighborhood": "Bairro",
+      "city": "Cidade",
+      "zipCode": "CEP",
+      "rg": "RG",
+      "rgIssuer": "Órgão Expeditor",
+      "ctps": "CTPS (Nº/Série)",
+      "pis": "PIS / PASEP",
+      "voterCard": "Título de Eleitor (Zona/Seção)",
+      "bank": "Banco",
+      "agency": "Agência",
+      "account": "Conta",
+      "accountDigit": "Dígito Conta",
+      "pixKey": "Chave PIX",
+      "swift": "SWIFT",
+      "iban": "IBAN",
+      "vt": "Vale Transporte?"
+    },
+    "options": {
+      "yes": "Sim",
+      "no": "Não",
+      "marital": {
+        "solteiro": "Solteiro(a)",
+        "casado": "Casado(a)",
+        "divorciado": "Divorciado(a)",
+        "viuvo": "Viúvo(a)"
+      },
+      "regime": {
+        "dia": "Dia",
+        "quinzena": "Quinzena",
+        "mes": "Mês"
+      }
+    },
+    "labels": {
+      "salary": "Salário Base",
+      "charges": "Encargos",
+      "benefits": "Benefícios",
+      "totalCost": "Custo Total",
+      "hourlyPreview": "Prévia de Custo por Hora",
+      "normalHour": "Hora Normal",
+      "extra50": "Hora Extra 50%",
+      "extra100": "Hora Extra 100%"
+    },
     "errors": {
       "saveFailed": "Erro ao salvar funcionario",
-      "deleteFailed": "Erro ao excluir funcionario"
+      "deleteFailed": "Erro ao excluir funcionario",
+      "cpfInvalid": "CPF inválido."
     }
   },
   "register": {
@@ -227,6 +312,52 @@
     "attachments": {
       "title": "Anexos do Projeto",
       "placeholder": "Campo preparado para envio de arquivos. Upload sera habilitado em uma proxima etapa."
+    }
+  },
+  "users": {
+    "page": {
+      "title": "Usuários",
+      "subtitle": "Gerencie os membros e níveis de acesso da sua organização.",
+      "inviteTitle": "Convidar Usuário",
+      "editTitle": "Editar Permissão"
+    },
+    "fields": {
+      "name": "Nome",
+      "email": "E-mail",
+      "role": "Papel de Acesso",
+      "status": "Status"
+    },
+    "roles": {
+      "owner": "Dono (Owner)",
+      "admin": "Administrador",
+      "editor": "Editor",
+      "viewer": "Visualizador"
+    },
+    "status": {
+      "active": "Ativo",
+      "invited": "Convidado",
+      "disabled": "Desativado"
+    },
+    "buttons": {
+      "invite": "Convidar Usuário",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "disable": "Desativar",
+      "enable": "Ativar",
+      "remove": "Excluir"
+    },
+    "messages": {
+      "inviteSuccess": "Usuário convidado com sucesso!",
+      "updateSuccess": "Permissão atualizada com sucesso!",
+      "deleteSuccess": "Membro removido com sucesso!",
+      "deleteConfirm": "Tem certeza que deseja remover este membro da organização?",
+      "selfEditError": "Você não pode editar seu próprio papel.",
+      "selfDeleteError": "Você não pode remover seu próprio acesso."
+    },
+    "states": {
+      "empty": "Nenhum usuário encontrado.",
+      "loading": "Carregando usuários..."
     }
   }
 }

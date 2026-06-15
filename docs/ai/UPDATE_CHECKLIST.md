@@ -11,6 +11,7 @@
 7. Confirme se componente novo poderia reutilizar algo existente.
 8. Atualize docs/ai/COMPONENT_CATALOG.md quando criar/mover componente.
 9. Confirme uso de tokens de tema e estrategia de i18n para textos novos.
+10. Atualize docs/ai/NEXT_STEPS.md quando houver novos direcionamentos de ata, issue ou decisao de produto.
 
 ## Gate de qualidade
 

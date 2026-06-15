@@ -60,7 +60,7 @@ export function useRegisterForm() {
       };
 
       await authService.register(payload);
-      router.push("/dashboard");
+      router.push("/projetos");
     } catch (error: unknown) {
       const message =
         error instanceof Error

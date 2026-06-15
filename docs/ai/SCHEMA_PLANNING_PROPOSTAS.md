@@ -152,7 +152,7 @@ Regra: mesmo com cache, resultado oficial e recalculavel sob demanda.
 
 A modelagem foi expandida considerando telas ja prontas em features:
 
-1. `features/dashboard/ProjectsDashboardScreen.tsx`
+1. `features/projects/ProjectsScreen.tsx`
    - Projeto exige status, contratante, responsavel, custo previsto e datas.
 2. `features/projects/NewProjectScreen.tsx`
    - Projeto exige cabecalho completo e placeholder de anexos.

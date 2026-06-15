@@ -1,11 +1,11 @@
 "use client";
 
-import { Input, Select } from "@/components/ui/field-primitives";
+import { Input } from "@/components/ui/field-primitives";
 import { TextField, SelectField } from "@/components/ui/form-field";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Building2, Save, Paperclip } from "lucide-react";
 import { projectService, ProjectDto } from "@/app/services/project.service";
@@ -27,6 +27,9 @@ const createProjectSchema = (t: (key: string) => string) =>
     startDate: z.string().min(1, t("projects.errors.startDateRequired")),
     endDate: z.string().min(1, t("projects.errors.endDateRequired")),
     budgetForecast: z.string().optional(),
+    budgetMaterials: z.string().optional(),
+    budgetLabor: z.string().optional(),
+    budgetOthers: z.string().optional(),
     contractNumber: z.string().optional(),
     status: z
       .enum(["NAO_INICIADO", "EM_ANDAMENTO", "PARALISADO", "CONCLUIDO"])
@@ -45,9 +48,8 @@ const STATUS_OPTIONS = [
 ];
 
 const CONTRACT_OPTIONS = [
-  { value: "Contratante", label: "Contratante" },
-  { value: "Empreitada", label: "Empreitada" },
-  { value: "Administracao", label: "Administração" },
+  { value: "CONTRATANTE", label: "Contratante" },
+  { value: "CONTRATADA", label: "Contratada" },
 ];
 
 type ProjectFormScreenProps = {
@@ -68,6 +70,7 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors, isValid },
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -78,6 +81,30 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
     },
   });
 
+  const watchMaterials = watch("budgetMaterials");
+  const watchLabor = watch("budgetLabor");
+  const watchOthers = watch("budgetOthers");
+
+  const formatBRL = (num: number) => {
+    return num.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  };
+
+  const parseBRL = (val?: string) => {
+    if (!val) return 0;
+    const clean = val.replace(/[R$\s.]/g, "").replace(",", ".");
+    return parseFloat(clean) || 0;
+  };
+
+  const totalBudget = useMemo(() => {
+    const m = parseBRL(watchMaterials);
+    const l = parseBRL(watchLabor);
+    const o = parseBRL(watchOthers);
+    return formatBRL(m + l + o);
+  }, [watchMaterials, watchLabor, watchOthers]);
+
   useEffect(() => {
     if (!projectId) return;
 
@@ -86,6 +113,14 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
       setErrorMsg("");
       try {
         const project = await projectService.getProjectById(projectId);
+        const formatDecimalToBRL = (val?: any) => {
+          if (!val) return "";
+          return Number(val).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+        };
+
         reset({
           name: project.name,
           responsible: project.responsible ?? "",
@@ -97,7 +132,10 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
           endDate: project.endDate
             ? new Date(project.endDate).toISOString().slice(0, 10)
             : "",
-          budgetForecast: project.budgetForecast ?? "",
+          budgetForecast: formatDecimalToBRL(project.budgetForecast),
+          budgetMaterials: formatDecimalToBRL(project.budgetMaterials),
+          budgetLabor: formatDecimalToBRL(project.budgetLabor),
+          budgetOthers: formatDecimalToBRL(project.budgetOthers),
           contractNumber: project.contractNumber ?? "",
           status: project.status,
           address: project.address ?? "",
@@ -117,16 +155,19 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
     loadProject();
   }, [projectId, reset, t]);
 
-  const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, "");
+  const handleCurrencyFieldChange = (
+    field: "budgetMaterials" | "budgetLabor" | "budgetOthers",
+    val: string,
+  ) => {
+    let value = val.replace(/\D/g, "");
     if (value) {
       value = (parseInt(value, 10) / 100).toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL",
       });
-      setValue("budgetForecast", value, { shouldValidate: true });
+      setValue(field, value, { shouldValidate: true });
     } else {
-      setValue("budgetForecast", "");
+      setValue(field, "");
     }
   };
 
@@ -134,8 +175,20 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
     setIsLoading(true);
     setErrorMsg("");
     try {
-      const cleanBudget = data.budgetForecast
-        ? data.budgetForecast.replace(/[R$\s.]/g, "").replace(",", ".")
+      const cleanBudget = totalBudget
+        ? totalBudget.replace(/[R$\s.]/g, "").replace(",", ".")
+        : undefined;
+
+      const cleanMaterials = data.budgetMaterials
+        ? data.budgetMaterials.replace(/[R$\s.]/g, "").replace(",", ".")
+        : undefined;
+
+      const cleanLabor = data.budgetLabor
+        ? data.budgetLabor.replace(/[R$\s.]/g, "").replace(",", ".")
+        : undefined;
+
+      const cleanOthers = data.budgetOthers
+        ? data.budgetOthers.replace(/[R$\s.]/g, "").replace(",", ".")
         : undefined;
 
       const payload: ProjectDto = {
@@ -150,6 +203,9 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
         address: data.address,
         status: data.status || "EM_ANDAMENTO",
         budgetForecast: cleanBudget,
+        budgetMaterials: cleanMaterials,
+        budgetLabor: cleanLabor,
+        budgetOthers: cleanOthers,
       };
 
       if (isEditMode && projectId) {
@@ -157,7 +213,7 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
       } else {
         await projectService.addProject(payload);
       }
-      router.push("/dashboard");
+      router.push("/projetos");
     } catch (error: unknown) {
       const message =
         error instanceof Error
@@ -178,7 +234,7 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
         icon={<Building2 className="h-6 w-6" />}
         actions={
           <>
-            <Link href="/dashboard">
+            <Link href="/projetos">
               <AppButton variant="outline" icon={<ArrowLeft className="w-4 h-4" />}>
                 {t("projects.buttons.back")}
               </AppButton>
@@ -343,12 +399,32 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
                     options={STATUS_OPTIONS}
                     {...register("status")}
                   />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <TextField
+                      label="Orçamento Materiais"
+                      placeholder="R$ 0,00"
+                      {...register("budgetMaterials")}
+                      onChange={(e) => handleCurrencyFieldChange("budgetMaterials", e.target.value)}
+                    />
+                    <TextField
+                      label="Orçamento Mão de Obra"
+                      placeholder="R$ 0,00"
+                      {...register("budgetLabor")}
+                      onChange={(e) => handleCurrencyFieldChange("budgetLabor", e.target.value)}
+                    />
+                    <TextField
+                      label="Outros Custos"
+                      placeholder="R$ 0,00"
+                      {...register("budgetOthers")}
+                      onChange={(e) => handleCurrencyFieldChange("budgetOthers", e.target.value)}
+                    />
+                  </div>
                   <TextField
-                    label="Custo Previsto da Obra (Opcional)"
-                    placeholder="R$ 0,00"
-                    className="font-semibold"
-                    {...register("budgetForecast")}
-                    onChange={handleBudgetChange}
+                    label="Custo Previsto da Obra (Calculado)"
+                    value={totalBudget}
+                    disabled
+                    readOnly
+                    className="font-bold bg-gray-100 cursor-not-allowed text-text-secondary"
                   />
                 </div>
               </div>

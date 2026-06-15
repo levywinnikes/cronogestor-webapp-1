@@ -77,3 +77,11 @@
 1. Papel global pode visualizar dados de todas organizacoes.
 2. Acesso global deve ser restrito, logado e auditavel.
 3. Escopo funcional exato permanece PENDENTE.
+
+## Fluxo de desenvolvimento orientado por documentacao
+
+1. Registrar demanda antes de codar em `docs/ai/NEXT_STEPS.md` com origem (ata/issue), escopo e prioridade.
+2. Definir criterio de aceite e impacto em multi-tenant, seguranca e i18n.
+3. Validar reuso de componentes em `docs/ai/COMPONENT_CATALOG.md` e registrar estrategia de UI.
+4. Somente apos documentacao aprovada iniciar implementacao.
+5. Ao concluir, atualizar status do item em `NEXT_STEPS.md` e ajustar docs de regra/modelo/fluxo se houve mudanca.

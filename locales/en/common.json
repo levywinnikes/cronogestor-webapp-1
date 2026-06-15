@@ -3,6 +3,7 @@
     "projects": "Projects",
     "employees": "Employees",
     "holidays": "Holidays",
+    "settings": "Settings",
     "logout": "Sign Out"
   },
   "login": {
@@ -29,7 +30,8 @@
       "password": "Password:"
     },
     "premiumPromo": {
-      "title": "Discover the Premium Plan!"
+      "title": "Discover the Premium Plan!",
+      "skip": "Skip to Projects"
     },
     "footer": "Cronogestor is a product from Cronosfera Group"
   },
@@ -43,9 +45,11 @@
     "page": {
       "title": "Add Project",
       "editTitle": "Edit Project",
+      "listTitle": "Projects",
       "basicInfo": "Basic Information"
     },
     "buttons": {
+      "add": "Add Project",
       "save": "Save Project",
       "update": "Update Project",
       "back": "Back"
@@ -101,8 +105,8 @@
       "title": "Time Sheet Entry"
     },
     "buttons": {
-      "closeSheet": "Close Sheet",
-      "addDay": "Add Day",
+      "closeSheet": "Save",
+      "addDay": "Add time sheet",
       "delete": "Delete",
       "save": "Save"
     },
@@ -139,9 +143,90 @@
       "new": "New",
       "delete": "Delete"
     },
+    "placeholders": {
+      "search": "Search employee...",
+      "fullName": "As shown on document",
+      "charges": "E.g.: 50%",
+      "benefits": "E.g.: 100.00",
+      "document": "CPF or Passport"
+    },
+    "listTitle": "Employee List",
+    "tabs": {
+      "general": "General Information",
+      "admission": "Admission Details"
+    },
+    "headers": {
+      "required": "Required Data",
+      "costs": "Charges & Benefits",
+      "summary": "Monthly Cost Summary",
+      "personal": "Personal Info",
+      "address": "Address",
+      "documents": "Detailed Documents",
+      "banking": "Banking Details & Others"
+    },
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "document": "Document (CPF or Other)",
+      "role": "Role / Function",
+      "salary": "Base Salary",
+      "regime": "Regime",
+      "hoursPerDay": "Hours per Day",
+      "charges": "Labor Charges (%)",
+      "benefits": "Benefits (Amount)",
+      "fullName": "Full Name",
+      "nationality": "Nationality",
+      "birthDate": "Birth Date",
+      "maritalStatus": "Marital Status",
+      "phone": "Mobile Phone",
+      "street": "Street Address",
+      "number": "Nº",
+      "neighborhood": "Neighborhood",
+      "city": "City",
+      "zipCode": "ZIP / Postal Code",
+      "rg": "RG (ID Card)",
+      "rgIssuer": "Issuing Agency",
+      "ctps": "CTPS (Work Card)",
+      "pis": "PIS / PASEP",
+      "voterCard": "Voter ID Card",
+      "bank": "Bank Name",
+      "agency": "Branch Agency",
+      "account": "Account Number",
+      "accountDigit": "Digit",
+      "pixKey": "PIX Key",
+      "swift": "SWIFT",
+      "iban": "IBAN",
+      "vt": "Transport Voucher?"
+    },
+    "options": {
+      "yes": "Yes",
+      "no": "No",
+      "marital": {
+        "solteiro": "Single",
+        "casado": "Married",
+        "divorciado": "Divorced",
+        "viuvo": "Widowed"
+      },
+      "regime": {
+        "dia": "Day",
+        "quinzena": "Fortnight",
+        "mes": "Month"
+      }
+    },
+    "labels": {
+      "salary": "Base Salary",
+      "charges": "Charges",
+      "benefits": "Benefits",
+      "totalCost": "Total Cost",
+      "hourlyPreview": "Hourly Cost Preview",
+      "normalHour": "Normal Hour",
+      "extra50": "Overtime 50%",
+      "extra100": "Overtime 100%"
+    },
     "errors": {
       "saveFailed": "Error saving employee",
-      "deleteFailed": "Error deleting employee"
+      "deleteFailed": "Error deleting employee",
+      "cpfInvalid": "Invalid CPF."
     }
   },
   "register": {
@@ -227,6 +312,52 @@
     "attachments": {
       "title": "Project Attachments",
       "placeholder": "Field prepared for file upload. Upload will be enabled in a later step."
+    }
+  },
+  "users": {
+    "page": {
+      "title": "Users",
+      "subtitle": "Manage members and access levels of your organization.",
+      "inviteTitle": "Invite User",
+      "editTitle": "Edit Permission"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Access Role",
+      "status": "Status"
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Administrator",
+      "editor": "Editor",
+      "viewer": "Viewer"
+    },
+    "status": {
+      "active": "Active",
+      "invited": "Invited",
+      "disabled": "Disabled"
+    },
+    "buttons": {
+      "invite": "Invite User",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "disable": "Disable",
+      "enable": "Enable",
+      "remove": "Remove"
+    },
+    "messages": {
+      "inviteSuccess": "User invited successfully!",
+      "updateSuccess": "Permission updated successfully!",
+      "deleteSuccess": "Member removed successfully!",
+      "deleteConfirm": "Are you sure you want to remove this member from the organization?",
+      "selfEditError": "You cannot edit your own role.",
+      "selfDeleteError": "You cannot remove your own access."
+    },
+    "states": {
+      "empty": "No users found.",
+      "loading": "Loading users..."
     }
   }
 }

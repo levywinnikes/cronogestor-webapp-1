@@ -15,10 +15,11 @@ Catalogar componentes reutilizaveis para evitar duplicacao e orientar IA/humanos
 - `components/ui/empty-state.tsx`: `EmptyState` (ilustração, título e botão para listas vazias)
 - `components/ui/page-shell.tsx`: composição de layout padronizado (`PageShell`, `PageMain`, `PageSection`)
 - `components/ui/skeleton.tsx`: `Skeleton` (placeholder de carregamento/ofuscamento com efeito pulse para UI/UX de alta qualidade)
+- `components/ui/dialog.tsx`: `Dialog` (modal/overlay genérico e responsivo com controle de foco e scroll, título e botão de fechar)
 
 ## Design Tokens
 
-- Todos os design tokens estão definidos no Tailwind v4 `theme` inline no arquivo `app/globals.css`. 
+- Todos os design tokens estão definidos no Tailwind v4 `theme` inline no arquivo `app/globals.css`.
 - Variáveis semânticas: `primary`, `secondary`, `success`, `danger`, `warning`, `info`, `surface`, `border`.
 
 - `components/providers/AppI18nProvider.tsx`: provider i18n global
@@ -53,3 +54,14 @@ Catalogar componentes reutilizaveis para evitar duplicacao e orientar IA/humanos
 2. Se o componente puder ser generico, criar em `components/ui`.
 3. Se o componente for de dominio/tela especifica, criar em `features/<feature>/...`.
 4. Se um componente de feature comecar a ser usado por outra feature, promover para `components/ui`.
+
+## Padrao de registro obrigatorio
+
+Sempre que criar ou mover componente, registrar no catalogo com:
+
+1. Caminho do arquivo.
+2. Responsabilidade do componente.
+3. Props principais e contrato de uso.
+4. Estados suportados (loading, vazio, erro, disabled, etc.).
+5. Dependencias de tema/i18n.
+6. Onde ja esta sendo reutilizado.

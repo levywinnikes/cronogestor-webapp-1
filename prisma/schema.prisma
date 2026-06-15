@@ -296,6 +296,9 @@ model Project {
   startDate        DateTime
   endDate          DateTime?
   budgetForecast   Decimal?      @db.Decimal(12, 2)
+  budgetMaterials  Decimal?      @db.Decimal(12, 2)
+  budgetLabor      Decimal?      @db.Decimal(12, 2)
+  budgetOthers     Decimal?      @db.Decimal(12, 2)
   contractNumber   String?
   status           ProjectStatus @default(NAO_INICIADO)
   address          String?
@@ -727,6 +730,17 @@ model Employee {
   chargesPercent   Decimal       @db.Decimal(5, 2)
   benefitsAmount   Decimal       @db.Decimal(12, 2)
   isActive         Boolean       @default(true)
+  
+  // Banking & VT details
+  bankName         String?
+  bankAgency       String?
+  bankAccount      String?
+  bankAccountDigit String?
+  bankSwift        String?
+  bankIban         String?
+  pixKey           String?
+  vtEnabled        Boolean       @default(false)
+  
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
@@ -850,6 +864,10 @@ model TimeSheetEntry {
   startDateTime                   DateTime
   endDateTime                     DateTime
   breakMinutes                    Int      @default(0)
+  startDateTime2                  DateTime?
+  endDateTime2                    DateTime?
+  startDateTime3                  DateTime?
+  endDateTime3                    DateTime?
 
   snapshotBaseSalary              Decimal  @db.Decimal(12, 2)
   snapshotChargesPercent          Decimal  @db.Decimal(5, 2)

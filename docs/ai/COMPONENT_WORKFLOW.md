@@ -31,3 +31,5 @@
 1. Atualizar `docs/ai/COMPONENT_CATALOG.md` se criou/moveu componente.
 2. Rodar `npm run lint`.
 3. Confirmar que nao houve duplicacao desnecessaria.
+4. Registrar no catalogo props principais, variacoes de estado (loading/erro/vazio) e exemplos de reuso.
+5. Nao considerar tarefa concluida sem atualizacao de documentacao do componente no mesmo PR/commit.
