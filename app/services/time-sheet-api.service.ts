@@ -2,11 +2,13 @@ export interface TimeSheetEntryInputDto {
   workDate: string;
   startTime: string;
   endTime: string;
-  breakMinutes: number;
+  breakMinutes?: number | null;
   startTime2?: string | null;
   endTime2?: string | null;
   startTime3?: string | null;
   endTime3?: string | null;
+  startTime4?: string | null;
+  endTime4?: string | null;
 }
 
 export interface CreateTimeSheetDto {
@@ -43,6 +45,8 @@ export interface TimeSheetEntryResponseDto {
   endDateTime2?: string | null;
   startDateTime3?: string | null;
   endDateTime3?: string | null;
+  startDateTime4?: string | null;
+  endDateTime4?: string | null;
 }
 
 export interface TimeSheetContextResponseDto {

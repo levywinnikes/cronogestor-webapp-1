@@ -59,8 +59,9 @@
    - extra 50
    - extra 100
    - adicional noturno (planejado)
-
-3. Todo lancamento deve respeitar o tenant da organizacao.
+3. O intervalo/descanso não possui campo de digitação manual. Ele é calculado automaticamente pela diferença (gargalo) entre a saída de um turno e a entrada do turno seguinte.
+4. O sistema suporta até 4 turnos (Entradas/Saídas) diários, calculando a soma líquida de horas trabalhadas e os intervalos entre eles.
+5. Todo lancamento deve respeitar o tenant da organizacao.
 
 ## Seguranca e compliance
 

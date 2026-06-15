@@ -13,6 +13,7 @@ export interface DayCostBreakdown {
   isSaturday: boolean;
   isHoliday: boolean;
   holidayName?: string;
+  breakMinutes: number;
 }
 
 export interface TimeEntryRecord {
@@ -27,6 +28,8 @@ export interface TimeEntryRecord {
   endTime2?: string | null;
   startTime3?: string | null;
   endTime3?: string | null;
+  startTime4?: string | null;
+  endTime4?: string | null;
 }
 
 type CostCalculationEmployee = {
@@ -49,22 +52,41 @@ export const timeSheetService = {
       return h + m / 60;
     };
 
-    const getWorkedHoursForInterval = (startStr: string, endStr: string): number => {
-      const start = parseTime(startStr);
-      let end = parseTime(endStr);
-      if (end < start) {
-        end += 24;
+    // Gather and sort all valid intervals
+    const intervals: { start: number; end: number }[] = [];
+    const addInterval = (startStr?: string | null, endStr?: string | null) => {
+      if (startStr && endStr) {
+        const start = parseTime(startStr);
+        let end = parseTime(endStr);
+        if (end < start) {
+          end += 24; // support overnight shift
+        }
+        intervals.push({ start, end });
       }
-      return end - start;
     };
 
-    let totalWorked = getWorkedHoursForInterval(entry.startTime, entry.endTime) - entry.breakDurationMinutes / 60;
-    
-    if (entry.startTime2 && entry.endTime2) {
-      totalWorked += getWorkedHoursForInterval(entry.startTime2, entry.endTime2);
-    }
-    if (entry.startTime3 && entry.endTime3) {
-      totalWorked += getWorkedHoursForInterval(entry.startTime3, entry.endTime3);
+    addInterval(entry.startTime, entry.endTime);
+    addInterval(entry.startTime2, entry.endTime2);
+    addInterval(entry.startTime3, entry.endTime3);
+    addInterval(entry.startTime4, entry.endTime4);
+
+    // Sort intervals by start time
+    intervals.sort((a, b) => a.start - b.start);
+
+    // Sum worked hours from intervals
+    let totalWorked = 0;
+    intervals.forEach((interval) => {
+      totalWorked += interval.end - interval.start;
+    });
+
+    // Calculate automatic break minutes as gaps between consecutive intervals
+    let breakMinutes = 0;
+    for (let i = 0; i < intervals.length - 1; i++) {
+      const currentEnd = intervals[i].end;
+      const nextStart = intervals[i + 1].start;
+      if (nextStart > currentEnd) {
+        breakMinutes += (nextStart - currentEnd) * 60;
+      }
     }
 
     if (totalWorked < 0) totalWorked = 0;
@@ -144,6 +166,7 @@ export const timeSheetService = {
       isSaturday,
       isHoliday,
       holidayName,
+      breakMinutes: Math.round(breakMinutes),
     };
   },
 };

@@ -16,6 +16,7 @@ Catalogar componentes reutilizaveis para evitar duplicacao e orientar IA/humanos
 - `components/ui/page-shell.tsx`: composição de layout padronizado (`PageShell`, `PageMain`, `PageSection`)
 - `components/ui/skeleton.tsx`: `Skeleton` (placeholder de carregamento/ofuscamento com efeito pulse para UI/UX de alta qualidade)
 - `components/ui/dialog.tsx`: `Dialog` (modal/overlay genérico e responsivo com controle de foco e scroll, título e botão de fechar)
+- `components/ui/tooltip.tsx`: `InfoTooltip` (balão de ajuda flutuante para explicar campos e regras ao passar o mouse ou focar)
 
 ## Design Tokens
 

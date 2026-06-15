@@ -13,11 +13,13 @@ const createTimeSheetSchema = z.object({
         workDate: z.string().min(1),
         startTime: z.string().regex(/^\d{2}:\d{2}$/),
         endTime: z.string().regex(/^\d{2}:\d{2}$/),
-        breakMinutes: z.number().int().min(0).max(600),
+        breakMinutes: z.number().int().min(0).max(600).optional().nullable(),
         startTime2: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
         endTime2: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
         startTime3: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
         endTime3: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
+        startTime4: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
+        endTime4: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
       }),
     )
     .min(1),
@@ -49,15 +51,6 @@ function checkDayOverlaps(intervals: { start: number; end: number; label: string
 
 function buildDateTime(workDate: string, time: string): Date {
   return new Date(`${workDate}T${time}:00.000Z`);
-}
-
-function getWorkedMinutes(startStr: string, endStr: string, deductMinutes: number = 0): number {
-  const start = parseMinutes(startStr);
-  let end = parseMinutes(endStr);
-  if (end < start) {
-    end += 24 * 60;
-  }
-  return Math.max(end - start - deductMinutes, 0);
 }
 
 export async function GET() {
@@ -251,6 +244,13 @@ export async function POST(request: Request) {
           if (end3 < start3) end3 += 24 * 60;
           dayIntervals.push({ start: start3, end: end3, label: `Turno 3 (${entry.startTime3}-${entry.endTime3})` });
         }
+
+        if (entry.startTime4 && entry.endTime4) {
+          const start4 = parseMinutes(entry.startTime4);
+          let end4 = parseMinutes(entry.endTime4);
+          if (end4 < start4) end4 += 24 * 60;
+          dayIntervals.push({ start: start4, end: end4, label: `Turno 4 (${entry.startTime4}-${entry.endTime4})` });
+        }
       }
 
       const overlapError = checkDayOverlaps(dayIntervals);
@@ -321,13 +321,41 @@ export async function POST(request: Request) {
         const isSaturday = dayOfWeek === 6;
         const isHoliday = holidayDateSet.has(entry.workDate);
 
-        // Sum minutes worked across all 3 intervals
-        let workedMinutes = getWorkedMinutes(entry.startTime, entry.endTime, entry.breakMinutes);
-        if (entry.startTime2 && entry.endTime2) {
-          workedMinutes += getWorkedMinutes(entry.startTime2, entry.endTime2, 0);
-        }
-        if (entry.startTime3 && entry.endTime3) {
-          workedMinutes += getWorkedMinutes(entry.startTime3, entry.endTime3, 0);
+        // Gather and sort all valid intervals to compute hours and dynamic break minutes
+        const intervals: { start: number; end: number }[] = [];
+        const addInterval = (s?: string | null, e?: string | null) => {
+          if (s && e) {
+            const start = parseMinutes(s);
+            let end = parseMinutes(e);
+            if (end < start) {
+              end += 24 * 60; // support overnight shift
+            }
+            intervals.push({ start, end });
+          }
+        };
+
+        addInterval(entry.startTime, entry.endTime);
+        addInterval(entry.startTime2, entry.endTime2);
+        addInterval(entry.startTime3, entry.endTime3);
+        addInterval(entry.startTime4, entry.endTime4);
+
+        // Sort intervals by start time
+        intervals.sort((a, b) => a.start - b.start);
+
+        // Sum worked minutes from intervals
+        let workedMinutes = 0;
+        intervals.forEach((interval) => {
+          workedMinutes += interval.end - interval.start;
+        });
+
+        // Calculate automatic break minutes as gaps between consecutive intervals
+        let calculatedBreakMinutes = 0;
+        for (let i = 0; i < intervals.length - 1; i++) {
+          const currentEnd = intervals[i].end;
+          const nextStart = intervals[i + 1].start;
+          if (nextStart > currentEnd) {
+            calculatedBreakMinutes += (nextStart - currentEnd);
+          }
         }
 
         const normalLimitMinutes = Number(employee.hoursPerDay) * 60;
@@ -371,11 +399,13 @@ export async function POST(request: Request) {
             workDate,
             startDateTime: buildDateTime(entry.workDate, entry.startTime),
             endDateTime: buildDateTime(entry.workDate, entry.endTime),
-            breakMinutes: entry.breakMinutes,
+            breakMinutes: Math.round(calculatedBreakMinutes),
             startDateTime2: entry.startTime2 && entry.endTime2 ? buildDateTime(entry.workDate, entry.startTime2) : null,
             endDateTime2: entry.startTime2 && entry.endTime2 ? buildDateTime(entry.workDate, entry.endTime2) : null,
             startDateTime3: entry.startTime3 && entry.endTime3 ? buildDateTime(entry.workDate, entry.startTime3) : null,
             endDateTime3: entry.startTime3 && entry.endTime3 ? buildDateTime(entry.workDate, entry.endTime3) : null,
+            startDateTime4: entry.startTime4 && entry.endTime4 ? buildDateTime(entry.workDate, entry.startTime4) : null,
+            endDateTime4: entry.startTime4 && entry.endTime4 ? buildDateTime(entry.workDate, entry.endTime4) : null,
             snapshotBaseSalary: Number(employee.salary),
             snapshotChargesPercent: Number(employee.chargesPercent),
             snapshotHourlyBase: hourlyBase,

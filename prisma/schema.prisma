@@ -868,6 +868,8 @@ model TimeSheetEntry {
   endDateTime2                    DateTime?
   startDateTime3                  DateTime?
   endDateTime3                    DateTime?
+  startDateTime4                  DateTime?
+  endDateTime4                    DateTime?
 
   snapshotBaseSalary              Decimal  @db.Decimal(12, 2)
   snapshotChargesPercent          Decimal  @db.Decimal(5, 2)
