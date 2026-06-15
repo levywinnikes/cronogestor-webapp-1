@@ -23,7 +23,7 @@ A terminologia atual gera confusão conceitual e expõe permissões administrati
    * O papel `Visualizador (Viewer)` continua ativo para acesso de leitura.
 
 3. **Salvaguarda de Segurança (Garantia de Administrador)**:
-   * Deve ser implementada uma regra para garantir que cada Organização (tenant) possua **pelo menos 1 conta ativa com papel de Administrador** (ou Dono) para evitar que a organização fique sem controle gerencial.
+   * Deve ser implementada uma regra para garantir que cada Organização (tenant) possua **pelo menos 1 conta ativa com papel de Administrador** para evitar que a organização fique sem controle gerencial (independente do papel de Dono).
 
 ## Consequências e Impacto
 
