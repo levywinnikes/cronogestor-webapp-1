@@ -534,7 +534,7 @@ export default function FuncionariosPageView() {
                       <TextField
                         label={t("employees.fields.firstName")}
                         required
-                        value={formData.nome}
+                        value={formData.nome || ""}
                         onChange={(e) =>
                           handleInputChange("nome", e.target.value)
                         }
@@ -542,7 +542,7 @@ export default function FuncionariosPageView() {
                       <TextField
                         label={t("employees.fields.lastName")}
                         required
-                        value={formData.sobrenome}
+                        value={formData.sobrenome || ""}
                         onChange={(e) =>
                           handleInputChange("sobrenome", e.target.value)
                         }
@@ -551,7 +551,7 @@ export default function FuncionariosPageView() {
                         label={t("employees.fields.document")}
                         required
                         wrapperClassName="col-span-2"
-                        value={formData.documento}
+                        value={formData.documento || ""}
                         onChange={(e) =>
                           handleInputChange("documento", e.target.value)
                         }
@@ -559,10 +559,17 @@ export default function FuncionariosPageView() {
                         placeholder={t("employees.placeholders.document")}
                       />
                       <TextField
+                        label={t("employees.fields.role")}
+                        value={formData.cargo || ""}
+                        onChange={(e) =>
+                          handleInputChange("cargo", e.target.value)
+                        }
+                      />
+                      <TextField
                         label={t("employees.fields.salary")}
                         required
                         type="number"
-                        value={formData.salario}
+                        value={formData.salario ?? 0}
                         onChange={(e) =>
                           handleInputChange(
                             "salario",
@@ -573,7 +580,7 @@ export default function FuncionariosPageView() {
                       <SelectField
                         label={t("employees.fields.regime")}
                         required
-                        value={formData.regime}
+                        value={formData.regime || "mes"}
                         onChange={(e) =>
                           handleInputChange(
                             "regime",
@@ -613,7 +620,7 @@ export default function FuncionariosPageView() {
                       <TextField
                         label={t("employees.fields.charges")}
                         type="number"
-                        value={formData.encargos}
+                        value={formData.encargos ?? 0}
                         onChange={(e) =>
                           handleInputChange(
                             "encargos",
@@ -625,7 +632,7 @@ export default function FuncionariosPageView() {
                       <TextField
                         label={t("employees.fields.benefits")}
                         type="number"
-                        value={formData.beneficios}
+                        value={formData.beneficios ?? 0}
                         onChange={(e) =>
                           handleInputChange(
                             "beneficios",
