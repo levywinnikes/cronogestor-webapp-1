@@ -233,27 +233,27 @@ export default function TimeSheetPageView() {
     const start1 = parseTime(formStartTime);
     let end1 = parseTime(formEndTime);
     if (end1 < start1) end1 += 24 * 60;
-    intervals.push({ start: start1, end: end1, label: "Turno 1" });
+    intervals.push({ start: start1, end: end1, label: "Período 1" });
 
     if (formHasInterval2 && formStartTime2 && formEndTime2) {
       const start2 = parseTime(formStartTime2);
       let end2 = parseTime(formEndTime2);
       if (end2 < start2) end2 += 24 * 60;
-      intervals.push({ start: start2, end: end2, label: "Turno 2" });
+      intervals.push({ start: start2, end: end2, label: "Período 2" });
     }
 
     if (formHasInterval3 && formStartTime3 && formEndTime3) {
       const start3 = parseTime(formStartTime3);
       let end3 = parseTime(formEndTime3);
       if (end3 < start3) end3 += 24 * 60;
-      intervals.push({ start: start3, end: end3, label: "Turno 3" });
+      intervals.push({ start: start3, end: end3, label: "Período 3" });
     }
 
     if (formHasInterval4 && formStartTime4 && formEndTime4) {
       const start4 = parseTime(formStartTime4);
       let end4 = parseTime(formEndTime4);
       if (end4 < start4) end4 += 24 * 60;
-      intervals.push({ start: start4, end: end4, label: "Turno 4" });
+      intervals.push({ start: start4, end: end4, label: "Período 4" });
     }
 
     // Check internal overlaps
@@ -360,7 +360,7 @@ export default function TimeSheetPageView() {
           const b = dayIntervals[j];
           if (a.start < b.end && b.start < a.end) {
             const formattedDate = date.split("-").reverse().join("/");
-            return `Conflito geral de horários no dia ${formattedDate}. Por favor, revise os turnos.`;
+            return `Conflito geral de horários no dia ${formattedDate}. Por favor, revise os períodos.`;
           }
         }
       }
@@ -951,8 +951,8 @@ export default function TimeSheetPageView() {
              {/* Turn 1 (Primary Shift) */}
           <div className="bg-gray-50/50 p-4 border border-border rounded-xl space-y-3">
             <span className="text-xs font-bold text-text-primary uppercase flex items-center">
-              <Clock className="w-3.5 h-3.5 mr-1 text-primary" /> Turno 1
-              <InfoTooltip content="Os intervalos são calculados de forma automática com base no tempo de descanso entre a saída de um turno e a entrada do turno seguinte." />
+              <Clock className="w-3.5 h-3.5 mr-1 text-primary" /> Período 1
+              <InfoTooltip content="Os intervalos são calculados de forma automática com base no tempo de descanso entre a saída de um período e a entrada do período seguinte." />
             </span>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -984,7 +984,7 @@ export default function TimeSheetPageView() {
           {formHasInterval2 ? (
             <div className="bg-blue-50/30 p-4 border border-blue-100 rounded-xl space-y-3 relative">
               <span className="text-xs font-bold text-blue-900 uppercase flex items-center">
-                <Clock className="w-3.5 h-3.5 mr-1 text-blue-700" /> Turno 2
+                <Clock className="w-3.5 h-3.5 mr-1 text-blue-700" /> Período 2
               </span>
               <button
                 type="button"
@@ -1024,7 +1024,7 @@ export default function TimeSheetPageView() {
               onClick={() => setFormHasInterval2(true)}
               className="w-full py-2 border border-dashed border-blue-200 rounded-xl text-xs font-bold text-blue-700 hover:bg-blue-50/50 transition"
             >
-              + Adicionar Turno 2
+              + Adicionar Período 2
             </button>
           )}
 
@@ -1033,7 +1033,7 @@ export default function TimeSheetPageView() {
             formHasInterval3 ? (
               <div className="bg-purple-50/30 p-4 border border-purple-100 rounded-xl space-y-3 relative">
                 <span className="text-xs font-bold text-purple-900 uppercase flex items-center">
-                  <Clock className="w-3.5 h-3.5 mr-1 text-purple-700" /> Turno 3
+                  <Clock className="w-3.5 h-3.5 mr-1 text-purple-700" /> Período 3
                 </span>
                 <button
                   type="button"
@@ -1073,7 +1073,7 @@ export default function TimeSheetPageView() {
                 onClick={() => setFormHasInterval3(true)}
                 className="w-full py-2 border border-dashed border-purple-200 rounded-xl text-xs font-bold text-purple-700 hover:bg-purple-50/50 transition"
               >
-                + Adicionar Turno 3
+                + Adicionar Período 3
               </button>
             )
           )}
@@ -1083,7 +1083,7 @@ export default function TimeSheetPageView() {
             formHasInterval4 ? (
               <div className="bg-teal-50/30 p-4 border border-teal-100 rounded-xl space-y-3 relative">
                 <span className="text-xs font-bold text-teal-900 uppercase flex items-center">
-                  <Clock className="w-3.5 h-3.5 mr-1 text-teal-700" /> Turno 4
+                  <Clock className="w-3.5 h-3.5 mr-1 text-teal-700" /> Período 4
                 </span>
                 <button
                   type="button"
@@ -1123,7 +1123,7 @@ export default function TimeSheetPageView() {
                 onClick={() => setFormHasInterval4(true)}
                 className="w-full py-2 border border-dashed border-teal-200 rounded-xl text-xs font-bold text-teal-700 hover:bg-teal-50/50 transition"
               >
-                + Adicionar Turno 4
+                + Adicionar Período 4
               </button>
             )
           )}

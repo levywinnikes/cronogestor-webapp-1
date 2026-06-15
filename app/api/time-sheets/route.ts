@@ -229,27 +229,27 @@ export async function POST(request: Request) {
         const start1 = parseMinutes(entry.startTime);
         let end1 = parseMinutes(entry.endTime);
         if (end1 < start1) end1 += 24 * 60;
-        dayIntervals.push({ start: start1, end: end1, label: `Turno 1 (${entry.startTime}-${entry.endTime})` });
+        dayIntervals.push({ start: start1, end: end1, label: `Período 1 (${entry.startTime}-${entry.endTime})` });
 
         if (entry.startTime2 && entry.endTime2) {
           const start2 = parseMinutes(entry.startTime2);
           let end2 = parseMinutes(entry.endTime2);
           if (end2 < start2) end2 += 24 * 60;
-          dayIntervals.push({ start: start2, end: end2, label: `Turno 2 (${entry.startTime2}-${entry.endTime2})` });
+          dayIntervals.push({ start: start2, end: end2, label: `Período 2 (${entry.startTime2}-${entry.endTime2})` });
         }
 
         if (entry.startTime3 && entry.endTime3) {
           const start3 = parseMinutes(entry.startTime3);
           let end3 = parseMinutes(entry.endTime3);
           if (end3 < start3) end3 += 24 * 60;
-          dayIntervals.push({ start: start3, end: end3, label: `Turno 3 (${entry.startTime3}-${entry.endTime3})` });
+          dayIntervals.push({ start: start3, end: end3, label: `Período 3 (${entry.startTime3}-${entry.endTime3})` });
         }
 
         if (entry.startTime4 && entry.endTime4) {
           const start4 = parseMinutes(entry.startTime4);
           let end4 = parseMinutes(entry.endTime4);
           if (end4 < start4) end4 += 24 * 60;
-          dayIntervals.push({ start: start4, end: end4, label: `Turno 4 (${entry.startTime4}-${entry.endTime4})` });
+          dayIntervals.push({ start: start4, end: end4, label: `Período 4 (${entry.startTime4}-${entry.endTime4})` });
         }
       }
 
