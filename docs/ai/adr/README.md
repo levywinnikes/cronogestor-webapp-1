@@ -12,9 +12,11 @@ Este diretorio concentra os Architecture Decision Records do projeto.
 
 - ADR-0001: PENDENTE - Papel global de administracao da plataforma.
 - ADR-0002: PENDENTE - Modelo de usuarios por organizacao.
-- ADR-0003: PENDENTE - Pendencias da ata 2026-05-26 (vale transporte e limite de anexos por plano).
+- ADR-0003: RESOLVIDO - Pendencias da ata 2026-05-26 (vale transporte e limite de anexos por plano).
 - ADR-0004: PROPOSTO - Múltiplos Intervalos e Simplificação de Data na Ficha de Tempo.
 - ADR-0005: PROPOSTO - Cadastro e Gestão de Usuários do Tenant.
+- ADR-0006: APROVADO - Reformulação dos Papéis de Acesso e Permissões do Tenant.
+- ADR-0007: APROVADO - Ajuda de Campos (Tooltips), Notificações Globais, Segurança de Sessão e Ajustes Operacionais.
 
 ## Arquivos
 
@@ -23,3 +25,5 @@ Este diretorio concentra os Architecture Decision Records do projeto.
 - [ADR-0003](ADR-0003-meeting-2026-05-26-open-items.md)
 - [ADR-0004](ADR-0004-timesheet-multiple-intervals.md)
 - [ADR-0005](ADR-0005-user-management.md)
+- [ADR-0006](ADR-0006-role-permissions-revamp.md)
+- [ADR-0007](ADR-0007-field-tooltips-and-employee-timesheet-adjustments.md)

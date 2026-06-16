@@ -741,6 +741,24 @@ model Employee {
   pixKey           String?
   vtEnabled        Boolean       @default(false)
   
+  // Admission & Personal Details
+  nationality      String?
+  birthDate        String?
+  maritalStatus    String?
+  phone            String?
+  street           String?
+  number           String?
+  neighborhood     String?
+  city             String?
+  zipCode          String?
+  rg               String?
+  rgIssuer         String?
+  ctps             String?
+  pis              String?
+  voterCardNumber  String?
+  voterCardZone    String?
+  voterCardSection String?
+  
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 

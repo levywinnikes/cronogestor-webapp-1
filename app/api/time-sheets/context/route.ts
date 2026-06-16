@@ -23,13 +23,28 @@ export async function GET(request: Request) {
 
   const { prisma } = await import("@/lib/prisma");
 
-  if (periodYearParam === "all") {
+  const whereClause: any = {
+    organizationId: guard.context.organizationId,
+  };
+
+  if (employeeId !== "all") {
+    whereClause.employeeId = employeeId;
+  }
+
+  if (projectId !== "all") {
+    whereClause.projectId = projectId;
+  }
+
+  if (periodYearParam !== "all") {
+    const periodYear = periodYearParam ? parseInt(periodYearParam, 10) : new Date().getFullYear();
+    const periodMonth = periodMonthParam ? parseInt(periodMonthParam, 10) : new Date().getMonth() + 1;
+    whereClause.periodYear = periodYear;
+    whereClause.periodMonth = periodMonth;
+  }
+
+  if (periodYearParam === "all" || projectId === "all" || employeeId === "all") {
     const timeSheets = await prisma.timeSheet.findMany({
-      where: {
-        organizationId: guard.context.organizationId,
-        projectId,
-        employeeId,
-      },
+      where: whereClause,
       include: {
         entries: {
           orderBy: {

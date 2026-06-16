@@ -37,6 +37,8 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
 
 export interface TimeSheetEntryResponseDto {
   id: string;
+  projectId: string;
+  employeeId: string;
   workDate: string;
   startDateTime: string;
   endDateTime: string;

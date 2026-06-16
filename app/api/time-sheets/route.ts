@@ -21,8 +21,7 @@ const createTimeSheetSchema = z.object({
         startTime4: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
         endTime4: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable().or(z.literal("")),
       }),
-    )
-    .min(1),
+    ),
 });
 
 function parseMinutes(time: string): number {
@@ -261,6 +260,33 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
+    }
+
+    if (payload.entries.length === 0) {
+      if (payload.periodYear && payload.periodMonth) {
+        const existingTimeSheet = await prisma.timeSheet.findFirst({
+          where: {
+            organizationId: guard.context.organizationId,
+            projectId: project.id,
+            employeeId: employee.id,
+            periodYear: payload.periodYear,
+            periodMonth: payload.periodMonth,
+          },
+          select: { id: true },
+        });
+
+        if (existingTimeSheet) {
+          await prisma.timeSheetEntry.deleteMany({
+            where: {
+              timeSheetId: existingTimeSheet.id,
+            },
+          });
+          await prisma.timeSheet.delete({
+            where: { id: existingTimeSheet.id },
+          });
+        }
+      }
+      return NextResponse.json({ data: { id: "" } }, { status: 201 });
     }
 
     // Group entries by period (year and month) to create/update TimeSheet objects

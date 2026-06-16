@@ -81,8 +81,14 @@ export default function TimeSheetPageView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Delete Confirmation State
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [entryIdToDelete, setEntryIdToDelete] = useState<string | null>(null);
 
   // Form Fields State inside Modal
+  const [formProjectId, setFormProjectId] = useState("");
   const [formDate, setFormDate] = useState("");
   const [formStartTime, setFormStartTime] = useState("08:00");
   const [formEndTime, setFormEndTime] = useState("17:00");
@@ -134,11 +140,8 @@ export default function TimeSheetPageView() {
         setEmployees(mappedEmployees);
         setHolidayDates(holidayMap);
 
-        const nextProjectId = mappedProjects[0]?.id ?? "";
-        const nextEmployeeId = mappedEmployees[0]?.id ?? "";
-
-        setSelectedProjectId(nextProjectId);
-        setSelectedEmployeeId(nextEmployeeId);
+        setSelectedProjectId("all");
+        setSelectedEmployeeId("all");
       } catch (error) {
         console.error(t("timesheet.errors.loadContextFailed"), error);
       } finally {
@@ -164,8 +167,8 @@ export default function TimeSheetPageView() {
       if (context && context.entries.length > 0) {
         const mappedEntries = context.entries.map((e) => ({
           id: e.id,
-          employeeId: selectedEmployeeId,
-          projectId: selectedProjectId,
+          employeeId: e.employeeId,
+          projectId: e.projectId,
           date: e.workDate.split("T")[0],
           startTime: new Date(e.startDateTime).toISOString().substring(11, 16),
           endTime: new Date(e.endDateTime).toISOString().substring(11, 16),
@@ -192,6 +195,34 @@ export default function TimeSheetPageView() {
   useEffect(() => {
     fetchTimeSheetData();
   }, [selectedProjectId, selectedEmployeeId, periodYear, periodMonth, viewAll]);
+
+  useEffect(() => {
+    const handleTimesheetChanged = () => {
+      fetchTimeSheetData();
+    };
+
+    window.addEventListener("timesheet-changed", handleTimesheetChanged);
+    return () => {
+      window.removeEventListener("timesheet-changed", handleTimesheetChanged);
+    };
+  }, [selectedProjectId, selectedEmployeeId, periodYear, periodMonth, viewAll]);
+
+  // Clear submission error when form values or modal state changes
+  useEffect(() => {
+    setSubmitError(null);
+  }, [
+    formProjectId,
+    formDate,
+    formStartTime,
+    formEndTime,
+    formStartTime2,
+    formEndTime2,
+    formStartTime3,
+    formEndTime3,
+    formStartTime4,
+    formEndTime4,
+    isModalOpen
+  ]);
 
   const selectedEmployee = employees.find((e) => e.id === selectedEmployeeId);
 
@@ -369,12 +400,36 @@ export default function TimeSheetPageView() {
   }, [entries]);
 
   const calculatedEntries = useMemo(() => {
-    if (!selectedEmployee) return [];
-    return entries.map((entry) => ({
-      ...entry,
-      breakdown: timeSheetService.calculateDayCost(entry, selectedEmployee, holidayDates),
-    }));
-  }, [entries, selectedEmployee, holidayDates]);
+    return entries.map((entry) => {
+      const emp = selectedEmployee || employees.find((e) => e.id === entry.employeeId);
+      if (!emp) {
+        return {
+          ...entry,
+          breakdown: {
+            totalHours: 0,
+            normalHours: 0,
+            overtime50: 0,
+            overtime100: 0,
+            nightShiftHours: 0,
+            calculatedCost: 0,
+            normalCost: 0,
+            overtime50Cost: 0,
+            overtime100Cost: 0,
+            nightShiftCost: 0,
+            breakMinutes: 0,
+            isHoliday: false,
+            holidayName: "",
+            isSunday: false,
+            isSaturday: false,
+          },
+        };
+      }
+      return {
+        ...entry,
+        breakdown: timeSheetService.calculateDayCost(entry, emp, holidayDates),
+      };
+    });
+  }, [entries, selectedEmployee, employees, holidayDates]);
 
   const stats = useMemo(() => {
     return calculatedEntries.reduce(
@@ -445,6 +500,7 @@ export default function TimeSheetPageView() {
   const handleOpenEditModal = (entry: TimeEntryRecord) => {
     setModalMode("edit");
     setEditingEntryId(entry.id);
+    setFormProjectId(entry.projectId);
     setFormDate(entry.date);
     setFormStartTime(entry.startTime);
     setFormEndTime(entry.endTime);
@@ -466,13 +522,13 @@ export default function TimeSheetPageView() {
   };
 
   // Save Modal entry to React state
-  const handleSaveModalEntry = () => {
+  const handleSaveModalEntry = async () => {
     if (modalOverlapError) return;
 
     const entryData: TimeEntryRecord = {
       id: editingEntryId || Math.random().toString(36).substr(2, 9),
       employeeId: selectedEmployeeId,
-      projectId: selectedProjectId,
+      projectId: formProjectId || selectedProjectId,
       date: formDate,
       startTime: formStartTime,
       endTime: formEndTime,
@@ -485,17 +541,199 @@ export default function TimeSheetPageView() {
       endTime4: formHasInterval4 && formStartTime4 && formEndTime4 ? formEndTime4 : null,
     };
 
-    if (modalMode === "create") {
-      setEntries([...entries, entryData]);
+    if (selectedProjectId === "all") {
+      setIsSubmitting(true);
+      try {
+        const parsedDate = new Date(formDate);
+        const year = parsedDate.getFullYear();
+        const month = parsedDate.getMonth() + 1;
+        const targetProjectId = entryData.projectId;
+
+        // Fetch existing entries for the month/project/employee
+        const context = await timeSheetApiService.getTimeSheetContext(targetProjectId, selectedEmployeeId, year, month);
+        const existingEntries = context?.entries.map((e) => ({
+          id: e.id,
+          employeeId: e.employeeId,
+          projectId: e.projectId,
+          date: e.workDate.split("T")[0],
+          startTime: new Date(e.startDateTime).toISOString().substring(11, 16),
+          endTime: new Date(e.endDateTime).toISOString().substring(11, 16),
+          breakDurationMinutes: e.breakMinutes,
+          startTime2: e.startDateTime2 ? new Date(e.startDateTime2).toISOString().substring(11, 16) : null,
+          endTime2: e.endDateTime2 ? new Date(e.endDateTime2).toISOString().substring(11, 16) : null,
+          startTime3: e.startDateTime3 ? new Date(e.startDateTime3).toISOString().substring(11, 16) : null,
+          endTime3: e.endDateTime3 ? new Date(e.endDateTime3).toISOString().substring(11, 16) : null,
+          startTime4: e.startDateTime4 ? new Date(e.startDateTime4).toISOString().substring(11, 16) : null,
+          endTime4: e.endDateTime4 ? new Date(e.endDateTime4).toISOString().substring(11, 16) : null,
+        })) || [];
+
+        // Replace or append
+        const filtered = existingEntries.filter((e) => e.date !== formDate);
+        const merged = [...filtered, entryData];
+
+        await timeSheetApiService.createTimeSheet({
+          projectId: targetProjectId,
+          employeeId: selectedEmployeeId,
+          periodYear: year,
+          periodMonth: month,
+          entries: merged.map((entry) => ({
+            workDate: entry.date,
+            startTime: entry.startTime,
+            endTime: entry.endTime,
+            breakMinutes: 0,
+            startTime2: entry.startTime2 || null,
+            endTime2: entry.endTime2 || null,
+            startTime3: entry.startTime3 || null,
+            endTime3: entry.endTime3 || null,
+            startTime4: entry.startTime4 || null,
+            endTime4: entry.endTime4 || null,
+          })),
+        });
+
+        await fetchTimeSheetData();
+        setIsModalOpen(false);
+      } catch (error) {
+        console.error("Falha ao salvar edição no modo Todos os Projetos:", error);
+        const msg = error instanceof Error ? error.message : "Falha ao salvar lançamento de horas.";
+        setSubmitError(msg);
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
-      setEntries(entries.map((e) => (e.id === editingEntryId ? entryData : e)));
+      setIsSubmitting(true);
+      try {
+        const parsedDate = new Date(formDate);
+        const year = parsedDate.getFullYear();
+        const month = parsedDate.getMonth() + 1;
+        const targetProjectId = selectedProjectId;
+
+        const updatedEntries = modalMode === "create"
+          ? [...entries, entryData]
+          : entries.map((e) => (e.id === editingEntryId ? entryData : e));
+
+        await timeSheetApiService.createTimeSheet({
+          projectId: targetProjectId,
+          employeeId: selectedEmployeeId,
+          periodYear: year,
+          periodMonth: month,
+          entries: updatedEntries.map((entry) => ({
+            workDate: entry.date,
+            startTime: entry.startTime,
+            endTime: entry.endTime,
+            breakMinutes: 0,
+            startTime2: entry.startTime2 || null,
+            endTime2: entry.endTime2 || null,
+            startTime3: entry.startTime3 || null,
+            endTime3: entry.endTime3 || null,
+            startTime4: entry.startTime4 || null,
+            endTime4: entry.endTime4 || null,
+          })),
+        });
+
+        await fetchTimeSheetData();
+        setIsModalOpen(false);
+      } catch (error) {
+        console.error("Falha ao salvar lançamento de horas:", error);
+        const msg = error instanceof Error ? error.message : "Falha ao salvar lançamento de horas.";
+        setSubmitError(msg);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
 
     setIsModalOpen(false);
   };
 
-  const handleRemoveEntry = (id: string) => {
-    setEntries(entries.filter((e) => e.id !== id));
+  const handleRemoveEntry = async (id: string) => {
+    const entryToRemove = entries.find((e) => e.id === id);
+    if (!entryToRemove) return;
+
+    if (selectedProjectId === "all") {
+      setIsSubmitting(true);
+      try {
+        const parsedDate = new Date(entryToRemove.date);
+        const year = parsedDate.getFullYear();
+        const month = parsedDate.getMonth() + 1;
+        const targetProjectId = entryToRemove.projectId;
+
+        const context = await timeSheetApiService.getTimeSheetContext(targetProjectId, selectedEmployeeId, year, month);
+        const existingEntries = context?.entries.map((e) => ({
+          id: e.id,
+          employeeId: e.employeeId,
+          projectId: e.projectId,
+          date: e.workDate.split("T")[0],
+          startTime: new Date(e.startDateTime).toISOString().substring(11, 16),
+          endTime: new Date(e.endDateTime).toISOString().substring(11, 16),
+          breakDurationMinutes: e.breakMinutes,
+          startTime2: e.startDateTime2 ? new Date(e.startDateTime2).toISOString().substring(11, 16) : null,
+          endTime2: e.endDateTime2 ? new Date(e.endDateTime2).toISOString().substring(11, 16) : null,
+          startTime3: e.startDateTime3 ? new Date(e.startDateTime3).toISOString().substring(11, 16) : null,
+          endTime3: e.endDateTime3 ? new Date(e.endDateTime3).toISOString().substring(11, 16) : null,
+          startTime4: e.startDateTime4 ? new Date(e.startDateTime4).toISOString().substring(11, 16) : null,
+          endTime4: e.endDateTime4 ? new Date(e.endDateTime4).toISOString().substring(11, 16) : null,
+        })) || [];
+
+        const filtered = existingEntries.filter((e) => e.id !== id);
+
+        await timeSheetApiService.createTimeSheet({
+          projectId: targetProjectId,
+          employeeId: selectedEmployeeId,
+          periodYear: year,
+          periodMonth: month,
+          entries: filtered.map((entry) => ({
+            workDate: entry.date,
+            startTime: entry.startTime,
+            endTime: entry.endTime,
+            breakMinutes: 0,
+            startTime2: entry.startTime2 || null,
+            endTime2: entry.endTime2 || null,
+            startTime3: entry.startTime3 || null,
+            endTime3: entry.endTime3 || null,
+            startTime4: entry.startTime4 || null,
+            endTime4: entry.endTime4 || null,
+          })),
+        });
+
+        await fetchTimeSheetData();
+      } catch (error) {
+        console.error("Falha ao remover lançamento no modo Todos os Projetos:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      setIsSubmitting(true);
+      try {
+        const filtered = entries.filter((e) => e.id !== id);
+        const parsedDate = new Date(entryToRemove.date);
+        const year = parsedDate.getFullYear();
+        const month = parsedDate.getMonth() + 1;
+
+        await timeSheetApiService.createTimeSheet({
+          projectId: selectedProjectId,
+          employeeId: selectedEmployeeId,
+          periodYear: year,
+          periodMonth: month,
+          entries: filtered.map((entry) => ({
+            workDate: entry.date,
+            startTime: entry.startTime,
+            endTime: entry.endTime,
+            breakMinutes: 0,
+            startTime2: entry.startTime2 || null,
+            endTime2: entry.endTime2 || null,
+            startTime3: entry.startTime3 || null,
+            endTime3: entry.endTime3 || null,
+            startTime4: entry.startTime4 || null,
+            endTime4: entry.endTime4 || null,
+          })),
+        });
+
+        await fetchTimeSheetData();
+      } catch (error) {
+        console.error("Falha ao remover lançamento:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
   };
 
   const formatCurrency = (val: number) => {
@@ -504,7 +742,7 @@ export default function TimeSheetPageView() {
 
   // Persist timesheet changes to Backend API
   const handleCloseTimeSheet = async () => {
-    if (!selectedProjectId || !selectedEmployeeId || entries.length === 0 || overlapError) {
+    if (!selectedProjectId || selectedProjectId === "all" || !selectedEmployeeId || entries.length === 0 || overlapError) {
       return;
     }
 
@@ -551,12 +789,14 @@ export default function TimeSheetPageView() {
             <AppButton variant="outline">Exportar PDF</AppButton>
             <AppButton
               variant="secondary"
-              icon={<Save className="w-4 h-4" />}
-              loading={isSubmitting}
-              disabled={isLoading || Boolean(overlapError) || entries.length === 0}
-              onClick={handleCloseTimeSheet}
+              icon={<Plus className="w-4 h-4" />}
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("open-add-timesheet"));
+                }
+              }}
             >
-              {t("timesheet.buttons.closeSheet")}
+              {t("timesheet.buttons.addTimeSheet")}
             </AppButton>
           </>
         }
@@ -573,7 +813,10 @@ export default function TimeSheetPageView() {
                   icon={<Briefcase className="w-4 h-4" />}
                   value={selectedProjectId}
                   onChange={(e) => setSelectedProjectId(e.target.value)}
-                  options={projects.map((p) => ({ value: p.id, label: p.name }))}
+                  options={[
+                    { value: "all", label: t("timesheet.labels.allProjects") },
+                    ...projects.map((p) => ({ value: p.id, label: p.name })),
+                  ]}
                 />
 
                 <SelectField
@@ -581,10 +824,13 @@ export default function TimeSheetPageView() {
                   icon={<Users className="w-4 h-4" />}
                   value={selectedEmployeeId}
                   onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                  options={employees.map((e) => ({
-                    value: e.id,
-                    label: e.nome,
-                  }))}
+                  options={[
+                    { value: "all", label: t("timesheet.labels.allEmployees") },
+                    ...employees.map((e) => ({
+                      value: e.id,
+                      label: e.nome,
+                    })),
+                  ]}
                 />
 
                 {/* Simplified Period Navigator */}
@@ -730,15 +976,6 @@ export default function TimeSheetPageView() {
                 <Calendar className="w-5 h-5 mr-2 text-primary" />
                 Registros Diários
               </h3>
-              <AppButton
-                variant="secondary"
-                size="sm"
-                icon={<Plus className="w-4 h-4" />}
-                onClick={handleOpenCreateModal}
-                disabled={isLoading || isFetchingContext}
-              >
-                {t("timesheet.buttons.addDay")}
-              </AppButton>
             </div>
 
             <div className="flex-1 overflow-x-auto pb-4">
@@ -746,13 +983,23 @@ export default function TimeSheetPageView() {
                 <thead>
                   <tr className="bg-gray-50 border-b border-border">
                     <th className="px-5 py-3 text-[10px] font-bold text-text-secondary uppercase tracking-widest w-40">
-                      Data
+                      {t("timesheet.table.date")}
+                    </th>
+                    {selectedEmployeeId === "all" && (
+                      <th className="px-5 py-3 text-[10px] font-bold text-text-secondary uppercase tracking-widest w-48">
+                        {t("timesheet.table.employee")}
+                      </th>
+                    )}
+                    {selectedProjectId === "all" && (
+                      <th className="px-5 py-3 text-[10px] font-bold text-text-secondary uppercase tracking-widest w-48">
+                        {t("timesheet.table.project")}
+                      </th>
+                    )}
+                    <th className="px-5 py-3 text-[10px] font-bold text-text-secondary uppercase tracking-widest">
+                      {t("timesheet.table.start")} / {t("timesheet.table.end")}
                     </th>
                     <th className="px-5 py-3 text-[10px] font-bold text-text-secondary uppercase tracking-widest">
-                      Intervalos Lançados
-                    </th>
-                    <th className="px-5 py-3 text-[10px] font-bold text-text-secondary uppercase tracking-widest">
-                      Dedução
+                      {t("timesheet.table.break")}
                     </th>
                     <th className="px-5 py-3 text-[10px] font-bold text-text-secondary uppercase tracking-widest min-w-[200px]">
                       Breakdown (h)
@@ -768,6 +1015,8 @@ export default function TimeSheetPageView() {
                     Array.from({ length: 5 }).map((_, idx) => (
                       <tr key={idx}>
                         <td className="px-5 py-4"><Skeleton className="h-5 w-24" /></td>
+                        {selectedEmployeeId === "all" && <td className="px-5 py-4"><Skeleton className="h-5 w-32" /></td>}
+                        {selectedProjectId === "all" && <td className="px-5 py-4"><Skeleton className="h-5 w-32" /></td>}
                         <td className="px-5 py-4"><Skeleton className="h-5 w-48" /></td>
                         <td className="px-5 py-4"><Skeleton className="h-5 w-16" /></td>
                         <td className="px-5 py-4"><Skeleton className="h-5 w-36" /></td>
@@ -784,6 +1033,16 @@ export default function TimeSheetPageView() {
                         <td className="px-5 py-4 text-sm font-semibold text-text-primary">
                           {entry.date.split("-").reverse().join("/")}
                         </td>
+                        {selectedEmployeeId === "all" && (
+                          <td className="px-5 py-4 text-sm font-medium text-text-secondary">
+                            {employees.find((e) => e.id === entry.employeeId)?.nome || "N/A"}
+                          </td>
+                        )}
+                        {selectedProjectId === "all" && (
+                          <td className="px-5 py-4 text-sm font-medium text-text-secondary">
+                            {projects.find((p) => p.id === entry.projectId)?.name || "N/A"}
+                          </td>
+                        )}
                         <td className="px-5 py-4 text-xs font-medium space-x-1.5">
                           <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-800 rounded-md font-bold">
                             {entry.startTime} - {entry.endTime}
@@ -859,7 +1118,10 @@ export default function TimeSheetPageView() {
                               <Pencil className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleRemoveEntry(entry.id)}
+                              onClick={() => {
+                                setEntryIdToDelete(entry.id);
+                                setDeleteConfirmOpen(true);
+                              }}
                               className="p-1.5 text-text-muted hover:text-danger hover:bg-danger-100 rounded transition"
                               title="Excluir"
                             >
@@ -936,6 +1198,15 @@ export default function TimeSheetPageView() {
         title={modalMode === "create" ? "Adicionar Lançamento Diário" : "Editar Lançamento Diário"}
       >
         <div className="space-y-5">
+          {/* Project selection */}
+          <SelectField
+            label={t("timesheet.labels.project")}
+            icon={<Briefcase className="w-4 h-4" />}
+            value={formProjectId || selectedProjectId}
+            onChange={(e) => setFormProjectId(e.target.value)}
+            options={projects.map((p) => ({ value: p.id, label: p.name }))}
+          />
+
           {/* Work Date */}
           <div>
             <label className="text-xs font-bold text-text-secondary uppercase block mb-1.5">
@@ -1138,6 +1409,16 @@ export default function TimeSheetPageView() {
             </div>
           )}
 
+          {/* API Submission Error */}
+          {submitError && (
+            <div className="bg-danger-100 p-3.5 border border-red-200 rounded-xl flex gap-2.5">
+              <AlertCircle className="w-4 h-4 text-danger flex-shrink-0 mt-0.5" />
+              <p className="text-xs font-bold text-danger leading-snug">
+                {submitError}
+              </p>
+            </div>
+          )}
+
           {/* Modal Footer Actions */}
           <div className="flex justify-end gap-3 pt-3 border-t border-border-light">
             <AppButton variant="outline" onClick={() => setIsModalOpen(false)}>
@@ -1149,6 +1430,37 @@ export default function TimeSheetPageView() {
               onClick={handleSaveModalEntry}
             >
               Confirmar
+            </AppButton>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        title="Confirmar Exclusão"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary">
+            Tem certeza que deseja excluir este lançamento de horas? Esta ação não pode ser desfeita.
+          </p>
+          <div className="flex justify-end gap-3 pt-3 border-t border-border-light">
+            <AppButton variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+              Cancelar
+            </AppButton>
+            <AppButton
+              variant="danger"
+              loading={isSubmitting}
+              onClick={async () => {
+                if (entryIdToDelete) {
+                  await handleRemoveEntry(entryIdToDelete);
+                  setDeleteConfirmOpen(false);
+                  setEntryIdToDelete(null);
+                }
+              }}
+            >
+              Excluir
             </AppButton>
           </div>
         </div>
@@ -1166,7 +1478,7 @@ export default function TimeSheetPageView() {
           variant="secondary" 
           size="sm" 
           onClick={handleCloseTimeSheet}
-          disabled={isLoading || Boolean(overlapError) || entries.length === 0}
+          disabled={isLoading || Boolean(overlapError) || entries.length === 0 || selectedProjectId === "all"}
         >
           Salvar
         </AppButton>

@@ -15,7 +15,7 @@ const errorText = "text-danger text-xs mt-1 font-medium";
 const helperText = "text-xs mt-1 text-text-muted";
 
 type BaseFieldProps = {
-  label?: string;
+  label?: ReactNode;
   error?: string;
   helperText?: string;
   required?: boolean;

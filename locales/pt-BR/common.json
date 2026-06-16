@@ -107,15 +107,20 @@
     "buttons": {
       "closeSheet": "Salvar",
       "addDay": "Adicionar ficha tempo",
+      "addTimeSheet": "Ficha Tempo",
       "delete": "Excluir",
       "save": "Salvar"
     },
     "labels": {
       "project": "Projeto",
-      "employee": "Funcionário"
+      "employee": "Funcionário",
+      "allProjects": "Todos os Projetos",
+      "allEmployees": "Todos os Funcionários"
     },
     "table": {
       "date": "Data",
+      "project": "Projeto",
+      "employee": "Funcionário",
       "start": "Entrada",
       "end": "Saída",
       "break": "Intervalo",
@@ -148,7 +153,8 @@
       "fullName": "Como consta no documento",
       "charges": "Ex: 50%",
       "benefits": "Ex: 100,00",
-      "document": "000.000.000-00 ou Passaporte"
+      "document": "000.000.000-00 ou Passaporte",
+      "docNumber": "Número do documento"
     },
     "listTitle": "Lista de Colaboradores",
     "tabs": {
@@ -167,7 +173,8 @@
     "fields": {
       "firstName": "Nome",
       "lastName": "Sobrenome",
-      "document": "Documento (CPF ou Outros)",
+      "document": "Documento",
+      "docType": "Tipo de Documento",
       "role": "Cargo / Função",
       "salary": "Salário Base (R$)",
       "regime": "Regime",
@@ -188,7 +195,10 @@
       "rgIssuer": "Órgão Expeditor",
       "ctps": "CTPS (Nº/Série)",
       "pis": "PIS / PASEP",
-      "voterCard": "Título de Eleitor (Zona/Seção)",
+      "voterCard": "Título de Eleitor",
+      "voterCardNumber": "Título de Eleitor - Número",
+      "voterCardZone": "Zona",
+      "voterCardSection": "Seção",
       "bank": "Banco",
       "agency": "Agência",
       "account": "Conta",
@@ -201,6 +211,10 @@
     "options": {
       "yes": "Sim",
       "no": "Não",
+      "docType": {
+        "cpf": "CPF",
+        "outros": "Outros"
+      },
       "marital": {
         "solteiro": "Solteiro(a)",
         "casado": "Casado(a)",
@@ -358,6 +372,32 @@
     "states": {
       "empty": "Nenhum usuário encontrado.",
       "loading": "Carregando usuários..."
+    }
+  },
+  "global": {
+    "toast": {
+      "success": "Sucesso",
+      "error": "Erro",
+      "saved": "Salvo com sucesso!",
+      "deleted": "Excluído com sucesso!",
+      "authRequired": "Sessão expirada. Faça login novamente."
+    },
+    "tooltips": {
+      "project": "Selecione o projeto associado a este lançamento.",
+      "employee": "Selecione o colaborador associado a este lançamento.",
+      "date": "Selecione a data em que o trabalho foi realizado.",
+      "firstName": "Digite o primeiro nome do colaborador.",
+      "lastName": "Digite o sobrenome do colaborador.",
+      "document": "Selecione o tipo de documento e digite seu número.",
+      "role": "Cargo ou função do colaborador na empresa.",
+      "salary": "Valor bruto do salário pago ao colaborador.",
+      "regime": "Periodicidade do pagamento (ex: diário, quinzenal, mensal).",
+      "hoursPerDay": "Quantidade de horas contratadas de jornada diária.",
+      "charges": "Alíquota estimada de encargos sociais e trabalhistas.",
+      "benefits": "Valor mensal total de benefícios pagos.",
+      "voterCardNumber": "Número do título de eleitor.",
+      "voterCardZone": "Zona eleitoral.",
+      "voterCardSection": "Seção eleitoral."
     }
   }
 }

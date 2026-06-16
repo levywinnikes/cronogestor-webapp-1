@@ -41,6 +41,7 @@
 15. Next.js/UX: Navegação entre páginas sempre deve ter feedback visual imediato. Use o arquivo `app/loading.tsx` na raiz ou em sub-rotas pesadas para exibir uma tela de loading genérica enquanto o servidor resolve os dados da próxima página.
 16. UI/UX: Para carregamento de dados em telas/blocos específicos, SEMPRE utilize o padrão **Skeleton Loading** (ofuscamento com efeito _pulse_ via componente `<Skeleton />`) simulando a estrutura original da UI. Evite spinners de tela cheia ou textos simples como "Carregando..." para carregamentos de dados em blocos específicos.
 17. Tratamento de Erros: NUNCA retorne ou exiba mensagens de erro genéricas ou ambíguas (ex.: "Erro ao registrar. Tente novamente.") quando a causa real for identificável (como e-mail em uso, CPF/CNPJ duplicado ou validação falha). O backend deve retornar códigos HTTP semânticos (ex.: 409 Conflict, 400 Bad Request) e mensagens claras. O frontend deve repassar e renderizar estas mensagens reais do backend para o usuário.
+44. UI/UX: Todo campo de formulário do sistema deve incluir um ícone de interrogação/ajuda explicativo (utilizando o componente `<InfoTooltip />` posicionado obrigatoriamente no final da label do campo). O texto explicativo do tooltip deve vir exclusivamente dos arquivos de tradução (i18n).
 
 ## Documentacao viva
 

@@ -48,8 +48,11 @@
    - horas por dia
    - encargos
    - beneficios
-
 3. Documento do funcionario deve ser unico no contexto da organizacao.
+4. O campo "Vale transporte" foi removido por decisão de simplificação do formulário.
+5. O campo "Título de Eleitor" deve ser dividido em três campos distintos: "Título - Número", "Zona" e "Seção".
+6. Há um seletor para tipo de documento (CPF vs Outros), aplicando máscara de formatação apenas quando CPF for selecionado.
+7. Todos os campos do sistema devem ter um ícone de ajuda (tooltip) ao final da label explicando o propósito do campo de forma localizada (i18n).
 
 ## Ficha tempo
 
@@ -62,9 +65,12 @@
 3. O intervalo/descanso não possui campo de digitação manual. Ele é calculado automaticamente pela diferença (gargalo) entre a saída de um turno e a entrada do turno seguinte.
 4. O sistema suporta até 4 turnos (Entradas/Saídas) diários, calculando a soma líquida de horas trabalhadas e os intervalos entre eles.
 5. Todo lancamento deve respeitar o tenant da organizacao.
+6. Permite-se filtrar a visualização por "Todos" no campo de colaborador/funcionário, consolidando horas totais sob demanda.
+7. O botão "+ Ficha Tempo" é exibido de forma permanente no Header para agilizar a criação em lote a partir de qualquer contexto.
 
 ## Seguranca e compliance
 
 1. Nunca versionar credenciais e segredos.
 2. Evitar mensagens de erro que exponham dados sensiveis.
 3. Acoes administrativas globais devem gerar trilha de auditoria.
+4. Redirecionamento automático de sessão é ativado caso o servidor retorne 401 Unauthorized nas APIs de dados.

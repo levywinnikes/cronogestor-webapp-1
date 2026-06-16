@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppI18nProvider } from "@/components/providers/AppI18nProvider";
+import { ToastContainer } from "@/components/ui/toast";
 import "./globals.css";
 
 import NextTopLoader from 'nextjs-toploader';
@@ -42,6 +43,7 @@ export default function RootLayout({
           speed={200} 
           shadow="0 0 10px #2c9644,0 0 5px #2c9644" 
         />
+        <ToastContainer />
         <AppI18nProvider>{children}</AppI18nProvider>
       </body>
     </html>

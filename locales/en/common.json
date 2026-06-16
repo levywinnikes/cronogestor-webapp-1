@@ -107,15 +107,20 @@
     "buttons": {
       "closeSheet": "Save",
       "addDay": "Add time sheet",
+      "addTimeSheet": "Time Sheet",
       "delete": "Delete",
       "save": "Save"
     },
     "labels": {
       "project": "Project",
-      "employee": "Employee"
+      "employee": "Employee",
+      "allProjects": "All Projects",
+      "allEmployees": "All Employees"
     },
     "table": {
       "date": "Date",
+      "project": "Project",
+      "employee": "Employee",
       "start": "Start Time",
       "end": "End Time",
       "break": "Break",
@@ -148,7 +153,8 @@
       "fullName": "As shown on document",
       "charges": "E.g.: 50%",
       "benefits": "E.g.: 100.00",
-      "document": "CPF or Passport"
+      "document": "CPF or Passport",
+      "docNumber": "Document number"
     },
     "listTitle": "Employee List",
     "tabs": {
@@ -167,7 +173,8 @@
     "fields": {
       "firstName": "First Name",
       "lastName": "Last Name",
-      "document": "Document (CPF or Other)",
+      "document": "Document",
+      "docType": "Document Type",
       "role": "Role / Function",
       "salary": "Base Salary",
       "regime": "Regime",
@@ -189,6 +196,9 @@
       "ctps": "CTPS (Work Card)",
       "pis": "PIS / PASEP",
       "voterCard": "Voter ID Card",
+      "voterCardNumber": "Voter ID - Number",
+      "voterCardZone": "Zone",
+      "voterCardSection": "Section",
       "bank": "Bank Name",
       "agency": "Branch Agency",
       "account": "Account Number",
@@ -201,6 +211,10 @@
     "options": {
       "yes": "Yes",
       "no": "No",
+      "docType": {
+        "cpf": "CPF",
+        "outros": "Others"
+      },
       "marital": {
         "solteiro": "Single",
         "casado": "Married",
@@ -358,6 +372,32 @@
     "states": {
       "empty": "No users found.",
       "loading": "Loading users..."
+    }
+  },
+  "global": {
+    "toast": {
+      "success": "Success",
+      "error": "Error",
+      "saved": "Saved successfully!",
+      "deleted": "Deleted successfully!",
+      "authRequired": "Session expired. Please sign in again."
+    },
+    "tooltips": {
+      "project": "Select the project associated with this entry.",
+      "employee": "Select the employee associated with this entry.",
+      "date": "Select the date when the work was performed.",
+      "firstName": "Enter the employee's first name.",
+      "lastName": "Enter the employee's last name.",
+      "document": "Select the document type and enter its number.",
+      "role": "Role or function of the employee in the company.",
+      "salary": "Gross salary amount paid to the employee.",
+      "regime": "Payment frequency (e.g. daily, fortnightly, monthly).",
+      "hoursPerDay": "Number of contracted daily hours.",
+      "charges": "Estimated social security and labor charges percentage.",
+      "benefits": "Total monthly value of benefits paid.",
+      "voterCardNumber": "Voter registration card number.",
+      "voterCardZone": "Voter registration zone.",
+      "voterCardSection": "Voter registration section."
     }
   }
 }

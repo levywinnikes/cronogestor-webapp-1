@@ -44,11 +44,12 @@
 
 ## Lancamento de ficha tempo
 
-1. Selecionar projeto e colaborador do mesmo tenant.
-2. Lancar datas e jornadas.
-3. Calcular custo por regras vigentes.
-4. Salvar entradas com rastreabilidade.
-5. Fechamento da ficha deve persistir TimeSheet/TimeSheetEntry via endpoint protegido por tenant.
+1. O botão de adicionar ficha tempo fica no cabeçalho (Header) global, permitindo lançar horas de qualquer tela.
+2. No lançamento global, o usuário seleciona obrigatoriamente o projeto, o funcionário, a data e os turnos. O sistema mescla com os lançamentos existentes do mês e salva.
+3. A tela de Ficha Tempo é utilizada para consultas, filtros e edição/exclusão.
+4. O filtro de projeto da Ficha Tempo possui a opção "Todos os Projetos" para permitir visualização consolidada por colaborador.
+5. Edições ou exclusões diretas na tela salvam localmente (se filtrado por projeto) ou persistem automaticamente no banco (se no modo consolidado "Todos").
+6. Fechamento da ficha (salvamento em lote do mês) deve persistir TimeSheet/TimeSheetEntry via endpoint protegido por tenant, exigindo seleção de um projeto específico.
 
 ## Gestao de feriados
 

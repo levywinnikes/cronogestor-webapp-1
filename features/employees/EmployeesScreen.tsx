@@ -31,6 +31,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppButton } from "@/components/ui/button";
+import { InfoTooltip } from "@/components/ui/tooltip";
+import { toast } from "@/components/ui/toast";
 
 type EmployeeRecord = {
   id: string;
@@ -38,6 +40,7 @@ type EmployeeRecord = {
   sobrenome: string;
   cargo: string;
   documento: string;
+  docType: "cpf" | "outros";
   salario: number;
   regime: "dia" | "quinzena" | "mes";
   horasPorDia: number;
@@ -51,6 +54,22 @@ type EmployeeRecord = {
   bankIban: string;
   pixKey: string;
   vtEnabled: boolean;
+  nationality: string;
+  birthDate: string;
+  maritalStatus: string;
+  phone: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  zipCode: string;
+  rg: string;
+  rgIssuer: string;
+  ctps: string;
+  pis: string;
+  voterCardNumber: string;
+  voterCardZone: string;
+  voterCardSection: string;
 };
 
 const EMPTY_EMPLOYEE: EmployeeRecord = {
@@ -59,6 +78,7 @@ const EMPTY_EMPLOYEE: EmployeeRecord = {
   sobrenome: "",
   cargo: "",
   documento: "",
+  docType: "cpf",
   salario: 0,
   regime: "mes",
   horasPorDia: 8,
@@ -72,6 +92,22 @@ const EMPTY_EMPLOYEE: EmployeeRecord = {
   bankIban: "",
   pixKey: "",
   vtEnabled: false,
+  nationality: "",
+  birthDate: "",
+  maritalStatus: "solteiro",
+  phone: "",
+  street: "",
+  number: "",
+  neighborhood: "",
+  city: "",
+  zipCode: "",
+  rg: "",
+  rgIssuer: "",
+  ctps: "",
+  pis: "",
+  voterCardNumber: "",
+  voterCardZone: "",
+  voterCardSection: "",
 };
 
 
@@ -101,6 +137,14 @@ function timeStrToHoursDecimal(time: string): number {
   return h + (m || 0) / 60;
 }
 
+function formatCPF(val: string): string {
+  const clean = val.replace(/\D/g, "");
+  if (clean.length <= 3) return clean;
+  if (clean.length <= 6) return `${clean.slice(0, 3)}.${clean.slice(3)}`;
+  if (clean.length <= 9) return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6)}`;
+  return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6, 9)}-${clean.slice(9, 11)}`;
+}
+
 function validateCPF(cpf: string): boolean {
   const clean = cpf.replace(/\D/g, "");
   if (clean.length === 0) return true; // allow empty while typing or other document types
@@ -119,13 +163,17 @@ function validateCPF(cpf: string): boolean {
   return true;
 }
 
-function mapEmployee(dto: EmployeeDto): EmployeeRecord {
+function mapEmployee(dto: EmployeeDto, existing?: EmployeeRecord): EmployeeRecord {
+  const doc = dto.document ?? "";
+  const cleanDoc = doc.replace(/\D/g, "");
+  const docType = cleanDoc.length === 11 ? "cpf" : "outros";
   return {
     id: dto.id ?? "",
     nome: dto.firstName ?? "",
     sobrenome: dto.lastName ?? "",
     cargo: dto.roleName ?? "",
-    documento: dto.document ?? "",
+    documento: docType === "cpf" ? formatCPF(doc) : doc,
+    docType,
     salario: Number(dto.salary) || 0,
     regime: fromApiRegime(dto.regime),
     horasPorDia: Number(dto.hoursPerDay) || 0,
@@ -139,6 +187,22 @@ function mapEmployee(dto: EmployeeDto): EmployeeRecord {
     bankIban: dto.bankIban ?? "",
     pixKey: dto.pixKey ?? "",
     vtEnabled: dto.vtEnabled ?? false,
+    nationality: dto.nationality ?? "",
+    birthDate: dto.birthDate ?? "",
+    maritalStatus: dto.maritalStatus ?? "solteiro",
+    phone: dto.phone ?? "",
+    street: dto.street ?? "",
+    number: dto.number ?? "",
+    neighborhood: dto.neighborhood ?? "",
+    city: dto.city ?? "",
+    zipCode: dto.zipCode ?? "",
+    rg: dto.rg ?? "",
+    rgIssuer: dto.rgIssuer ?? "",
+    ctps: dto.ctps ?? "",
+    pis: dto.pis ?? "",
+    voterCardNumber: dto.voterCardNumber ?? "",
+    voterCardZone: dto.voterCardZone ?? "",
+    voterCardSection: dto.voterCardSection ?? "",
   };
 }
 
@@ -172,7 +236,7 @@ export default function FuncionariosPageView() {
     const loadEmployees = async () => {
       try {
         const data = await employeeService.getEmployees();
-        const mapped = data.map(mapEmployee);
+        const mapped = data.map((e) => mapEmployee(e));
         setEmployees(mapped);
         if (mapped.length > 0) {
           setSelectedId(mapped[0].id);
@@ -249,7 +313,7 @@ export default function FuncionariosPageView() {
       const payloadData = {
         firstName: formData.nome,
         lastName: formData.sobrenome,
-        document: formData.documento,
+        document: formData.documento.replace(/\D/g, ""), // send unmasked to DB if CPF
         roleName: formData.cargo,
         salary: Number(formData.salario),
         regime: toApiRegime(formData.regime),
@@ -265,17 +329,33 @@ export default function FuncionariosPageView() {
         bankIban: formData.bankIban || null,
         pixKey: formData.pixKey || null,
         vtEnabled: formData.vtEnabled,
+        nationality: formData.nationality || null,
+        birthDate: formData.birthDate || null,
+        maritalStatus: formData.maritalStatus || null,
+        phone: formData.phone || null,
+        street: formData.street || null,
+        number: formData.number || null,
+        neighborhood: formData.neighborhood || null,
+        city: formData.city || null,
+        zipCode: formData.zipCode || null,
+        rg: formData.rg || null,
+        rgIssuer: formData.rgIssuer || null,
+        ctps: formData.ctps || null,
+        pis: formData.pis || null,
+        voterCardNumber: formData.voterCardNumber || null,
+        voterCardZone: formData.voterCardZone || null,
+        voterCardSection: formData.voterCardSection || null,
       };
 
       if (selectedId === null) {
         const created = await employeeService.createEmployee(payloadData);
-        const mapped = mapEmployee(created);
+        const mapped = mapEmployee(created, formData);
         setEmployees((prev) => [...prev, mapped]);
         setSelectedId(mapped.id);
         setFormData(mapped);
       } else {
         const updated = await employeeService.updateEmployee(selectedId, payloadData);
-        const mapped = mapEmployee(updated);
+        const mapped = mapEmployee(updated, formData);
         setEmployees((prev) =>
           prev.map((employee) =>
             employee.id === selectedId ? mapped : employee,
@@ -283,8 +363,11 @@ export default function FuncionariosPageView() {
         );
         setFormData(mapped);
       }
+      toast.success(t("global.toast.saved"));
     } catch (error) {
       console.error("Erro ao salvar funcionario", error);
+      const msg = error instanceof Error ? error.message : t("employees.errors.saveFailed");
+      toast.error(msg);
     } finally {
       setIsSaving(false);
     }
@@ -303,8 +386,11 @@ export default function FuncionariosPageView() {
       } else {
         handleNew();
       }
+      toast.success(t("global.toast.deleted"));
     } catch (error) {
       console.error("Erro ao excluir funcionario", error);
+      const msg = error instanceof Error ? error.message : t("employees.errors.deleteFailed");
+      toast.error(msg);
     } finally {
       setIsDeleting(false);
     }
@@ -532,7 +618,7 @@ export default function FuncionariosPageView() {
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
                       <TextField
-                        label={t("employees.fields.firstName")}
+                        label={<span>{t("employees.fields.firstName")}<InfoTooltip content={t("global.tooltips.firstName")} /></span>}
                         required
                         value={formData.nome || ""}
                         onChange={(e) =>
@@ -540,33 +626,51 @@ export default function FuncionariosPageView() {
                         }
                       />
                       <TextField
-                        label={t("employees.fields.lastName")}
+                        label={<span>{t("employees.fields.lastName")}<InfoTooltip content={t("global.tooltips.lastName")} /></span>}
                         required
                         value={formData.sobrenome || ""}
                         onChange={(e) =>
                           handleInputChange("sobrenome", e.target.value)
                         }
                       />
-                      <TextField
-                        label={t("employees.fields.document")}
+                      <SelectField
+                        label={<span>{t("employees.fields.docType")}<InfoTooltip content={t("global.tooltips.document")} /></span>}
                         required
-                        wrapperClassName="col-span-2"
+                        value={formData.docType || "cpf"}
+                        onChange={(e) => {
+                          const newDocType = e.target.value as "cpf" | "outros";
+                          setFormData((prev) => ({
+                            ...prev,
+                            docType: newDocType,
+                            documento: newDocType === "cpf" ? formatCPF(prev.documento) : prev.documento,
+                          }));
+                        }}
+                        options={[
+                          { value: "cpf", label: t("employees.options.docType.cpf") },
+                          { value: "outros", label: t("employees.options.docType.outros") },
+                        ]}
+                      />
+                      <TextField
+                        label={<span>{t("employees.fields.document")}<InfoTooltip content={t("global.tooltips.document")} /></span>}
+                        required
                         value={formData.documento || ""}
-                        onChange={(e) =>
-                          handleInputChange("documento", e.target.value)
-                        }
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const formatted = formData.docType === "cpf" ? formatCPF(val) : val;
+                          handleInputChange("documento", formatted);
+                        }}
                         error={isCpfInvalid ? t("employees.errors.cpfInvalid") : undefined}
                         placeholder={t("employees.placeholders.document")}
                       />
                       <TextField
-                        label={t("employees.fields.role")}
+                        label={<span>{t("employees.fields.role")}<InfoTooltip content={t("global.tooltips.role")} /></span>}
                         value={formData.cargo || ""}
                         onChange={(e) =>
                           handleInputChange("cargo", e.target.value)
                         }
                       />
                       <TextField
-                        label={t("employees.fields.salary")}
+                        label={<span>{t("employees.fields.salary")}<InfoTooltip content={t("global.tooltips.salary")} /></span>}
                         required
                         type="number"
                         value={formData.salario ?? 0}
@@ -578,7 +682,7 @@ export default function FuncionariosPageView() {
                         }
                       />
                       <SelectField
-                        label={t("employees.fields.regime")}
+                        label={<span>{t("employees.fields.regime")}<InfoTooltip content={t("global.tooltips.regime")} /></span>}
                         required
                         value={formData.regime || "mes"}
                         onChange={(e) =>
@@ -593,7 +697,7 @@ export default function FuncionariosPageView() {
                         options={regimeOptions}
                       />
                       <TextField
-                        label={t("employees.fields.hoursPerDay")}
+                        label={<span>{t("employees.fields.hoursPerDay")}<InfoTooltip content={t("global.tooltips.hoursPerDay")} /></span>}
                         required
                         type="time"
                         value={hoursToTimeStr(formData.horasPorDia)}
@@ -618,7 +722,7 @@ export default function FuncionariosPageView() {
                     />
                     <CardContent className="space-y-4">
                       <TextField
-                        label={t("employees.fields.charges")}
+                        label={<span>{t("employees.fields.charges")}<InfoTooltip content={t("global.tooltips.charges")} /></span>}
                         type="number"
                         value={formData.encargos ?? 0}
                         onChange={(e) =>
@@ -630,7 +734,7 @@ export default function FuncionariosPageView() {
                         placeholder={t("employees.placeholders.charges")}
                       />
                       <TextField
-                        label={t("employees.fields.benefits")}
+                        label={<span>{t("employees.fields.benefits")}<InfoTooltip content={t("global.tooltips.benefits")} /></span>}
                         type="number"
                         value={formData.beneficios ?? 0}
                         onChange={(e) =>
@@ -727,19 +831,27 @@ export default function FuncionariosPageView() {
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
                       <TextField
-                        label={t("employees.fields.fullName")}
-                        wrapperClassName="col-span-2"
-                        placeholder={t("employees.placeholders.fullName")}
+                        label={<span>{t("employees.fields.nationality")}<InfoTooltip content={t("global.tooltips.nationality") ?? "Nacionalidade do colaborador."} /></span>}
+                        value={formData.nationality || ""}
+                        onChange={(e) => handleInputChange("nationality", e.target.value)}
                       />
-                      <TextField label={t("employees.fields.nationality")} />
-                      <TextField label={t("employees.fields.birthDate")} type="date" />
+                      <TextField
+                        label={<span>{t("employees.fields.birthDate")}<InfoTooltip content={t("global.tooltips.birthDate") ?? "Data de nascimento."} /></span>}
+                        type="date"
+                        value={formData.birthDate || ""}
+                        onChange={(e) => handleInputChange("birthDate", e.target.value)}
+                      />
                       <SelectField
-                        label={t("employees.fields.maritalStatus")}
+                        label={<span>{t("employees.fields.maritalStatus")}<InfoTooltip content={t("global.tooltips.maritalStatus") ?? "Estado civil."} /></span>}
+                        value={formData.maritalStatus || "solteiro"}
+                        onChange={(e) => handleInputChange("maritalStatus", e.target.value)}
                         options={maritalOptions}
                       />
                       <TextField
-                        label={t("employees.fields.phone")}
+                        label={<span>{t("employees.fields.phone")}<InfoTooltip content={t("global.tooltips.phone") ?? "Telefone de contato."} /></span>}
                         placeholder="(00) 00000-0000"
+                        value={formData.phone || ""}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
                       />
                     </div>
                   </CardContent>
@@ -754,13 +866,31 @@ export default function FuncionariosPageView() {
                   <CardContent>
                     <div className="grid grid-cols-3 gap-4">
                       <TextField
-                        label={t("employees.fields.street")}
+                        label={<span>{t("employees.fields.street")}<InfoTooltip content={t("global.tooltips.street") ?? "Nome da rua/avenida."} /></span>}
                         wrapperClassName="col-span-2"
+                        value={formData.street || ""}
+                        onChange={(e) => handleInputChange("street", e.target.value)}
                       />
-                      <TextField label={t("employees.fields.number")} />
-                      <TextField label={t("employees.fields.neighborhood")} />
-                      <TextField label={t("employees.fields.city")} />
-                      <TextField label={t("employees.fields.zipCode")} />
+                      <TextField
+                        label={<span>{t("employees.fields.number")}<InfoTooltip content={t("global.tooltips.number") ?? "Número da residência."} /></span>}
+                        value={formData.number || ""}
+                        onChange={(e) => handleInputChange("number", e.target.value)}
+                      />
+                      <TextField
+                        label={<span>{t("employees.fields.neighborhood")}<InfoTooltip content={t("global.tooltips.neighborhood") ?? "Bairro."} /></span>}
+                        value={formData.neighborhood || ""}
+                        onChange={(e) => handleInputChange("neighborhood", e.target.value)}
+                      />
+                      <TextField
+                        label={<span>{t("employees.fields.city")}<InfoTooltip content={t("global.tooltips.city") ?? "Cidade de residência."} /></span>}
+                        value={formData.city || ""}
+                        onChange={(e) => handleInputChange("city", e.target.value)}
+                      />
+                      <TextField
+                        label={<span>{t("employees.fields.zipCode")}<InfoTooltip content={t("global.tooltips.zipCode") ?? "CEP residencial."} /></span>}
+                        value={formData.zipCode || ""}
+                        onChange={(e) => handleInputChange("zipCode", e.target.value)}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -773,14 +903,43 @@ export default function FuncionariosPageView() {
                   />
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
-                      <TextField label={t("employees.fields.rg")} />
-                      <TextField label={t("employees.fields.rgIssuer")} />
-                      <TextField label={t("employees.fields.ctps")} />
-                      <TextField label={t("employees.fields.pis")} />
                       <TextField
-                        label={t("employees.fields.voterCard")}
-                        wrapperClassName="col-span-2"
+                        label={<span>{t("employees.fields.rg")}<InfoTooltip content={t("global.tooltips.rg") ?? "Número do Registro Geral."} /></span>}
+                        value={formData.rg || ""}
+                        onChange={(e) => handleInputChange("rg", e.target.value)}
                       />
+                      <TextField
+                        label={<span>{t("employees.fields.rgIssuer")}<InfoTooltip content={t("global.tooltips.rgIssuer") ?? "Órgão expedidor do RG."} /></span>}
+                        value={formData.rgIssuer || ""}
+                        onChange={(e) => handleInputChange("rgIssuer", e.target.value)}
+                      />
+                      <TextField
+                        label={<span>{t("employees.fields.ctps")}<InfoTooltip content={t("global.tooltips.ctps") ?? "Carteira de Trabalho."} /></span>}
+                        value={formData.ctps || ""}
+                        onChange={(e) => handleInputChange("ctps", e.target.value)}
+                      />
+                      <TextField
+                        label={<span>{t("employees.fields.pis")}<InfoTooltip content={t("global.tooltips.pis") ?? "Número PIS/PASEP."} /></span>}
+                        value={formData.pis || ""}
+                        onChange={(e) => handleInputChange("pis", e.target.value)}
+                      />
+                      <TextField
+                        label={<span>{t("employees.fields.voterCardNumber")}<InfoTooltip content={t("global.tooltips.voterCardNumber")} /></span>}
+                        value={formData.voterCardNumber || ""}
+                        onChange={(e) => handleInputChange("voterCardNumber", e.target.value)}
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <TextField
+                          label={<span>{t("employees.fields.voterCardZone")}<InfoTooltip content={t("global.tooltips.voterCardZone")} /></span>}
+                          value={formData.voterCardZone || ""}
+                          onChange={(e) => handleInputChange("voterCardZone", e.target.value)}
+                        />
+                        <TextField
+                          label={<span>{t("employees.fields.voterCardSection")}<InfoTooltip content={t("global.tooltips.voterCardSection")} /></span>}
+                          value={formData.voterCardSection || ""}
+                          onChange={(e) => handleInputChange("voterCardSection", e.target.value)}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -831,33 +990,6 @@ export default function FuncionariosPageView() {
                         value={formData.bankIban}
                         onChange={(e) => handleInputChange("bankIban", e.target.value)}
                       />
-                      <div className="space-y-1.5 col-span-2">
-                        <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wide">
-                          {t("employees.fields.vt")}
-                        </label>
-                        <div className="flex space-x-4 mt-2">
-                          <label className="flex items-center text-sm cursor-pointer">
-                            <Input
-                               type="radio"
-                               name="vt"
-                               className="mr-2 w-auto"
-                               checked={formData.vtEnabled === true}
-                               onChange={() => handleInputChange("vtEnabled", true)}
-                            />{" "}
-                            {t("employees.options.yes")}
-                          </label>
-                          <label className="flex items-center text-sm cursor-pointer">
-                            <Input
-                               type="radio"
-                               name="vt"
-                               className="mr-2 w-auto"
-                               checked={formData.vtEnabled === false}
-                               onChange={() => handleInputChange("vtEnabled", false)}
-                            />{" "}
-                            {t("employees.options.no")}
-                          </label>
-                        </div>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>

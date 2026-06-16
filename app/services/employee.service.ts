@@ -21,6 +21,22 @@ export interface EmployeeDto {
   bankIban?: string | null;
   pixKey?: string | null;
   vtEnabled?: boolean;
+  nationality?: string | null;
+  birthDate?: string | null;
+  maritalStatus?: string | null;
+  phone?: string | null;
+  street?: string | null;
+  number?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  zipCode?: string | null;
+  rg?: string | null;
+  rgIssuer?: string | null;
+  ctps?: string | null;
+  pis?: string | null;
+  voterCardNumber?: string | null;
+  voterCardZone?: string | null;
+  voterCardSection?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -44,6 +60,22 @@ export interface EmployeeUpsertDto {
   bankIban?: string | null;
   pixKey?: string | null;
   vtEnabled?: boolean;
+  nationality?: string | null;
+  birthDate?: string | null;
+  maritalStatus?: string | null;
+  phone?: string | null;
+  street?: string | null;
+  number?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  zipCode?: string | null;
+  rg?: string | null;
+  rgIssuer?: string | null;
+  ctps?: string | null;
+  pis?: string | null;
+  voterCardNumber?: string | null;
+  voterCardZone?: string | null;
+  voterCardSection?: string | null;
 }
 
 interface ApiResponse<T> {
