@@ -74,6 +74,19 @@
    - Status: PENDENTE
    - Criterio de aceite: disponibilizar na aba lateral de configuracoes um painel para listar, convidar, alterar permissoes e desativar membros da mesma instituicao (tenant) ativa.
 
+4. Ficha tempo: conflito cross-project com divisao de horas.
+   - Status: CONCLUIDO (ADR-0008)
+   - Criterio de aceite:
+     - detectar sobreposicao do mesmo funcionario no mesmo dia entre projetos diferentes;
+     - dividir **somente minutos conflitantes** em partes iguais (1/N: 50/50, 33,33%, etc.);
+     - exibir modal de confirmacao no save (projeto(s), faixa, horas conflitantes, preview efetivo);
+     - exibir modal de impacto antes de excluir entry conflitante;
+     - exibir flag de hora compartilhada na linha do lancamento; tooltip no hover com todos os projetos conflitantes;
+     - recalcular custo com jornada diaria unificada (normal, extra 50/100, sabado, domingo, feriado);
+     - persistir em transacao todos os lancamentos afetados do dia;
+     - manter bloqueio de overlap dentro do mesmo projeto (sem split).
+   - Documentacao: docs/ai/adr/ADR-0008-timesheet-cross-project-overlap-split.md
+
 ## Pendencias para decisao (antes de implementar)
 
 1. Funcionarios: campo "Vale transporte" apareceu como incluir e remover na mesma ata.

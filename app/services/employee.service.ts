@@ -1,11 +1,15 @@
 export type EmployeeRegime = "DIA" | "QUINZENA" | "MES";
 
+export type EmployeeDocumentType = "CPF" | "OTHER";
+
 export interface EmployeeDto {
   id: string;
   employeeCode: string;
   firstName: string;
   lastName: string;
   document: string;
+  documentType?: EmployeeDocumentType;
+  documentTypeOther?: string | null;
   roleName?: string | null;
   salary: string;
   regime: EmployeeRegime;
@@ -45,6 +49,8 @@ export interface EmployeeUpsertDto {
   firstName: string;
   lastName: string;
   document: string;
+  documentType?: EmployeeDocumentType;
+  documentTypeOther?: string | null;
   roleName?: string;
   salary: number;
   regime: EmployeeRegime;

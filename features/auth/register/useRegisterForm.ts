@@ -4,16 +4,19 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { authService, RegisterDto } from "@/app/services/auth.service";
 import { formatDocument } from "./register.formatters";
 import { getRegisterSchema, RegistrationFormValues } from "./register.schemas";
 import { AccountType, PlanId } from "./register.types";
+import { useAppToast } from "@/lib/use-app-toast";
 
 export function useRegisterForm() {
   const router = useRouter();
+  const { t } = useTranslation();
+  const appToast = useAppToast();
   const [selectedPlan, setSelectedPlan] = useState<PlanId>("PREMIUM");
   const [accountType, setAccountType] = useState<AccountType>("PF");
-  const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<RegistrationFormValues>({
@@ -45,11 +48,9 @@ export function useRegisterForm() {
       challenge: "",
       password: "",
     });
-    setErrorMsg("");
   };
 
   const onSubmit = async (data: RegistrationFormValues) => {
-    setErrorMsg("");
     setIsLoading(true);
 
     try {
@@ -60,13 +61,10 @@ export function useRegisterForm() {
       };
 
       await authService.register(payload);
+      appToast.success(t("register.messages.success"));
       router.push("/projetos");
     } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Ocorreu um erro ao criar a conta.";
-      setErrorMsg(message);
+      appToast.fromUnknownError(error, "register.errors.generic");
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +74,6 @@ export function useRegisterForm() {
     form,
     selectedPlan,
     accountType,
-    errorMsg,
     isLoading,
     documentValue,
     setSelectedPlan,

@@ -4,7 +4,8 @@
     "employees": "Funcionários",
     "holidays": "Feriados",
     "settings": "Configurações",
-    "logout": "Sair"
+    "logout": "Sair",
+    "toggleMenu": "Alternar menu"
   },
   "login": {
     "email": "E-mail",
@@ -109,13 +110,82 @@
       "addDay": "Adicionar ficha tempo",
       "addTimeSheet": "Ficha Tempo",
       "delete": "Excluir",
-      "save": "Salvar"
+      "save": "Salvar",
+      "edit": "Editar"
     },
     "labels": {
       "project": "Projeto",
       "employee": "Funcionário",
       "allProjects": "Todos os Projetos",
       "allEmployees": "Todos os Funcionários"
+    },
+    "placeholders": {
+      "selectProject": "Selecione um projeto",
+      "selectEmployee": "Selecione um funcionário"
+    },
+    "form": {
+      "createTitle": "Adicionar Lançamento Diário",
+      "editTitle": "Editar Lançamento Diário",
+      "workDate": "Data de Trabalho",
+      "period": "Período {{number}}",
+      "start": "Entrada",
+      "end": "Saída",
+      "addPeriod": "Adicionar Período {{number}}",
+      "removePeriod": "Remover",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar",
+      "deleteTitle": "Confirmar Exclusão",
+      "deleteMessage": "Tem certeza que deseja excluir este lançamento de horas? Esta ação não pode ser desfeita."
+    },
+    "tooltips": {
+      "project": "Projeto em que as horas serão registradas.",
+      "employee": "Colaborador que executou o trabalho neste dia.",
+      "workDate": "Dia em que o trabalho foi realizado.",
+      "periodIntervals": "Os intervalos são calculados automaticamente com base no tempo de descanso entre a saída de um período e a entrada do período seguinte.",
+      "startTime": "Horário de início do período de trabalho.",
+      "endTime": "Horário de término do período de trabalho.",
+      "filterProject": "Filtra os lançamentos por projeto ou exibe todos os projetos.",
+      "filterEmployee": "Filtra os lançamentos por colaborador ou exibe todos.",
+      "referenceMonth": "Mês de referência para consulta e fechamento da ficha."
+    },
+    "list": {
+      "referenceMonth": "Mês de Referência",
+      "allEntries": "Todos os Lançamentos",
+      "filterByMonth": "Filtrar por Mês",
+      "viewAllMonths": "Ver todos os meses",
+      "summaryTitle": "Resumo da Ficha",
+      "liveBadge": "Ao vivo",
+      "totalHours": "Horas Totais",
+      "overtimeHours": "Extras (OT)",
+      "estimatedCost": "Custo Estimado",
+      "normalHoursLine": "Horas Normais:",
+      "overtime50Line": "Extra 50%:",
+      "overtime100Line": "Extra 100%:",
+      "nightShiftLine": "Adicional Noturno:",
+      "includingCharges": "Incluindo encargos e extras",
+      "dailyRecords": "Registros Diários",
+      "entryCount": "{{count}} registro(s)",
+      "avgPerDay": "Média por Dia",
+      "hoursPerDay": "h/dia",
+      "sheetTotal": "Total da Ficha",
+      "hoursUnit": "horas",
+      "totalCostMobile": "Custo Total",
+      "totalHoursShort": "Total {{hours}}h",
+      "notAvailable": "N/A",
+      "holiday": "Feriado: {{name}}",
+      "sunday": "Domingo",
+      "saturday": "Sábado",
+      "minutesShort": "{{minutes}} min",
+      "periodsDetail": "Períodos do dia",
+      "periodRange": "{{start}} – {{end}}"
+    },
+    "breakdown": {
+      "normal": "Horas Normais",
+      "overtime50": "Hora Extra 50%",
+      "overtime100": "Hora Extra 100%",
+      "normalShort": "Normal: {{hours}}h",
+      "overtime50Short": "Extra 50%: {{hours}}h",
+      "overtime100Short": "Extra 100%: {{hours}}h"
     },
     "table": {
       "date": "Data",
@@ -124,7 +194,10 @@
       "start": "Entrada",
       "end": "Saída",
       "break": "Intervalo",
-      "overtime": "Horas Extras"
+      "overtime": "Horas Extras",
+      "breakdown": "Breakdown (h)",
+      "dayCost": "Custo Dia",
+      "actions": "Ações"
     },
     "footer": {
       "totalWorked": "Total Trabalhado",
@@ -136,7 +209,34 @@
     },
     "errors": {
       "loadContextFailed": "Erro ao carregar contexto da ficha",
-      "closeSheetFailed": "Erro ao fechar ficha tempo"
+      "closeSheetFailed": "Erro ao fechar ficha tempo",
+      "saveFailed": "Falha ao salvar lançamento de horas.",
+      "periodOverlap": "{{periodA}} e {{periodB}} se sobrepõem no mesmo dia.",
+      "entryCollision": "O horário selecionado colide com outro lançamento já existente no dia {{date}} ({{range}}).",
+      "generalDayConflict": "Conflito geral de horários no dia {{date}}. Por favor, revise os períodos."
+    },
+    "sharedHours": {
+      "label": "Hora compartilhada",
+      "tooltipIntro": "Hora compartilhada ({{hours}} rateadas)",
+      "projectLine": "{{code}} — {{name}} — {{hours}} ({{percent}}%) — {{range}}"
+    },
+    "conflict": {
+      "title": "Conflito de horários entre projetos",
+      "description": "Parte do horário coincide com outro projeto. As horas conflitantes serão divididas igualmente (50/50, 33%, etc.) antes de salvar.",
+      "dateLabel": "Dia {{date}}",
+      "conflictingTime": "{{hours}} em conflito · total físico do dia: {{physical}}",
+      "declared": "Declarado",
+      "effective": "Efetivo",
+      "rangeLine": "{{start}} – {{end}} · {{hours}} · {{count}} projetos",
+      "confirm": "Confirmar divisão",
+      "cancel": "Cancelar"
+    },
+    "deleteImpact": {
+      "title": "Excluir lançamento compartilhado",
+      "description": "Ao excluir, os lançamentos restantes serão recalculados:",
+      "noRemaining": "Nenhum outro lançamento será afetado neste dia.",
+      "confirm": "Confirmar exclusão",
+      "cancel": "Cancelar"
     }
   },
   "employees": {
@@ -154,7 +254,8 @@
       "charges": "Ex: 50%",
       "benefits": "Ex: 100,00",
       "document": "000.000.000-00 ou Passaporte",
-      "docNumber": "Número do documento"
+      "docNumber": "Número do documento",
+      "docTypeOther": "Ex: Passaporte, RNE, RG estrangeiro"
     },
     "listTitle": "Lista de Colaboradores",
     "tabs": {
@@ -175,6 +276,7 @@
       "lastName": "Sobrenome",
       "document": "Documento",
       "docType": "Tipo de Documento",
+      "docTypeOther": "Especificar Documento",
       "role": "Cargo / Função",
       "salary": "Salário Base (R$)",
       "regime": "Regime",
@@ -240,7 +342,9 @@
     "errors": {
       "saveFailed": "Erro ao salvar funcionario",
       "deleteFailed": "Erro ao excluir funcionario",
-      "cpfInvalid": "CPF inválido."
+      "cpfInvalid": "CPF inválido.",
+      "docTypeOtherRequired": "Informe qual é o tipo de documento.",
+      "documentRequired": "Informe o número do documento."
     }
   },
   "register": {
@@ -281,6 +385,12 @@
         "email": "seu@email.com",
         "challenge": "Ex: Preciso controlar melhor as horas extras dos funcionarios nas obras..."
       }
+    },
+    "messages": {
+      "success": "Conta criada com sucesso!"
+    },
+    "errors": {
+      "generic": "Ocorreu um erro ao criar a conta."
     },
     "plans": {
       "currencySymbol": "R$",
@@ -389,12 +499,34 @@
       "firstName": "Digite o primeiro nome do colaborador.",
       "lastName": "Digite o sobrenome do colaborador.",
       "document": "Selecione o tipo de documento e digite seu número.",
+      "documentNumber": "Número do documento de identificação do colaborador.",
+      "docTypeOther": "Descreva o tipo quando a opção for Outros (ex.: Passaporte, RNE).",
       "role": "Cargo ou função do colaborador na empresa.",
       "salary": "Valor bruto do salário pago ao colaborador.",
       "regime": "Periodicidade do pagamento (ex: diário, quinzenal, mensal).",
       "hoursPerDay": "Quantidade de horas contratadas de jornada diária.",
       "charges": "Alíquota estimada de encargos sociais e trabalhistas.",
       "benefits": "Valor mensal total de benefícios pagos.",
+      "nationality": "País de origem ou cidadania do colaborador.",
+      "birthDate": "Data de nascimento conforme documento de identificação.",
+      "maritalStatus": "Estado civil atual do colaborador.",
+      "phone": "Telefone celular ou fixo para contato.",
+      "street": "Logradouro do endereço residencial.",
+      "number": "Número do imóvel ou complemento de endereço.",
+      "neighborhood": "Bairro do endereço residencial.",
+      "city": "Cidade do endereço residencial.",
+      "zipCode": "CEP do endereço residencial.",
+      "rg": "Número do Registro Geral (RG).",
+      "rgIssuer": "Órgão emissor e UF do RG.",
+      "ctps": "Número e série da Carteira de Trabalho (CTPS).",
+      "pis": "Número do PIS ou PASEP.",
+      "bankName": "Nome da instituição bancária para pagamento.",
+      "bankAgency": "Número da agência bancária.",
+      "bankAccount": "Número da conta bancária.",
+      "bankAccountDigit": "Dígito verificador da conta.",
+      "pixKey": "Chave PIX para transferências (CPF, e-mail, telefone ou aleatória).",
+      "swift": "Código SWIFT/BIC para transferências internacionais.",
+      "iban": "Código IBAN para contas internacionais.",
       "voterCardNumber": "Número do título de eleitor.",
       "voterCardZone": "Zona eleitoral.",
       "voterCardSection": "Seção eleitoral."

@@ -12,7 +12,6 @@ type RegisterFormCardProps = {
   form: UseFormReturn<RegistrationFormValues>;
   accountType: AccountType;
   documentValue: string;
-  errorMsg: string;
   isLoading: boolean;
   onSwitchAccountType: (accountType: AccountType) => void;
   onDocumentChange: (rawValue: string) => void;
@@ -23,7 +22,6 @@ export function RegisterFormCard({
   form,
   accountType,
   documentValue,
-  errorMsg,
   isLoading,
   onSwitchAccountType,
   onDocumentChange,
@@ -188,12 +186,6 @@ export function RegisterFormCard({
             ) : null}
           </div>
         </div>
-
-        {errorMsg ? (
-          <div className="p-3 bg-red-50 text-red-700 text-sm font-medium rounded-lg border border-red-200">
-            {errorMsg}
-          </div>
-        ) : null}
 
         <AppButton
           type="submit"

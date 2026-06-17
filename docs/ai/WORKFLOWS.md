@@ -50,6 +50,7 @@
 4. O filtro de projeto da Ficha Tempo possui a opção "Todos os Projetos" para permitir visualização consolidada por colaborador.
 5. Edições ou exclusões diretas na tela salvam localmente (se filtrado por projeto) ou persistem automaticamente no banco (se no modo consolidado "Todos").
 6. Fechamento da ficha (salvamento em lote do mês) deve persistir TimeSheet/TimeSheetEntry via endpoint protegido por tenant, exigindo seleção de um projeto específico.
+7. **Conflito entre projetos (ADR-0008):** interseção cross-project divide **apenas o tempo conflitante** em partes iguais (1/N). Save exige modal de confirmação; exclusão de entry conflitante exige modal de impacto nos lançamentos restantes. Lançamentos com hora compartilhada exibem flag na listagem; tooltip no hover lista projetos conflitantes. Jornada usa total físico único do dia. Overlap no **mesmo** projeto continua bloqueado.
 
 ## Gestao de feriados
 

@@ -70,17 +70,17 @@ export function ToastContainer() {
     <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
       {toasts.map((t) => {
         const icons = {
-          success: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
-          error: <XCircle className="w-5 h-5 text-rose-500" />,
-          info: <Info className="w-5 h-5 text-blue-500" />,
-          warning: <AlertTriangle className="w-5 h-5 text-amber-500" />,
+          success: <CheckCircle2 className="w-5 h-5 text-success" />,
+          error: <XCircle className="w-5 h-5 text-danger" />,
+          info: <Info className="w-5 h-5 text-info" />,
+          warning: <AlertTriangle className="w-5 h-5 text-warning" />,
         };
 
         const borderColors = {
-          success: "border-emerald-500/20 bg-emerald-50/90 dark:bg-emerald-950/90",
-          error: "border-rose-500/20 bg-rose-50/90 dark:bg-rose-950/90",
-          info: "border-blue-500/20 bg-blue-50/90 dark:bg-blue-950/90",
-          warning: "border-amber-500/20 bg-amber-50/90 dark:bg-amber-950/90",
+          success: "border-success/20 bg-success-100/90",
+          error: "border-danger/20 bg-danger-100/90",
+          info: "border-info/20 bg-info-100/90",
+          warning: "border-warning/20 bg-warning-100/90",
         };
 
         return (

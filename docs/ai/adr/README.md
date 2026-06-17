@@ -17,6 +17,7 @@ Este diretorio concentra os Architecture Decision Records do projeto.
 - ADR-0005: PROPOSTO - Cadastro e Gestão de Usuários do Tenant.
 - ADR-0006: APROVADO - Reformulação dos Papéis de Acesso e Permissões do Tenant.
 - ADR-0007: APROVADO - Ajuda de Campos (Tooltips), Notificações Globais, Segurança de Sessão e Ajustes Operacionais.
+- ADR-0008: APROVADO - Conflito de horários entre projetos e divisão 1/N do tempo conflitante.
 
 ## Arquivos
 
@@ -27,3 +28,4 @@ Este diretorio concentra os Architecture Decision Records do projeto.
 - [ADR-0005](ADR-0005-user-management.md)
 - [ADR-0006](ADR-0006-role-permissions-revamp.md)
 - [ADR-0007](ADR-0007-field-tooltips-and-employee-timesheet-adjustments.md)
+- [ADR-0008](ADR-0008-timesheet-cross-project-overlap-split.md)

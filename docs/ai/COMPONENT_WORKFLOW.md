@@ -20,6 +20,13 @@
    - `*Card`, `*Grid`, `*Form` para blocos de UI
    - `use*` para hooks
 
+## Feedback ao Usuario (Toast)
+
+1. **Obrigatorio**: usar `useAppToast()` de `lib/use-app-toast.ts` para sucesso, erro, aviso e info apos operacoes (salvar, excluir, falha de API, convite enviado, etc.).
+2. **Proibido**: banners inline na pagina (`successMsg`, `errorMsg`, `bg-green-50`, `bg-red-50`, `bg-danger-100` como feedback de operacao).
+3. **Excecao**: validacao contextual no proprio formulario/modal que impede envio (ex.: overlap de horarios no formulario de ficha tempo) pode permanecer inline no formulario.
+4. Atalhos comuns: `appToast.saved()`, `appToast.deleted()`, `appToast.fromUnknownError(error, "chave.i18n.fallback")`.
+
 ## Regras de Pastas
 
 1. Rotas em `app/**/page.tsx` devem ser wrappers minimos.

@@ -46,10 +46,17 @@ export default function ProjectsPageView() {
       try {
         const [projectsData, dashboardRes] = await Promise.all([
           projectService.getProjects(),
-          fetch("/api/dashboard").then((res) => res.json()),
+          fetch("/api/dashboard", { credentials: "include" }),
         ]);
+
         setProjects(projectsData);
-        setDashboardData(dashboardRes);
+
+        if (dashboardRes.ok) {
+          setDashboardData(await dashboardRes.json());
+        } else {
+          console.error("Dashboard API error:", dashboardRes.status);
+          setDashboardData(null);
+        }
       } catch (error) {
         console.error("Erro ao puxar dados do dashboard", error);
       } finally {

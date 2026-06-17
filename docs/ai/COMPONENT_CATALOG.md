@@ -18,6 +18,7 @@ Catalogar componentes reutilizaveis para evitar duplicacao e orientar IA/humanos
 - `components/ui/dialog.tsx`: `Dialog` (modal/overlay genérico e responsivo com controle de foco e scroll, título e botão de fechar)
 - `components/ui/tooltip.tsx`: `InfoTooltip` (balão de ajuda flutuante para explicar campos e regras ao passar o mouse ou focar)
 - `components/ui/toast.tsx`: `ToastContainer` e utilitário `toast` (sistema de notificações dinâmico e animado para exibir alertas de sucesso, erro, aviso e informação)
+- `lib/use-app-toast.ts`: hook `useAppToast()` — ponto único para feedback de operações (`saved`, `deleted`, `error`, `warning`, `fromUnknownError`); **obrigatório** em telas de feature
 
 ## Design Tokens
 
@@ -49,6 +50,23 @@ Catalogar componentes reutilizaveis para evitar duplicacao e orientar IA/humanos
 ### Holidays
 
 - `features/holidays/HolidaysScreen.tsx`
+
+### Ficha Tempo (cross-project overlap — ADR-0008)
+
+- `features/time-sheet/TimeSheetScreen.tsx`: tela principal de consulta, filtros, save e modais
+- `features/time-sheet/TimeSheetFilters.tsx`: barra de filtros horizontal (projeto, funcionário, período)
+- `features/time-sheet/TimeSheetSummaryCard.tsx`: faixa compacta de KPIs (horas, extras, custo, média/dia)
+- `features/time-sheet/TimeSheetEntriesTable.tsx`: tabela de lançamentos com `EmptyState`, `Badge` e ações
+- `features/time-sheet/time-sheet.formatters.ts`: formatação de moeda, datas e período (Intl)
+- `features/time-sheet/time-sheet-screen.types.ts`: tipos compartilhados da tela
+- `features/time-sheet/TimeSheetEntryForm.tsx`: formulário compartilhado de lançamento diário (projeto, funcionário, data, até 4 períodos); props `values`, `onChange`, `projects`, `employees`, erros e ações
+- `features/time-sheet/TimeSheetEntryDialog.tsx`: modal wrapper com `Dialog` + skeleton de carregamento; reutilizado no Header e na tela de ficha tempo
+- `features/time-sheet/useTimeSheetEntryForm.ts`: estado e validação de overlap do formulário de lançamento
+- `features/time-sheet/time-sheet-entry.validation.ts`: validação de intervalos, overlap entre entries e mapper form → `TimeEntryRecord`
+- `components/time-sheet/SharedHoursIndicator.tsx`: badge + tooltip de hora compartilhada; props `sharedMinutes`, `snapshot`
+- `components/time-sheet/TimeSheetConflictModal.tsx`: confirmação de divisão 1/N antes do save
+- `components/time-sheet/TimeSheetDeleteImpactModal.tsx`: preview de impacto ao excluir entry conflitante
+- `features/time-sheet/useTimeSheetConflictFlow.ts`: hooks de conflito/exclusão e mappers API → UI
 
 ## Politica de Reuso
 

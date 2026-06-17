@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Users, Plus, Edit2, Trash2, Mail, Shield, CheckCircle, AlertTriangle } from "lucide-react";
+import { Users, Plus, Edit2, Trash2, Mail, Shield } from "lucide-react";
 import {
   userService,
   OrganizationMembershipDto,
@@ -16,16 +16,16 @@ import { TextField, SelectField } from "@/components/ui/form-field";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAppToast } from "@/lib/use-app-toast";
 
 export default function UsersScreen() {
   const { t } = useTranslation();
+  const appToast = useAppToast();
 
   // State lists & user session
   const [members, setMembers] = useState<OrganizationMembershipDto[]>([]);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
 
   // Modal controls
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -37,13 +37,11 @@ export default function UsersScreen() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<MembershipRole>("EDITOR");
   const [isSavingInvite, setIsSavingInvite] = useState(false);
-  const [inviteError, setInviteError] = useState("");
 
   // Edit form state
   const [editRole, setEditRole] = useState<MembershipRole>("EDITOR");
   const [editStatus, setEditStatus] = useState<MembershipStatus>("ACTIVE");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
-  const [editError, setEditError] = useState("");
 
   // Deleting indicator
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -51,7 +49,6 @@ export default function UsersScreen() {
   // Load members and session on mount
   const loadData = async () => {
     setIsLoading(true);
-    setErrorMsg("");
     try {
       const [membersData, sessionData] = await Promise.all([
         userService.getUsers(),
@@ -61,7 +58,7 @@ export default function UsersScreen() {
       setCurrentUser(sessionData.user);
     } catch (error: unknown) {
       console.error("Error loading users page data:", error);
-      setErrorMsg(error instanceof Error ? error.message : t("users.states.loadingError"));
+      appToast.fromUnknownError(error, "users.states.loadingError");
     } finally {
       setIsLoading(false);
     }
@@ -71,29 +68,15 @@ export default function UsersScreen() {
     loadData();
   }, []);
 
-  // Show message briefly
-  const showFeedback = (msg: string, isSuccess = true) => {
-    if (isSuccess) {
-      setSuccessMsg(msg);
-      setErrorMsg("");
-      setTimeout(() => setSuccessMsg(""), 5000);
-    } else {
-      setErrorMsg(msg);
-      setSuccessMsg("");
-      setTimeout(() => setErrorMsg(""), 5000);
-    }
-  };
-
   // Actions: Invite
   const handleInviteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteName.trim() || !inviteEmail.trim()) {
-      setInviteError(t("holidays.errors.requiredFields"));
+      appToast.warning(t("holidays.errors.requiredFields"));
       return;
     }
 
     setIsSavingInvite(true);
-    setInviteError("");
     try {
       await userService.inviteUser({
         name: inviteName.trim(),
@@ -111,9 +94,9 @@ export default function UsersScreen() {
       setInviteEmail("");
       setInviteRole("EDITOR");
 
-      showFeedback(t("users.messages.inviteSuccess"));
+      appToast.success(t("users.messages.inviteSuccess"));
     } catch (error: unknown) {
-      setInviteError(error instanceof Error ? error.message : t("users.messages.inviteError"));
+      appToast.fromUnknownError(error, "users.messages.inviteError");
     } finally {
       setIsSavingInvite(false);
     }
@@ -122,13 +105,12 @@ export default function UsersScreen() {
   // Actions: Open Edit Modal
   const handleOpenEdit = (membership: OrganizationMembershipDto) => {
     if (currentUser && membership.userAccountId === currentUser.id) {
-      showFeedback(t("users.messages.selfEditError"), false);
+      appToast.warning(t("users.messages.selfEditError"));
       return;
     }
     setSelectedMembership(membership);
     setEditRole(membership.role);
     setEditStatus(membership.status);
-    setEditError("");
     setIsEditOpen(true);
   };
 
@@ -138,7 +120,6 @@ export default function UsersScreen() {
     if (!selectedMembership) return;
 
     setIsSavingEdit(true);
-    setEditError("");
     try {
       await userService.updateUser({
         membershipId: selectedMembership.id,
@@ -153,9 +134,9 @@ export default function UsersScreen() {
       setIsEditOpen(false);
       setSelectedMembership(null);
 
-      showFeedback(t("users.messages.updateSuccess"));
+      appToast.success(t("users.messages.updateSuccess"));
     } catch (error: unknown) {
-      setEditError(error instanceof Error ? error.message : t("users.messages.updateError"));
+      appToast.fromUnknownError(error, "users.messages.updateError");
     } finally {
       setIsSavingEdit(false);
     }
@@ -164,7 +145,7 @@ export default function UsersScreen() {
   // Actions: Remove / Delete Member
   const handleDeleteMember = async (membership: OrganizationMembershipDto) => {
     if (currentUser && membership.userAccountId === currentUser.id) {
-      showFeedback(t("users.messages.selfDeleteError"), false);
+      appToast.warning(t("users.messages.selfDeleteError"));
       return;
     }
 
@@ -176,9 +157,9 @@ export default function UsersScreen() {
     try {
       await userService.deleteUser(membership.id);
       setMembers((prev) => prev.filter((m) => m.id !== membership.id));
-      showFeedback(t("users.messages.deleteSuccess"));
+      appToast.success(t("users.messages.deleteSuccess"));
     } catch (error: unknown) {
-      showFeedback(error instanceof Error ? error.message : t("users.messages.deleteError"), false);
+      appToast.fromUnknownError(error, "users.messages.deleteError");
     } finally {
       setDeletingId(null);
     }
@@ -224,21 +205,6 @@ export default function UsersScreen() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Feedbacks */}
-      {successMsg && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 text-green-800 text-sm animate-fade-in shadow-sm">
-          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-          <span>{successMsg}</span>
-        </div>
-      )}
-
-      {errorMsg && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-800 text-sm animate-fade-in shadow-sm">
-          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
-          <span>{errorMsg}</span>
-        </div>
-      )}
-
       <Card>
         <CardHeader
           title={t("users.page.title")}
@@ -356,10 +322,7 @@ export default function UsersScreen() {
       {/* Invite Modal */}
       <Dialog
         isOpen={isInviteOpen}
-        onClose={() => {
-          setIsInviteOpen(false);
-          setInviteError("");
-        }}
+        onClose={() => setIsInviteOpen(false)}
         title={t("users.page.inviteTitle")}
       >
         <form onSubmit={handleInviteSubmit} className="space-y-4">
@@ -388,20 +351,11 @@ export default function UsersScreen() {
             icon={<Shield className="w-4 h-4 text-text-muted" />}
           />
 
-          {inviteError && (
-            <div className="p-3 bg-danger-100 border border-red-200 rounded-lg text-danger text-xs font-semibold">
-              {inviteError}
-            </div>
-          )}
-
           <div className="flex justify-end gap-3 pt-2">
             <AppButton
               type="button"
               variant="outline"
-              onClick={() => {
-                setIsInviteOpen(false);
-                setInviteError("");
-              }}
+              onClick={() => setIsInviteOpen(false)}
             >
               {t("users.buttons.cancel")}
             </AppButton>
@@ -415,10 +369,7 @@ export default function UsersScreen() {
       {/* Edit Modal */}
       <Dialog
         isOpen={isEditOpen}
-        onClose={() => {
-          setIsEditOpen(false);
-          setEditError("");
-        }}
+        onClose={() => setIsEditOpen(false)}
         title={t("users.page.editTitle")}
       >
         <form onSubmit={handleEditSubmit} className="space-y-4">
@@ -453,20 +404,11 @@ export default function UsersScreen() {
             options={editStatusOptions}
           />
 
-          {editError && (
-            <div className="p-3 bg-danger-100 border border-red-200 rounded-lg text-danger text-xs font-semibold">
-              {editError}
-            </div>
-          )}
-
           <div className="flex justify-end gap-3 pt-2">
             <AppButton
               type="button"
               variant="outline"
-              onClick={() => {
-                setIsEditOpen(false);
-                setEditError("");
-              }}
+              onClick={() => setIsEditOpen(false)}
             >
               {t("users.buttons.cancel")}
             </AppButton>

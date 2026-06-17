@@ -8,9 +8,18 @@ type DialogProps = {
   title: string;
   children: ReactNode;
   className?: string;
+  /** Sobrepõe outros modais (ex.: conflito de ficha tempo). */
+  stacked?: boolean;
 };
 
-export function Dialog({ isOpen, onClose, title, children, className }: DialogProps) {
+export function Dialog({
+  isOpen,
+  onClose,
+  title,
+  children,
+  className,
+  stacked = false,
+}: DialogProps) {
   // Prevent body scrolling when dialog is open
   useEffect(() => {
     if (isOpen) {
@@ -26,7 +35,12 @@ export function Dialog({ isOpen, onClose, title, children, className }: DialogPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div
+      className={cn(
+        "fixed inset-0 flex items-center justify-center p-4",
+        stacked ? "z-[60]" : "z-50",
+      )}
+    >
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity animate-fade-in" 

@@ -30,6 +30,19 @@ export interface TimeEntryRecord {
   endTime3?: string | null;
   startTime4?: string | null;
   endTime4?: string | null;
+  effectiveMinutes?: number;
+  sharedMinutes?: number;
+  hasSharedMinutes?: boolean;
+  sharedConflictSnapshot?: {
+    conflictingProjects: {
+      projectId: string;
+      projectCode: string;
+      projectName: string;
+      sharedMinutes: number;
+      overlapRanges: { start: string; end: string }[];
+      splitRatio: number;
+    }[];
+  } | null;
 }
 
 type CostCalculationEmployee = {
@@ -91,6 +104,11 @@ export const timeSheetService = {
 
     if (totalWorked < 0) totalWorked = 0;
 
+    const effectiveHours =
+      entry.effectiveMinutes != null && entry.effectiveMinutes > 0
+        ? entry.effectiveMinutes / 60
+        : totalWorked;
+
     let normalHours = 0;
     let overtime50 = 0;
     let overtime100 = 0;
@@ -115,11 +133,11 @@ export const timeSheetService = {
     }
 
     if (isSunday || isHoliday) {
-      overtime100 = totalWorked;
+      overtime100 = effectiveHours;
     } else {
-      if (totalWorked > employee.horasPorDia) {
+      if (effectiveHours > employee.horasPorDia) {
         normalHours = employee.horasPorDia;
-        const extra = totalWorked - employee.horasPorDia;
+        const extra = effectiveHours - employee.horasPorDia;
         if (isSaturday) {
           overtime50 = extra;
         } else {
@@ -131,7 +149,7 @@ export const timeSheetService = {
           }
         }
       } else {
-        normalHours = totalWorked;
+        normalHours = effectiveHours;
       }
     }
 
@@ -161,7 +179,7 @@ export const timeSheetService = {
       nightShiftHours,
       nightShiftCost,
       calculatedCost,
-      totalHours: totalWorked,
+      totalHours: effectiveHours,
       isSunday,
       isSaturday,
       isHoliday,

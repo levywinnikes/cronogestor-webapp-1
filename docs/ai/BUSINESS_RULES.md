@@ -51,7 +51,7 @@
 3. Documento do funcionario deve ser unico no contexto da organizacao.
 4. O campo "Vale transporte" foi removido por decisão de simplificação do formulário.
 5. O campo "Título de Eleitor" deve ser dividido em três campos distintos: "Título - Número", "Zona" e "Seção".
-6. Há um seletor para tipo de documento (CPF vs Outros), aplicando máscara de formatação apenas quando CPF for selecionado.
+6. Há um seletor para tipo de documento (CPF vs Outros), aplicando máscara de formatação apenas quando CPF for selecionado. Quando Outros for selecionado, exibir campo para especificar o tipo (ex.: Passaporte, RNE) e não aplicar validação de CPF no número do documento.
 7. Todos os campos do sistema devem ter um ícone de ajuda (tooltip) ao final da label explicando o propósito do campo de forma localizada (i18n).
 
 ## Ficha tempo
@@ -67,6 +67,7 @@
 5. Todo lancamento deve respeitar o tenant da organizacao.
 6. Permite-se filtrar a visualização por "Todos" no campo de colaborador/funcionário, consolidando horas totais sob demanda.
 7. O botão "+ Ficha Tempo" é exibido de forma permanente no Header para agilizar a criação em lote a partir de qualquer contexto.
+8. **Conflito cross-project (ADR-0008):** sobreposição do mesmo colaborador no mesmo dia em projetos diferentes aplica divisão **igual (1/N) somente sobre os minutos conflitantes** — trechos exclusivos ficam 100% no projeto. Dois projetos = 50/50; três = 33,33% cada; e assim por diante. O usuário confirma em modal antes de salvar. Ao **excluir** um lançamento que participava do conflito, exibir modal de impacto sobre os demais antes de confirmar. Lançamentos com minutos compartilhados exibem **flag de hora compartilhada**; ao passar o mouse, tooltip lista todos os projetos conflitantes. Sobreposição no **mesmo** projeto permanece proibida.
 
 ## Seguranca e compliance
 

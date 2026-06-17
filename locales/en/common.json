@@ -4,7 +4,8 @@
     "employees": "Employees",
     "holidays": "Holidays",
     "settings": "Settings",
-    "logout": "Sign Out"
+    "logout": "Sign Out",
+    "toggleMenu": "Toggle menu"
   },
   "login": {
     "email": "Email",
@@ -109,13 +110,82 @@
       "addDay": "Add time sheet",
       "addTimeSheet": "Time Sheet",
       "delete": "Delete",
-      "save": "Save"
+      "save": "Save",
+      "edit": "Edit"
     },
     "labels": {
       "project": "Project",
       "employee": "Employee",
       "allProjects": "All Projects",
       "allEmployees": "All Employees"
+    },
+    "placeholders": {
+      "selectProject": "Select a project",
+      "selectEmployee": "Select an employee"
+    },
+    "form": {
+      "createTitle": "Add Daily Entry",
+      "editTitle": "Edit Daily Entry",
+      "workDate": "Work Date",
+      "period": "Period {{number}}",
+      "start": "Start",
+      "end": "End",
+      "addPeriod": "Add Period {{number}}",
+      "removePeriod": "Remove",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "deleteTitle": "Confirm Deletion",
+      "deleteMessage": "Are you sure you want to delete this time entry? This action cannot be undone."
+    },
+    "tooltips": {
+      "project": "Project where the hours will be recorded.",
+      "employee": "Employee who performed the work on this day.",
+      "workDate": "Day when the work was performed.",
+      "periodIntervals": "Break intervals are calculated automatically based on rest time between the end of one period and the start of the next.",
+      "startTime": "Start time of the work period.",
+      "endTime": "End time of the work period.",
+      "filterProject": "Filter entries by project or show all projects.",
+      "filterEmployee": "Filter entries by employee or show all.",
+      "referenceMonth": "Reference month for viewing and closing the time sheet."
+    },
+    "list": {
+      "referenceMonth": "Reference Month",
+      "allEntries": "All Entries",
+      "filterByMonth": "Filter by Month",
+      "viewAllMonths": "View all months",
+      "summaryTitle": "Sheet Summary",
+      "liveBadge": "Live",
+      "totalHours": "Total Hours",
+      "overtimeHours": "Overtime (OT)",
+      "estimatedCost": "Estimated Cost",
+      "normalHoursLine": "Normal Hours:",
+      "overtime50Line": "Overtime 50%:",
+      "overtime100Line": "Overtime 100%:",
+      "nightShiftLine": "Night Shift:",
+      "includingCharges": "Including charges and overtime",
+      "dailyRecords": "Daily Records",
+      "entryCount": "{{count}} record(s)",
+      "avgPerDay": "Average per Day",
+      "hoursPerDay": "h/day",
+      "sheetTotal": "Sheet Total",
+      "hoursUnit": "hours",
+      "totalCostMobile": "Total Cost",
+      "totalHoursShort": "Total {{hours}}h",
+      "notAvailable": "N/A",
+      "holiday": "Holiday: {{name}}",
+      "sunday": "Sunday",
+      "saturday": "Saturday",
+      "minutesShort": "{{minutes}} min",
+      "periodsDetail": "Day periods",
+      "periodRange": "{{start}} – {{end}}"
+    },
+    "breakdown": {
+      "normal": "Normal Hours",
+      "overtime50": "Overtime 50%",
+      "overtime100": "Overtime 100%",
+      "normalShort": "Normal: {{hours}}h",
+      "overtime50Short": "OT 50%: {{hours}}h",
+      "overtime100Short": "OT 100%: {{hours}}h"
     },
     "table": {
       "date": "Date",
@@ -124,7 +194,10 @@
       "start": "Start Time",
       "end": "End Time",
       "break": "Break",
-      "overtime": "Overtime"
+      "overtime": "Overtime",
+      "breakdown": "Breakdown (h)",
+      "dayCost": "Day Cost",
+      "actions": "Actions"
     },
     "footer": {
       "totalWorked": "Total Worked",
@@ -136,7 +209,34 @@
     },
     "errors": {
       "loadContextFailed": "Error loading timesheet context",
-      "closeSheetFailed": "Error closing timesheet"
+      "closeSheetFailed": "Error closing timesheet",
+      "saveFailed": "Failed to save time entry.",
+      "periodOverlap": "{{periodA}} and {{periodB}} overlap on the same day.",
+      "entryCollision": "The selected time conflicts with another entry on {{date}} ({{range}}).",
+      "generalDayConflict": "General schedule conflict on {{date}}. Please review the periods."
+    },
+    "sharedHours": {
+      "label": "Shared hours",
+      "tooltipIntro": "Shared hours ({{hours}} split)",
+      "projectLine": "{{code}} — {{name}} — {{hours}} ({{percent}}%) — {{range}}"
+    },
+    "conflict": {
+      "title": "Cross-project time conflict",
+      "description": "Part of this entry overlaps another project. Conflicting time will be split equally (50/50, 33%, etc.) before saving.",
+      "dateLabel": "Date {{date}}",
+      "conflictingTime": "{{hours}} in conflict · physical day total: {{physical}}",
+      "declared": "Declared",
+      "effective": "Effective",
+      "rangeLine": "{{start}} – {{end}} · {{hours}} · {{count}} projects",
+      "confirm": "Confirm split",
+      "cancel": "Cancel"
+    },
+    "deleteImpact": {
+      "title": "Delete shared entry",
+      "description": "If you delete, remaining entries will be recalculated:",
+      "noRemaining": "No other entries will be affected on this day.",
+      "confirm": "Confirm delete",
+      "cancel": "Cancel"
     }
   },
   "employees": {
@@ -154,7 +254,8 @@
       "charges": "E.g.: 50%",
       "benefits": "E.g.: 100.00",
       "document": "CPF or Passport",
-      "docNumber": "Document number"
+      "docNumber": "Document number",
+      "docTypeOther": "E.g.: Passport, foreign ID"
     },
     "listTitle": "Employee List",
     "tabs": {
@@ -175,6 +276,7 @@
       "lastName": "Last Name",
       "document": "Document",
       "docType": "Document Type",
+      "docTypeOther": "Specify Document Type",
       "role": "Role / Function",
       "salary": "Base Salary",
       "regime": "Regime",
@@ -240,7 +342,9 @@
     "errors": {
       "saveFailed": "Error saving employee",
       "deleteFailed": "Error deleting employee",
-      "cpfInvalid": "Invalid CPF."
+      "cpfInvalid": "Invalid CPF.",
+      "docTypeOtherRequired": "Specify the document type.",
+      "documentRequired": "Enter the document number."
     }
   },
   "register": {
@@ -281,6 +385,12 @@
         "email": "you@company.com",
         "challenge": "Example: I need better control of overtime across construction sites..."
       }
+    },
+    "messages": {
+      "success": "Account created successfully!"
+    },
+    "errors": {
+      "generic": "An error occurred while creating your account."
     },
     "plans": {
       "currencySymbol": "$",
@@ -389,12 +499,34 @@
       "firstName": "Enter the employee's first name.",
       "lastName": "Enter the employee's last name.",
       "document": "Select the document type and enter its number.",
+      "documentNumber": "Identification document number for the employee.",
+      "docTypeOther": "Describe the type when Others is selected (e.g. Passport, foreign ID).",
       "role": "Role or function of the employee in the company.",
       "salary": "Gross salary amount paid to the employee.",
       "regime": "Payment frequency (e.g. daily, fortnightly, monthly).",
       "hoursPerDay": "Number of contracted daily hours.",
       "charges": "Estimated social security and labor charges percentage.",
       "benefits": "Total monthly value of benefits paid.",
+      "nationality": "Country of origin or citizenship of the employee.",
+      "birthDate": "Date of birth as shown on the identification document.",
+      "maritalStatus": "Current marital status of the employee.",
+      "phone": "Mobile or landline phone number for contact.",
+      "street": "Street name of the residential address.",
+      "number": "Building number or address complement.",
+      "neighborhood": "Neighborhood of the residential address.",
+      "city": "City of the residential address.",
+      "zipCode": "Postal/ZIP code of the residential address.",
+      "rg": "Brazilian ID card (RG) number.",
+      "rgIssuer": "Issuing agency and state of the RG.",
+      "ctps": "Work card (CTPS) number and series.",
+      "pis": "PIS or PASEP number.",
+      "bankName": "Bank name for salary payments.",
+      "bankAgency": "Bank branch number.",
+      "bankAccount": "Bank account number.",
+      "bankAccountDigit": "Account check digit.",
+      "pixKey": "PIX key for transfers (CPF, email, phone, or random key).",
+      "swift": "SWIFT/BIC code for international transfers.",
+      "iban": "IBAN code for international accounts.",
       "voterCardNumber": "Voter registration card number.",
       "voterCardZone": "Voter registration zone.",
       "voterCardSection": "Voter registration section."

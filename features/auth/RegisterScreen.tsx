@@ -21,7 +21,6 @@ export default function RegisterScreen() {
     form,
     selectedPlan,
     accountType,
-    errorMsg,
     isLoading,
     documentValue,
     setSelectedPlan,
@@ -55,7 +54,6 @@ export default function RegisterScreen() {
           form={form}
           accountType={accountType}
           documentValue={documentValue || ""}
-          errorMsg={errorMsg}
           isLoading={isLoading}
           onSwitchAccountType={switchAccountType}
           onDocumentChange={handleDocumentChange}

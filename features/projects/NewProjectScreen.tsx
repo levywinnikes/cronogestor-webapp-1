@@ -17,6 +17,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppButton } from "@/components/ui/button";
+import { useAppToast } from "@/lib/use-app-toast";
 
 const createProjectSchema = (t: (key: string) => string) =>
   z.object({
@@ -59,9 +60,9 @@ type ProjectFormScreenProps = {
 export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const appToast = useAppToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingProject, setIsFetchingProject] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
   const isEditMode = Boolean(projectId);
   const projectSchema = createProjectSchema(t);
 
@@ -110,7 +111,6 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
 
     const loadProject = async () => {
       setIsFetchingProject(true);
-      setErrorMsg("");
       try {
         const project = await projectService.getProjectById(projectId);
         const formatDecimalToBRL = (val?: any) => {
@@ -142,11 +142,7 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
           hasTaskList: project.hasTaskList ?? false,
         });
       } catch (error: unknown) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : t("projects.errors.loadFailed");
-        setErrorMsg(message);
+        appToast.fromUnknownError(error, "projects.errors.loadFailed");
       } finally {
         setIsFetchingProject(false);
       }
@@ -173,7 +169,6 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
 
   const onSubmit = async (data: ProjectFormValues) => {
     setIsLoading(true);
-    setErrorMsg("");
     try {
       const cleanBudget = totalBudget
         ? totalBudget.replace(/[R$\s.]/g, "").replace(",", ".")
@@ -213,13 +208,10 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
       } else {
         await projectService.addProject(payload);
       }
+      appToast.saved();
       router.push("/projetos");
     } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : t("projects.errors.saveFailed");
-      setErrorMsg(message);
+      appToast.fromUnknownError(error, "projects.errors.saveFailed");
     } finally {
       setIsLoading(false);
     }
@@ -464,12 +456,6 @@ export function ProjectFormScreen({ projectId }: ProjectFormScreenProps) {
           </Card>
           </>
           )}
-
-          {errorMsg ? (
-            <div className="p-4 bg-danger-100 border border-red-200 rounded-lg text-danger text-sm font-bold">
-              {errorMsg}
-            </div>
-          ) : null}
         </form>
       </PageMain>
 

@@ -12,6 +12,7 @@ import Link from "next/link";
 import { TextField } from "@/components/ui/form-field";
 import { PageShell } from "@/components/ui/page-shell";
 import { PublicHeader } from "@/components/PublicHeader";
+import { useAppToast } from "@/lib/use-app-toast";
 
 export function LoginPageView() {
   const { t } = useTranslation();
@@ -32,7 +33,7 @@ export function LoginPageView() {
   type LoginFormValues = z.infer<typeof loginSchema>;
 
   const router = useRouter();
-  const [errorMsg, setErrorMsg] = useState("");
+  const appToast = useAppToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
 
@@ -46,7 +47,6 @@ export function LoginPageView() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    setErrorMsg("");
     setIsLoading(true);
 
     try {
@@ -58,11 +58,7 @@ export function LoginPageView() {
         router.push("/projetos");
       }
     } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : t("login.errors.invalidCredentials");
-      setErrorMsg(message);
+      appToast.fromUnknownError(error, "login.errors.invalidCredentials");
     } finally {
       setIsLoading(false);
     }
@@ -133,12 +129,6 @@ export function LoginPageView() {
             error={errors.password?.message}
             {...register("password")}
           />
-
-          {errorMsg ? (
-            <div className="text-red-600 text-xs font-medium text-center py-1">
-              {errorMsg}
-            </div>
-          ) : null}
 
           <div className="pt-2">
             <button

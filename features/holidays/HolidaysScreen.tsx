@@ -15,6 +15,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppButton } from "@/components/ui/button";
 import { TextField, SelectField } from "@/components/ui/form-field";
+import { useAppToast } from "@/lib/use-app-toast";
 
 const HOLIDAY_TYPE_OPTIONS: Array<{ value: HolidayType; label: string }> = [
   { value: "ORGANIZACAO", label: "Organização" },
@@ -25,11 +26,11 @@ const HOLIDAY_TYPE_OPTIONS: Array<{ value: HolidayType; label: string }> = [
 
 export default function HolidaysScreen() {
   const { t } = useTranslation();
+  const appToast = useAppToast();
 
   const [holidays, setHolidays] = useState<HolidayDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
 
   const [date, setDate] = useState("");
   const [name, setName] = useState("");
@@ -38,16 +39,11 @@ export default function HolidaysScreen() {
   useEffect(() => {
     const fetchHolidays = async () => {
       setIsLoading(true);
-      setErrorMsg("");
       try {
         const data = await holidayService.getHolidays();
         setHolidays(data);
       } catch (error: unknown) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : t("holidays.errors.loadFailed");
-        setErrorMsg(message);
+        appToast.fromUnknownError(error, "holidays.errors.loadFailed");
       } finally {
         setIsLoading(false);
       }
@@ -58,12 +54,11 @@ export default function HolidaysScreen() {
 
   const handleAddHoliday = async () => {
     if (!date || !name.trim()) {
-      setErrorMsg(t("holidays.errors.requiredFields"));
+      appToast.warning(t("holidays.errors.requiredFields"));
       return;
     }
 
     setIsSaving(true);
-    setErrorMsg("");
     try {
       const holiday = await holidayService.addHoliday({
         date,
@@ -78,28 +73,21 @@ export default function HolidaysScreen() {
       setDate("");
       setName("");
       setType("ORGANIZACAO");
+      appToast.saved();
     } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : t("holidays.errors.saveFailed");
-      setErrorMsg(message);
+      appToast.fromUnknownError(error, "holidays.errors.saveFailed");
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDeleteHoliday = async (id: string) => {
-    setErrorMsg("");
     try {
       await holidayService.deleteHoliday(id);
       setHolidays((current) => current.filter((item) => item.id !== id));
+      appToast.deleted();
     } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : t("holidays.errors.deleteFailed");
-      setErrorMsg(message);
+      appToast.fromUnknownError(error, "holidays.errors.deleteFailed");
     }
   };
 
@@ -194,12 +182,6 @@ export default function HolidaysScreen() {
           </div>
         )}
       </Card>
-
-      {errorMsg ? (
-        <div className="p-4 bg-danger-100 border border-red-200 rounded-lg text-danger text-sm">
-          {errorMsg}
-        </div>
-      ) : null}
     </div>
   );
 }
